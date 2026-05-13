@@ -1,0 +1,444 @@
+// ============================================================
+// FITTRACK PRO — DATA.JS
+// 100% Vegetarian · Gujarati Brahmin focus
+// ============================================================
+
+// ----------------------------------------------------------
+// FOOD DATABASE
+// Pure vegetarian — no eggs, no meat, no fish
+// Cal/macros per single default serving
+// Micros: fiber(g), sodium(mg), calcium(mg), iron(mg), vitC(mg)
+// ----------------------------------------------------------
+const FOODS = [
+
+  // ── GUJARATI BREAKFAST ──────────────────────────────────
+  { id:1,   name:"Thepla (Plain)",        cat:"breakfast", emoji:"🫓", serving:2,  unit:"pieces",  cal:300, pro:8,   carb:48, fat:10,  fiber:3,   sodium:340, calcium:60,  iron:2.5, vitC:2  },
+  { id:2,   name:"Methi Thepla",          cat:"breakfast", emoji:"🫓", serving:2,  unit:"pieces",  cal:320, pro:9,   carb:48, fat:11,  fiber:4,   sodium:360, calcium:80,  iron:3,   vitC:5  },
+  { id:3,   name:"Khakhra (Plain)",        cat:"breakfast", emoji:"🫓", serving:3,  unit:"pieces",  cal:135, pro:4,   carb:22, fat:4,   fiber:2,   sodium:200, calcium:25,  iron:1.5, vitC:0  },
+  { id:4,   name:"Methi Khakhra",         cat:"breakfast", emoji:"🫓", serving:3,  unit:"pieces",  cal:150, pro:4.5, carb:22, fat:5,   fiber:3,   sodium:220, calcium:40,  iron:2,   vitC:2  },
+  { id:5,   name:"Pudla / Besan Chilla",  cat:"breakfast", emoji:"🥞", serving:2,  unit:"pieces",  cal:300, pro:16,  carb:38, fat:8,   fiber:4,   sodium:350, calcium:60,  iron:3,   vitC:5  },
+  { id:6,   name:"Sev Tameta",            cat:"breakfast", emoji:"🍅", serving:1,  unit:"bowl",    cal:220, pro:6,   carb:28, fat:10,  fiber:2.5, sodium:380, calcium:35,  iron:1.5, vitC:15 },
+  { id:7,   name:"Batata Poha",           cat:"breakfast", emoji:"🥣", serving:1,  unit:"bowl",    cal:280, pro:5,   carb:55, fat:5,   fiber:2,   sodium:320, calcium:25,  iron:2,   vitC:8  },
+  { id:8,   name:"Dudhi Muthiya",         cat:"breakfast", emoji:"🟢", serving:3,  unit:"pieces",  cal:270, pro:9,   carb:42, fat:8,   fiber:4,   sodium:300, calcium:80,  iron:2.5, vitC:10 },
+  { id:9,   name:"Handvo (slice)",        cat:"breakfast", emoji:"🟨", serving:2,  unit:"slices",  cal:360, pro:14,  carb:52, fat:10,  fiber:5,   sodium:420, calcium:90,  iron:3,   vitC:8  },
+  { id:10,  name:"Sukhdi / Gol Papdi",   cat:"breakfast", emoji:"🟡", serving:2,  unit:"pieces",  cal:300, pro:5,   carb:40, fat:14,  fiber:1.5, sodium:80,  calcium:60,  iron:1.5, vitC:0  },
+  { id:11,  name:"Bajri Rotlo",           cat:"breakfast", emoji:"🫓", serving:1,  unit:"piece",   cal:180, pro:5,   carb:33, fat:4,   fiber:4,   sodium:160, calcium:50,  iron:2.8, vitC:0  },
+  { id:12,  name:"Fafda",                 cat:"breakfast", emoji:"🟡", serving:2,  unit:"pieces",  cal:180, pro:5,   carb:22, fat:8,   fiber:2,   sodium:340, calcium:30,  iron:1.5, vitC:0  },
+  { id:13,  name:"Jalebi",               cat:"breakfast", emoji:"🍥", serving:2,  unit:"pieces",  cal:150, pro:1,   carb:35, fat:2,   fiber:0,   sodium:20,  calcium:10,  iron:0.5, vitC:0  },
+  { id:14,  name:"Sev Usal",             cat:"breakfast", emoji:"🍛", serving:1,  unit:"bowl",    cal:320, pro:12,  carb:45, fat:10,  fiber:6,   sodium:450, calcium:60,  iron:3.5, vitC:8  },
+  { id:15,  name:"Khandvi",              cat:"breakfast", emoji:"🟡", serving:6,  unit:"pieces",  cal:200, pro:8,   carb:27, fat:6,   fiber:2,   sodium:320, calcium:80,  iron:1.5, vitC:3  },
+  { id:16,  name:"Dhokla",               cat:"breakfast", emoji:"🟨", serving:4,  unit:"pieces",  cal:220, pro:9,   carb:36, fat:4,   fiber:2.5, sodium:400, calcium:50,  iron:2,   vitC:3  },
+  { id:17,  name:"Muthiya (steamed)",    cat:"breakfast", emoji:"🟢", serving:3,  unit:"pieces",  cal:240, pro:9,   carb:38, fat:7,   fiber:4,   sodium:280, calcium:80,  iron:2.5, vitC:8  },
+  { id:18,  name:"Rava Idli",            cat:"breakfast", emoji:"🥘", serving:2,  unit:"pieces",  cal:160, pro:5,   carb:30, fat:3,   fiber:1.5, sodium:280, calcium:25,  iron:1,   vitC:0  },
+  { id:19,  name:"Idli",                 cat:"breakfast", emoji:"🥘", serving:3,  unit:"pieces",  cal:117, pro:5,   carb:24, fat:1.2, fiber:1.5, sodium:270, calcium:30,  iron:0.6, vitC:0  },
+  { id:20,  name:"Dosa (Plain)",          cat:"breakfast", emoji:"🫓", serving:1,  unit:"piece",   cal:133, pro:3.4, carb:24, fat:2.6, fiber:1,   sodium:230, calcium:15,  iron:0.8, vitC:0  },
+  { id:21,  name:"Masala Dosa",          cat:"breakfast", emoji:"🫓", serving:1,  unit:"piece",   cal:350, pro:8,   carb:55, fat:11,  fiber:3,   sodium:450, calcium:40,  iron:1.5, vitC:10 },
+  { id:22,  name:"Upma",                 cat:"breakfast", emoji:"🥣", serving:1,  unit:"bowl",    cal:250, pro:6,   carb:40, fat:8,   fiber:2.5, sodium:380, calcium:30,  iron:1.5, vitC:4  },
+  { id:23,  name:"Shiro / Halwa",        cat:"breakfast", emoji:"🟡", serving:1,  unit:"bowl",    cal:280, pro:4,   carb:38, fat:13,  fiber:1,   sodium:40,  calcium:30,  iron:1,   vitC:0  },
+
+  // ── DAIRY / MILK / CURD ──────────────────────────────────
+  { id:30,  name:"Full Fat Milk",         cat:"breakfast", emoji:"🥛", serving:1,  unit:"glass",   cal:150, pro:8,   carb:11.5,fat:8,  fiber:0,   sodium:105, calcium:280, iron:0.1, vitC:0  },
+  { id:31,  name:"Toned Milk",            cat:"breakfast", emoji:"🥛", serving:1,  unit:"glass",   cal:120, pro:8,   carb:11,  fat:4.5, fiber:0,   sodium:105, calcium:295, iron:0.1, vitC:0  },
+  { id:32,  name:"Dahi / Curd",           cat:"breakfast", emoji:"🫙", serving:1,  unit:"bowl",    cal:100, pro:5,   carb:8,   fat:4,   fiber:0,   sodium:80,  calcium:180, iron:0.1, vitC:1  },
+  { id:33,  name:"Masala Chaas",          cat:"breakfast", emoji:"🥛", serving:1,  unit:"glass",   cal:50,  pro:2.5, carb:6,   fat:1,   fiber:0,   sodium:200, calcium:120, iron:0,   vitC:2  },
+  { id:34,  name:"Shrikhand (1 bowl)",   cat:"breakfast", emoji:"🍮", serving:1,  unit:"bowl",    cal:320, pro:8,   carb:50,  fat:10,  fiber:0,   sodium:60,  calcium:250, iron:0.2, vitC:1  },
+  { id:35,  name:"Basundi",               cat:"breakfast", emoji:"🥛", serving:1,  unit:"bowl",    cal:250, pro:8,   carb:38,  fat:8,   fiber:0,   sodium:90,  calcium:300, iron:0.2, vitC:1  },
+  { id:36,  name:"Doodh Pak",            cat:"breakfast", emoji:"🍚", serving:1,  unit:"bowl",    cal:300, pro:9,   carb:52,  fat:7,   fiber:0.5, sodium:80,  calcium:280, iron:0.5, vitC:2  },
+  { id:37,  name:"Paneer (raw, 100g)",   cat:"breakfast", emoji:"🧀", serving:100,unit:"g",       cal:265, pro:18,  carb:3,   fat:20,  fiber:0,   sodium:400, calcium:480, iron:0.5, vitC:0  },
+
+  // ── CEREALS & SPREADS ────────────────────────────────────
+  { id:40,  name:"Oatmeal (cooked)",      cat:"breakfast", emoji:"🥣", serving:1,  unit:"bowl",    cal:150, pro:5,   carb:27,  fat:3,   fiber:4,   sodium:10,  calcium:20,  iron:2,   vitC:0  },
+  { id:41,  name:"Bread (Whole Wheat)",   cat:"breakfast", emoji:"🍞", serving:2,  unit:"slices",  cal:160, pro:7,   carb:28,  fat:2.5, fiber:4,   sodium:280, calcium:40,  iron:2.5, vitC:0  },
+  { id:42,  name:"Peanut Butter",         cat:"breakfast", emoji:"🥜", serving:2,  unit:"tbsp",    cal:190, pro:8,   carb:6,   fat:16,  fiber:2,   sodium:150, calcium:15,  iron:0.6, vitC:0  },
+  { id:43,  name:"Banana",               cat:"breakfast", emoji:"🍌", serving:1,  unit:"medium",  cal:105, pro:1.3, carb:27,  fat:0.4, fiber:3,   sodium:1,   calcium:5,   iron:0.3, vitC:10 },
+  { id:44,  name:"Apple",                cat:"breakfast", emoji:"🍎", serving:1,  unit:"medium",  cal:95,  pro:0.5, carb:25,  fat:0.3, fiber:4.4, sodium:2,   calcium:10,  iron:0.2, vitC:8  },
+
+  // ── GUJARATI LUNCH / DINNER ──────────────────────────────
+  { id:50,  name:"Rotli / Chapati",       cat:"lunch",     emoji:"🫓", serving:2,  unit:"pieces",  cal:160, pro:5,   carb:30,  fat:3,   fiber:3,   sodium:160, calcium:25,  iron:2,   vitC:0  },
+  { id:51,  name:"Bajri Rotla",           cat:"lunch",     emoji:"🫓", serving:1,  unit:"piece",   cal:180, pro:5,   carb:33,  fat:4,   fiber:4,   sodium:160, calcium:50,  iron:2.8, vitC:0  },
+  { id:52,  name:"Steamed Rice",          cat:"lunch",     emoji:"🍚", serving:1,  unit:"bowl",    cal:195, pro:4,   carb:43,  fat:0.4, fiber:0.6, sodium:5,   calcium:10,  iron:0.4, vitC:0  },
+  { id:53,  name:"Dal Dhokli",            cat:"lunch",     emoji:"🍲", serving:1,  unit:"bowl",    cal:280, pro:10,  carb:45,  fat:7,   fiber:5,   sodium:420, calcium:70,  iron:2.8, vitC:5  },
+  { id:54,  name:"Gujarati Kadhi",        cat:"lunch",     emoji:"🥣", serving:1,  unit:"bowl",    cal:120, pro:4,   carb:18,  fat:4,   fiber:0.5, sodium:350, calcium:140, iron:0.3, vitC:2  },
+  { id:55,  name:"Dal (Toor / Arhar)",    cat:"lunch",     emoji:"🍲", serving:1,  unit:"bowl",    cal:180, pro:10,  carb:28,  fat:3,   fiber:6,   sodium:350, calcium:60,  iron:3,   vitC:3  },
+  { id:56,  name:"Undhiyu",              cat:"lunch",     emoji:"🍛", serving:1,  unit:"bowl",    cal:250, pro:8,   carb:32,  fat:10,  fiber:7,   sodium:480, calcium:80,  iron:3,   vitC:20 },
+  { id:57,  name:"Valor Papdi Shaak",    cat:"lunch",     emoji:"🟢", serving:1,  unit:"bowl",    cal:160, pro:6,   carb:22,  fat:5,   fiber:5,   sodium:340, calcium:60,  iron:2.5, vitC:10 },
+  { id:58,  name:"Tindora Shaak",        cat:"lunch",     emoji:"🥗", serving:1,  unit:"bowl",    cal:100, pro:3,   carb:15,  fat:3,   fiber:3,   sodium:280, calcium:40,  iron:1.5, vitC:15 },
+  { id:59,  name:"Dudhi Shaak",          cat:"lunch",     emoji:"🟢", serving:1,  unit:"bowl",    cal:80,  pro:2,   carb:12,  fat:2.5, fiber:2.5, sodium:240, calcium:30,  iron:0.8, vitC:12 },
+  { id:60,  name:"Ringan Batata Shaak",  cat:"lunch",     emoji:"🍆", serving:1,  unit:"bowl",    cal:150, pro:3,   carb:24,  fat:5,   fiber:4,   sodium:320, calcium:30,  iron:1.5, vitC:8  },
+  { id:61,  name:"Bhindi Shaak",         cat:"lunch",     emoji:"🥬", serving:1,  unit:"bowl",    cal:120, pro:3,   carb:18,  fat:4,   fiber:3.5, sodium:300, calcium:60,  iron:1.8, vitC:20 },
+  { id:62,  name:"Turiya Shaak",         cat:"lunch",     emoji:"🟢", serving:1,  unit:"bowl",    cal:90,  pro:2,   carb:14,  fat:3,   fiber:2.5, sodium:260, calcium:35,  iron:1,   vitC:12 },
+  { id:63,  name:"Batata nu Shaak",      cat:"lunch",     emoji:"🥔", serving:1,  unit:"bowl",    cal:170, pro:3,   carb:28,  fat:5,   fiber:3,   sodium:320, calcium:20,  iron:1.2, vitC:20 },
+  { id:64,  name:"Sev Tameta Shaak",     cat:"lunch",     emoji:"🍅", serving:1,  unit:"bowl",    cal:220, pro:6,   carb:28,  fat:10,  fiber:2.5, sodium:380, calcium:35,  iron:1.5, vitC:15 },
+  { id:65,  name:"Rajma",               cat:"lunch",     emoji:"🫘", serving:1,  unit:"bowl",    cal:240, pro:13,  carb:40,  fat:3,   fiber:8,   sodium:400, calcium:80,  iron:4,   vitC:2  },
+  { id:66,  name:"Chole / Chana",       cat:"lunch",     emoji:"🫘", serving:1,  unit:"bowl",    cal:250, pro:12,  carb:38,  fat:5,   fiber:9,   sodium:380, calcium:90,  iron:4.5, vitC:3  },
+  { id:67,  name:"Moong Dal",           cat:"lunch",     emoji:"🟡", serving:1,  unit:"bowl",    cal:150, pro:10,  carb:24,  fat:1.5, fiber:7,   sodium:280, calcium:45,  iron:2.5, vitC:2  },
+  { id:68,  name:"Vaghareli Khichdi",   cat:"lunch",     emoji:"🥣", serving:1,  unit:"bowl",    cal:290, pro:9,   carb:52,  fat:6,   fiber:4,   sodium:380, calcium:35,  iron:2,   vitC:2  },
+  { id:69,  name:"Bajri Khichdi",       cat:"lunch",     emoji:"🥣", serving:1,  unit:"bowl",    cal:280, pro:9,   carb:50,  fat:5,   fiber:5,   sodium:350, calcium:50,  iron:2.5, vitC:0  },
+  { id:70,  name:"Paneer Butter Masala",cat:"lunch",     emoji:"🍛", serving:1,  unit:"serving", cal:350, pro:16,  carb:22,  fat:22,  fiber:3,   sodium:600, calcium:320, iron:1.5, vitC:5  },
+  { id:71,  name:"Palak Paneer",        cat:"lunch",     emoji:"🍛", serving:1,  unit:"serving", cal:280, pro:14,  carb:15,  fat:18,  fiber:4,   sodium:550, calcium:400, iron:3.5, vitC:20 },
+  { id:72,  name:"Sambar",              cat:"lunch",     emoji:"🍲", serving:1,  unit:"bowl",    cal:130, pro:7,   carb:20,  fat:3,   fiber:5,   sodium:420, calcium:60,  iron:2.5, vitC:15 },
+  { id:73,  name:"Patra",               cat:"lunch",     emoji:"🟢", serving:4,  unit:"pieces",  cal:160, pro:5,   carb:22,  fat:6,   fiber:3.5, sodium:300, calcium:70,  iron:2,   vitC:8  },
+  { id:74,  name:"Khandvi",             cat:"lunch",     emoji:"🟡", serving:6,  unit:"pieces",  cal:200, pro:8,   carb:27,  fat:6,   fiber:2,   sodium:320, calcium:80,  iron:1.5, vitC:3  },
+  { id:75,  name:"Surti Locho",         cat:"lunch",     emoji:"🟡", serving:1,  unit:"bowl",    cal:200, pro:8,   carb:30,  fat:6,   fiber:3,   sodium:380, calcium:60,  iron:2,   vitC:3  },
+  { id:76,  name:"Puran Poli",          cat:"lunch",     emoji:"🫓", serving:1,  unit:"piece",   cal:250, pro:5,   carb:44,  fat:7,   fiber:3,   sodium:120, calcium:40,  iron:2,   vitC:0  },
+  { id:77,  name:"Mango Ras (Aamras)",  cat:"lunch",     emoji:"🥭", serving:1,  unit:"bowl",    cal:150, pro:1.5, carb:38,  fat:0.5, fiber:3.7, sodium:2,   calcium:20,  iron:0.3, vitC:57 },
+  { id:78,  name:"Veg Biryani",         cat:"lunch",     emoji:"🍛", serving:1,  unit:"serving", cal:380, pro:9,   carb:68,  fat:9,   fiber:4,   sodium:780, calcium:40,  iron:2,   vitC:8  },
+  { id:79,  name:"Doodh Pak / Kheer",   cat:"dinner",    emoji:"🍚", serving:1,  unit:"bowl",    cal:300, pro:9,   carb:52,  fat:7,   fiber:0.5, sodium:80,  calcium:280, iron:0.5, vitC:2  },
+  { id:80,  name:"Khichdi",             cat:"dinner",    emoji:"🥣", serving:1,  unit:"bowl",    cal:290, pro:11,  carb:52,  fat:5,   fiber:5,   sodium:380, calcium:50,  iron:2.5, vitC:2  },
+  { id:81,  name:"Dal Dhokli",          cat:"dinner",    emoji:"🍲", serving:1,  unit:"bowl",    cal:280, pro:10,  carb:45,  fat:7,   fiber:5,   sodium:420, calcium:70,  iron:2.8, vitC:5  },
+  { id:82,  name:"Moong Dal Chilla",    cat:"dinner",    emoji:"🥞", serving:2,  unit:"pieces",  cal:240, pro:14,  carb:36,  fat:5,   fiber:5,   sodium:300, calcium:50,  iron:3,   vitC:0  },
+  { id:83,  name:"Veg Soup",            cat:"dinner",    emoji:"🍵", serving:1,  unit:"bowl",    cal:80,  pro:3,   carb:14,  fat:2,   fiber:3,   sodium:600, calcium:30,  iron:1,   vitC:12 },
+  { id:84,  name:"Quinoa (cooked)",     cat:"dinner",    emoji:"🥣", serving:1,  unit:"cup",     cal:222, pro:8,   carb:39,  fat:3.5, fiber:5,   sodium:13,  calcium:31,  iron:2.8, vitC:0  },
+  { id:85,  name:"Brown Rice",          cat:"dinner",    emoji:"🍚", serving:1,  unit:"bowl",    cal:215, pro:5,   carb:45,  fat:1.8, fiber:3.5, sodium:10,  calcium:20,  iron:1,   vitC:0  },
+
+  // ── GUJARATI FARSAN / SNACKS ─────────────────────────────
+  { id:100, name:"Sev (plain)",          cat:"snacks",    emoji:"🟡", serving:30, unit:"g",       cal:145, pro:4,   carb:18,  fat:7,   fiber:2,   sodium:340, calcium:20,  iron:1.5, vitC:0  },
+  { id:101, name:"Bhavnagri Gathiya",    cat:"snacks",    emoji:"🟡", serving:30, unit:"g",       cal:130, pro:4,   carb:17,  fat:6,   fiber:2,   sodium:300, calcium:20,  iron:1,   vitC:0  },
+  { id:102, name:"Papdi (farsan)",       cat:"snacks",    emoji:"🟡", serving:8,  unit:"pieces",  cal:150, pro:3,   carb:20,  fat:7,   fiber:1.5, sodium:280, calcium:15,  iron:1,   vitC:0  },
+  { id:103, name:"Chakli",              cat:"snacks",    emoji:"🌀", serving:2,  unit:"pieces",  cal:120, pro:2.5, carb:16,  fat:6,   fiber:1.5, sodium:220, calcium:15,  iron:0.8, vitC:0  },
+  { id:104, name:"Peanut Chikki",       cat:"snacks",    emoji:"🍬", serving:1,  unit:"piece",   cal:130, pro:4,   carb:15,  fat:7,   fiber:1.5, sodium:10,  calcium:20,  iron:0.8, vitC:0  },
+  { id:105, name:"Sesame Chikki",       cat:"snacks",    emoji:"🍬", serving:1,  unit:"piece",   cal:120, pro:3,   carb:14,  fat:7,   fiber:1,   sodium:5,   calcium:90,  iron:1.5, vitC:0  },
+  { id:106, name:"Sev Mamra",           cat:"snacks",    emoji:"🍿", serving:1,  unit:"bowl",    cal:180, pro:4,   carb:28,  fat:6,   fiber:1.5, sodium:360, calcium:20,  iron:1,   vitC:0  },
+  { id:107, name:"Sing Dana (roasted)", cat:"snacks",    emoji:"🥜", serving:30, unit:"g",       cal:165, pro:7,   carb:5,   fat:14,  fiber:2.5, sodium:5,   calcium:20,  iron:1,   vitC:0  },
+  { id:108, name:"Kaju Katli",          cat:"snacks",    emoji:"🍬", serving:2,  unit:"pieces",  cal:160, pro:3,   carb:22,  fat:8,   fiber:0.5, sodium:10,  calcium:10,  iron:0.5, vitC:0  },
+  { id:109, name:"Mohanthal",           cat:"snacks",    emoji:"🟡", serving:1,  unit:"piece",   cal:250, pro:5,   carb:35,  fat:11,  fiber:1,   sodium:30,  calcium:30,  iron:1,   vitC:0  },
+  { id:110, name:"Pani Puri",           cat:"snacks",    emoji:"🥗", serving:6,  unit:"pieces",  cal:200, pro:4,   carb:35,  fat:6,   fiber:3,   sodium:450, calcium:30,  iron:1.5, vitC:5  },
+  { id:111, name:"Sev Puri",            cat:"snacks",    emoji:"🍛", serving:4,  unit:"pieces",  cal:220, pro:5,   carb:32,  fat:9,   fiber:3,   sodium:500, calcium:40,  iron:1.5, vitC:8  },
+  { id:112, name:"Dahi Puri",           cat:"snacks",    emoji:"🍛", serving:4,  unit:"pieces",  cal:240, pro:6,   carb:36,  fat:8,   fiber:2,   sodium:480, calcium:80,  iron:1.5, vitC:8  },
+  { id:113, name:"Chai (with milk)",    cat:"snacks",    emoji:"🍵", serving:1,  unit:"cup",     cal:80,  pro:2,   carb:14,  fat:2,   fiber:0,   sodium:20,  calcium:90,  iron:0.1, vitC:0  },
+  { id:114, name:"Black Coffee",        cat:"snacks",    emoji:"☕", serving:1,  unit:"cup",     cal:5,   pro:0.3, carb:0.7, fat:0,   fiber:0,   sodium:5,   calcium:5,   iron:0,   vitC:0  },
+  { id:115, name:"Almonds",             cat:"snacks",    emoji:"🤎", serving:20, unit:"g",       cal:116, pro:4,   carb:4,   fat:10,  fiber:2,   sodium:0,   calcium:50,  iron:1,   vitC:0  },
+  { id:116, name:"Walnuts",             cat:"snacks",    emoji:"🤎", serving:30, unit:"g",       cal:196, pro:4.5, carb:4,   fat:19.5,fiber:2,   sodium:1,   calcium:28,  iron:0.8, vitC:0  },
+  { id:117, name:"Whey Protein Shake",  cat:"snacks",    emoji:"🥤", serving:1,  unit:"scoop",   cal:120, pro:24,  carb:3,   fat:1.5, fiber:0,   sodium:130, calcium:130, iron:0.5, vitC:0  },
+  { id:118, name:"Protein Bar",         cat:"snacks",    emoji:"🍫", serving:1,  unit:"bar",     cal:200, pro:20,  carb:22,  fat:5,   fiber:3,   sodium:200, calcium:100, iron:1,   vitC:0  },
+  { id:119, name:"Greek Yogurt",        cat:"snacks",    emoji:"🫙", serving:1,  unit:"cup",     cal:130, pro:15,  carb:9,   fat:3,   fiber:0,   sodium:65,  calcium:200, iron:0,   vitC:0  },
+  { id:120, name:"Sprouts Bhel",        cat:"snacks",    emoji:"🌱", serving:1,  unit:"bowl",    cal:180, pro:10,  carb:28,  fat:3,   fiber:7,   sodium:350, calcium:50,  iron:3,   vitC:15 },
+  { id:121, name:"Fruit Salad",         cat:"snacks",    emoji:"🍓", serving:1,  unit:"bowl",    cal:120, pro:1.5, carb:28,  fat:0.5, fiber:4,   sodium:10,  calcium:25,  iron:0.5, vitC:40 },
+  { id:122, name:"Mango",               cat:"snacks",    emoji:"🥭", serving:1,  unit:"medium",  cal:135, pro:1,   carb:35,  fat:0.6, fiber:3.7, sodium:2,   calcium:15,  iron:0.2, vitC:57 },
+  { id:123, name:"Sweet Lassi",         cat:"snacks",    emoji:"🥛", serving:1,  unit:"glass",   cal:200, pro:6,   carb:32,  fat:5,   fiber:0,   sodium:80,  calcium:220, iron:0.1, vitC:1  },
+  { id:124, name:"Aam Panna",           cat:"snacks",    emoji:"🍹", serving:1,  unit:"glass",   cal:80,  pro:0.5, carb:20,  fat:0,   fiber:1,   sodium:15,  calcium:10,  iron:0.2, vitC:20 },
+  { id:125, name:"Coconut Water",       cat:"snacks",    emoji:"🥥", serving:1,  unit:"glass",   cal:45,  pro:0.5, carb:10,  fat:0.5, fiber:3,   sodium:25,  calcium:50,  iron:0.3, vitC:5  },
+  { id:126, name:"Buttermilk (Chaas)",  cat:"snacks",    emoji:"🥛", serving:1,  unit:"glass",   cal:40,  pro:2.5, carb:5,   fat:0.5, fiber:0,   sodium:200, calcium:120, iron:0,   vitC:1  },
+  { id:127, name:"Dark Chocolate",      cat:"snacks",    emoji:"🍫", serving:1,  unit:"square",  cal:55,  pro:0.6, carb:6,   fat:3.5, fiber:0.8, sodium:2,   calcium:7,   iron:0.4, vitC:0  },
+  { id:128, name:"Boiled Sweet Potato", cat:"snacks",    emoji:"🍠", serving:1,  unit:"medium",  cal:130, pro:2.5, carb:30,  fat:0.1, fiber:4,   sodium:41,  calcium:40,  iron:0.9, vitC:20 },
+  { id:129, name:"Avocado (half)",      cat:"snacks",    emoji:"🥑", serving:0.5,unit:"piece",   cal:160, pro:2,   carb:9,   fat:15,  fiber:7,   sodium:7,   calcium:12,  iron:0.6, vitC:10 },
+
+  // ── FITNESS / HEALTH FOODS ───────────────────────────────
+  { id:140, name:"Paneer Bhurji",       cat:"lunch",     emoji:"🧀", serving:1,  unit:"serving", cal:250, pro:18,  carb:8,   fat:16,  fiber:2,   sodium:480, calcium:380, iron:1,   vitC:5  },
+  { id:141, name:"Tofu (grilled 100g)", cat:"lunch",     emoji:"🟨", serving:100,unit:"g",       cal:120, pro:13,  carb:3,   fat:6,   fiber:0.3, sodium:10,  calcium:200, iron:2.5, vitC:0  },
+  { id:142, name:"Broccoli (steamed)",  cat:"lunch",     emoji:"🥦", serving:1,  unit:"cup",     cal:55,  pro:4,   carb:11,  fat:0.6, fiber:5,   sodium:30,  calcium:47,  iron:0.7, vitC:81 },
+  { id:143, name:"Spinach (palak)",     cat:"lunch",     emoji:"🥬", serving:100,unit:"g",       cal:23,  pro:2.9, carb:3.6, fat:0.4, fiber:2.2, sodium:79,  calcium:99,  iron:2.7, vitC:28 },
+];
+
+// ----------------------------------------------------------
+// EXERCISE DATABASE
+// youtubeId: real tutorial video
+// calsPerSet: estimated kcal for a 70kg person per set
+// ----------------------------------------------------------
+const EXERCISES = {
+  // Chest
+  benchPress:        { name:"Barbell Bench Press",    muscle:"Chest",    equipment:"Barbell",      youtubeId:"SCVCLChPQDs", calsPerSet:10, form:["Plant feet flat on floor","Grip bar just outside shoulder width","Lower to mid-chest with control","Drive bar up in slight arc","Keep shoulder blades retracted throughout"], tips:"Don't bounce off your chest. Full ROM is key." },
+  inclineDBPress:    { name:"Incline DB Press",        muscle:"Chest",    equipment:"Dumbbell",     youtubeId:"DbFgADa2PL8", calsPerSet:9,  form:["Set bench to 30-45°","Dumbbells at chest level at bottom","Press up and slightly inward","Don't let elbows flare too wide","Control the negative for 2-3 sec"], tips:"Incline hits upper chest — the often-lagging portion." },
+  declineBench:      { name:"Decline Bench Press",    muscle:"Chest",    equipment:"Barbell",      youtubeId:"LfyQCfgrP8E", calsPerSet:9,  form:["Feet secured on pad","Grip slightly wider than shoulder width","Lower bar to lower chest","Press explosively up","Spot recommended for heavy sets"], tips:"Targets lower chest. Don't go too steep — 15-30° is enough." },
+  cableFly:          { name:"Cable Fly",               muscle:"Chest",    equipment:"Cable",        youtubeId:"Iwe6AmxVf7o", calsPerSet:7,  form:["Stand between cable stacks","Slight forward lean","Bring handles together in sweeping arc","Slight bend in elbow throughout","Squeeze chest hard at the centre"], tips:"Cables keep tension throughout — better than dumbbell flys for full ROM." },
+  pecDeck:           { name:"Pec Deck / Chest Fly",   muscle:"Chest",    equipment:"Machine",      youtubeId:"xUm0BiZCWlQ", calsPerSet:7,  form:["Sit with back flat against pad","Upper arms parallel to floor","Bring pads together squeezing chest","Control the return","Focus on the stretch at the open position"], tips:"Great isolation finisher. Doesn't need heavy weight to work." },
+  pushups:           { name:"Push-Ups",                muscle:"Chest",    equipment:"Bodyweight",   youtubeId:"IODxDxX7oi4", calsPerSet:6,  form:["Hands slightly wider than shoulders","Body in straight line from head to heel","Lower until chest nearly touches floor","Drive through palms to push up","Keep core braced throughout"], tips:"Elevate feet for more upper chest. Add weight plate for progression." },
+  dips:              { name:"Chest Dips",              muscle:"Chest",    equipment:"Bodyweight",   youtubeId:"2z8JmcrW-As", calsPerSet:8,  form:["Lean forward slightly for chest focus","Lower until upper arm is parallel to floor","Don't flare elbows excessively","Press back up to full extension","Add weight belt when bodyweight is easy"], tips:"Lean more forward = chest. Upright = triceps." },
+  // Back
+  deadlift:          { name:"Barbell Deadlift",        muscle:"Back",     equipment:"Barbell",      youtubeId:"op9kVnSso6Q", calsPerSet:15, form:["Bar over mid-foot","Hinge at hips to grip bar","Brace core, take deep breath","Push floor away, bar stays close to legs","Lock out hips at top — don't hyperextend"], tips:"King of all lifts. Perfect form every single rep." },
+  barbellRow:        { name:"Barbell Row",             muscle:"Back",     equipment:"Barbell",      youtubeId:"kBWAon7ItDw", calsPerSet:10, form:["Hinge to ~45° torso angle","Pull bar to lower chest / navel","Lead with elbows, not hands","Squeeze shoulder blades at top","Lower with control — don't let weight yank you"], tips:"Overhand grip hits upper back more. Underhand = lower lats." },
+  pullUps:           { name:"Pull-Ups",                muscle:"Back",     equipment:"Bodyweight",   youtubeId:"eGo4IYlbE5g", calsPerSet:10, form:["Dead hang to start","Initiate with shoulder blade depression","Drive elbows down to ribcage","Chin clears bar at top","Lower slowly — this is where gains are"], tips:"If can't do full reps: use band or do negatives." },
+  latPulldown:       { name:"Lat Pulldown",            muscle:"Back",     equipment:"Cable",        youtubeId:"CAwf7n6Tuhs", calsPerSet:8,  form:["Slight backward lean","Pull bar to upper chest","Drive elbows down and back","Squeeze lats at the bottom","Stretch fully at the top"], tips:"Think of your hands as hooks — drive elbows, not hands." },
+  cableRow:          { name:"Seated Cable Row",        muscle:"Back",     equipment:"Cable",        youtubeId:"GZbfZ033f74", calsPerSet:8,  form:["Sit tall, slight bend in knees","Pull handle to lower abdomen","Drive elbows past torso","Squeeze shoulder blades together","Full stretch forward between reps"], tips:"Don't rock. Controlled negative is everything." },
+  facePull:          { name:"Face Pulls",              muscle:"Back",     equipment:"Cable",        youtubeId:"rep-qVOkqgk", calsPerSet:5,  form:["Cable at face height or above","Pull rope to face — hands beside ears","External rotate at the end","Hold contraction for a beat","Use light weight, perfect form only"], tips:"Non-negotiable for shoulder health. Do these every push session." },
+  straightArmPull:   { name:"Straight-Arm Pulldown",  muscle:"Back",     equipment:"Cable",        youtubeId:"F0pV7RSBx6w", calsPerSet:6,  form:["Stand facing cable, slight hinge","Arms straight with slight bend","Pull bar/rope down to hips","Squeeze lats at bottom","Slow return — full stretch at top"], tips:"Great lat isolation. Use rope or straight bar." },
+  chestsupRow:       { name:"Chest-Supported Row",    muscle:"Back",     equipment:"Dumbbell",     youtubeId:"tQ4DdMXm1GY", calsPerSet:8,  form:["Lie chest on incline bench","Hang dumbbells below","Row up driving elbows to ceiling","Squeeze at top","Lower fully for full stretch"], tips:"Takes lower back out — pure back work." },
+  // Shoulders
+  ohp:               { name:"Overhead Press (BB)",    muscle:"Shoulders",equipment:"Barbell",      youtubeId:"2yjwXTZQDDI", calsPerSet:10, form:["Bar at front rack position","Grip just outside shoulders","Press straight up, bar tracks around head","Lock out fully overhead","Lower under control to clavicles"], tips:"Keep core tight — don't arch your lower back." },
+  dbShoulderPress:   { name:"DB Shoulder Press",      muscle:"Shoulders",equipment:"Dumbbell",     youtubeId:"qEwKCR5JCog", calsPerSet:9,  form:["Sit on bench with back support","Dumbbells at shoulder height","Press up in slight arc","Don't fully lock out","Lower slowly to 90°"], tips:"More ROM than barbell. Allows natural wrist rotation." },
+  arnoldPress:       { name:"Arnold Press",           muscle:"Shoulders",equipment:"Dumbbell",     youtubeId:"6Z15_WdXmVw", calsPerSet:9,  form:["Start with palms facing you, elbows low","Rotate hands out as you press up","Palms facing forward at full extension","Reverse on the way down","Full range of motion is the point"], tips:"Hits all three heads of the deltoid in one move." },
+  lateralRaises:     { name:"Lateral Raises",         muscle:"Shoulders",equipment:"Dumbbell",     youtubeId:"3VcKaXpzqRo", calsPerSet:5,  form:["Slight forward lean","Lead with elbows, not hands","Raise to shoulder height — no higher","Slight internal rotation at top","Lower slowly — 3-4 seconds down"], tips:"Use light weight. Cheat reps defeat the purpose." },
+  frontRaises:       { name:"Front Raises",           muscle:"Shoulders",equipment:"Dumbbell",     youtubeId:"gzuoJXbkGYM", calsPerSet:5,  form:["Stand tall with dumbbells at thighs","Raise arm to shoulder height","Keep arm nearly straight throughout","Lower with control","Alternate or both arms"], tips:"Anterior delt focus. Avoid if you bench and OHP heavy." },
+  shrugs:            { name:"Barbell Shrugs",         muscle:"Shoulders",equipment:"Barbell",      youtubeId:"cJRVVxmytaM", calsPerSet:6,  form:["Grip bar outside hips","Pull shoulders straight up to ears","Hold briefly at top","Lower fully","No rolling — straight up and down"], tips:"Target upper traps. Go heavy, full ROM." },
+  // Arms
+  barbellCurl:       { name:"Barbell Curl",           muscle:"Arms",     equipment:"Barbell",      youtubeId:"kwG2ipFRgfo", calsPerSet:7,  form:["Elbows pinned to sides","Full hang at bottom","Curl to chin level","Squeeze bicep at top","3-second controlled negative"], tips:"EZ-bar if wrists ache with straight bar." },
+  dbCurl:            { name:"Dumbbell Curl",          muscle:"Arms",     equipment:"Dumbbell",     youtubeId:"ykJmrZ5v0Oo", calsPerSet:6,  form:["Supinate wrist as you curl","Alternate or simultaneously","Full range all the way down","Keep torso still","Squeeze hard at the top"], tips:"Supination maximises bicep contraction." },
+  hammerCurl:        { name:"Hammer Curls",           muscle:"Arms",     equipment:"Dumbbell",     youtubeId:"TwD-YGVP4Bk", calsPerSet:6,  form:["Neutral grip (palms facing each other)","Elbows stay pinned","Curl to shoulder height","No wrist rotation","Full extension at bottom"], tips:"Builds brachialis and brachioradialis — adds arm thickness." },
+  preacherCurl:      { name:"Preacher Curl",          muscle:"Arms",     equipment:"Barbell",      youtubeId:"fIbDUKMv0Io", calsPerSet:6,  form:["Rest upper arm on pad fully","Full extension at bottom — crucial","Curl up until forearm nearly vertical","Squeeze hard","Lower slowly — resist the weight"], tips:"Eliminates cheating. Best for long-head bicep isolation." },
+  concentrationCurl: { name:"Concentration Curl",    muscle:"Arms",     equipment:"Dumbbell",     youtubeId:"0AUGkch3tzc", calsPerSet:5,  form:["Sit, elbow braced on inner thigh","Full hang at bottom","Curl up — wrist supinated","Hold 1 second at top","Lower fully for max stretch"], tips:"Pure isolation. Great mind-muscle connection." },
+  inclineDBCurl:     { name:"Incline DB Curl",        muscle:"Arms",     equipment:"Dumbbell",     youtubeId:"soxrZlIl35U", calsPerSet:6,  form:["Lie on incline bench, arms hanging behind","Curl up without moving upper arm","Long head of bicep gets max stretch","Supinate at top","Full range is critical here"], tips:"The stretch at the bottom with incline is unmatched for long-head development." },
+  cableCurl:         { name:"Cable Curl",             muscle:"Arms",     equipment:"Cable",        youtubeId:"NFzTWp2qpiE", calsPerSet:6,  form:["Stand facing low cable","Keep elbows at sides","Curl handle to chin","Constant tension throughout","Squeeze and hold at top"], tips:"Cable keeps tension at the top unlike free weights." },
+  tricepPushdown:    { name:"Tricep Pushdown",        muscle:"Arms",     equipment:"Cable",        youtubeId:"2-LAMcpzODU", calsPerSet:6,  form:["Elbows tucked to sides throughout","Push to full extension","Separate rope ends at bottom for full contraction","Control the way up","Don't let elbows drift forward"], tips:"Rope hits all three heads. Bar for heavier loading." },
+  skullCrushers:     { name:"Skull Crushers",         muscle:"Arms",     equipment:"Barbell",      youtubeId:"d_KZxkY_5cM", calsPerSet:7,  form:["Lie flat on bench","Bar starts over eyes","Lower to forehead or behind head","Upper arms stay vertical","Press back up without swinging elbows forward"], tips:"Go lighter than you think. Elbow pain = form breakdown." },
+  closeGripBench:    { name:"Close Grip Bench Press", muscle:"Arms",     equipment:"Barbell",      youtubeId:"nEF0bv2FW-s", calsPerSet:9,  form:["Grip shoulder width or slightly narrower","Elbows stay close to torso","Lower to lower chest","Press up powerfully","Same as bench but narrower grip"], tips:"Heavy tricep compound. Best builder for overall arm size." },
+  overheadTricep:    { name:"Overhead Tricep Ext",    muscle:"Arms",     equipment:"Dumbbell",     youtubeId:"YbX7Wd8jQ-Q", calsPerSet:6,  form:["Hold dumbbell with both hands overhead","Lower behind head, elbows stay in","Extend fully at top","Full stretch at bottom","Can do seated or standing"], tips:"Stretches long head of tricep. Key for full development." },
+  // Legs
+  squat:             { name:"Back Squat",             muscle:"Legs",     equipment:"Barbell",      youtubeId:"ultWZbUMPL8", calsPerSet:14, form:["Bar on traps, not neck","Stance slightly wider than hips, toes angled out","Break at hips and knees simultaneously","Descend until hips below parallel","Drive knees out on the way up"], tips:"Most important leg movement. Depth matters more than load." },
+  frontSquat:        { name:"Front Squat",            muscle:"Legs",     equipment:"Barbell",      youtubeId:"M2pS_MOoMDQ", calsPerSet:12, form:["Bar across front deltoids, elbows high","More upright torso than back squat","Knees track over toes","Deep squat — more quad dominant","Core must stay braced"], tips:"More quad activation and less lower back stress than back squat." },
+  romanianDL:        { name:"Romanian Deadlift",      muscle:"Legs",     equipment:"Barbell",      youtubeId:"JCXUYuzwNrM", calsPerSet:10, form:["Hinge at hips, slight knee bend","Bar traces close to legs","Feel deep hamstring stretch at bottom","Drive hips forward to stand","Keep back flat — hinge not squat"], tips:"The best hamstring builder. Go to full stretch each rep." },
+  legPress:          { name:"Leg Press",              muscle:"Legs",     equipment:"Machine",      youtubeId:"IZxyjW7SKSA", calsPerSet:10, form:["Feet shoulder width on platform","Lower until 90° at knee — or below","Don't let lower back peel off seat","Press through heels, not toes","No lockout at top — keep tension"], tips:"Feet higher = more glutes and hamstrings. Lower = more quads." },
+  hipThrust:         { name:"Hip Thrust (BB)",        muscle:"Legs",     equipment:"Barbell",      youtubeId:"SEdqd1n0cvg", calsPerSet:9,  form:["Upper back on bench, bar over hips","Drive through heels","At top: hips fully extended, shins vertical","Squeeze glutes hard at the top","Lower until glutes nearly touch floor"], tips:"Best glute builder. Use a pad on the bar for comfort." },
+  legCurl:           { name:"Leg Curl (Machine)",     muscle:"Legs",     equipment:"Machine",      youtubeId:"1Tq3QdYUuHs", calsPerSet:7,  form:["Lie face down, pad above heel","Curl to full contraction","Hold 1 second","Lower slowly — 3 seconds","Pointed toes = more bicep femoris"], tips:"Full range of motion. Short reps are wasted reps." },
+  legExtension:      { name:"Leg Extension",          muscle:"Legs",     equipment:"Machine",      youtubeId:"YyvSfVjQeL0", calsPerSet:7,  form:["Sit with pad just above ankle","Extend fully — toes can point toward shin","Hold 1 second at top","Lower slowly","Strict reps only"], tips:"Pure quad isolation. Feel the muscle." },
+  hackSquat:         { name:"Hack Squat (Machine)",   muscle:"Legs",     equipment:"Machine",      youtubeId:"0tn5K9NlCfo", calsPerSet:10, form:["Feet shoulder width on platform","Lower slowly into deep squat","Back stays against pad throughout","Drive through heels to press up","Knees track over toes"], tips:"Safer alternative to barbell squat. Deep ROM important." },
+  walkingLunges:     { name:"Walking Lunges",         muscle:"Legs",     equipment:"Dumbbell",     youtubeId:"L8fvypPrv5g", calsPerSet:9,  form:["Step forward, lower back knee toward floor","Front knee stays over ankle","Push off front foot to next step","Stay tall — don't lean forward","Full stride length for max stretch"], tips:"Balance + strength. Excellent quad, glute and hip flexor work." },
+  calfRaises:        { name:"Standing Calf Raises",   muscle:"Legs",     equipment:"Machine",      youtubeId:"gwLzBJYoWlA", calsPerSet:5,  form:["Full stretch at the bottom","Rise to tiptoes, full extension","Hold 1-2 seconds at top","Control the negative","Calves need high reps — 15-20 minimum"], tips:"Calves are stubborn. Full ROM, high reps, high frequency." },
+  seatedCalfRaise:   { name:"Seated Calf Raise",      muscle:"Legs",     equipment:"Machine",      youtubeId:"JbyjNymZOt0", calsPerSet:5,  form:["Pad rests above knees","Full stretch at bottom","Rise to full extension","2 second hold at top","Slow controlled negative"], tips:"Seated hits soleus more than standing. Both needed for full calves." },
+  // Core
+  plank:             { name:"Plank",                  muscle:"Core",     equipment:"Bodyweight",   youtubeId:"ASdvSXt8mRg", calsPerSet:4,  form:["Forearms on floor, elbows under shoulders","Body in straight line head to heels","Brace core as if about to be punched","Don't let hips sag or pike up","Breathe steadily"], tips:"Quality over duration. 30s perfect > 2min sagging." },
+  russianTwist:      { name:"Russian Twist",          muscle:"Core",     equipment:"Bodyweight",   youtubeId:"wkD8rjkodUI", calsPerSet:4,  form:["Sit at ~45°, feet elevated","Rotate side to side, chest up","Touch weight or hands to floor each side","Move from obliques not shoulders","Add weight plate for progression"], tips:"Oblique focused. Keep lower back neutral." },
+  legRaises:         { name:"Hanging Leg Raises",     muscle:"Core",     equipment:"Bodyweight",   youtubeId:"JB2oyawG9KI", calsPerSet:5,  form:["Hang from pull-up bar","Raise legs to parallel or higher","Control the descent — don't swing","Posterior pelvic tilt at the top","No kipping — full control"], tips:"Lower abs are hardest to develop. These target them directly." },
+  cableCrunch:       { name:"Cable Crunch",           muscle:"Core",     equipment:"Cable",        youtubeId:"AV5Ph6yS1l8", calsPerSet:4,  form:["Kneel facing cable tower, rope attached to head","Pull elbows to knees rounding spine","Crunch down — don't just hinge at hips","Full stretch up between reps","Go heavy — abs are a muscle"], tips:"Best weighted ab exercise. Adds thickness to rectus abdominis." },
+  mountainClimbers:  { name:"Mountain Climbers",      muscle:"Core",     equipment:"Bodyweight",   youtubeId:"nmwgirgXLYM", calsPerSet:6,  form:["High plank position","Drive knees to chest alternately","Hips stay level — don't pike","Fast for cardio, slow for core","Breathe rhythmically"], tips:"Core + cardio combo. Great finisher." },
+  // Full body / Power
+  powerClean:        { name:"Power Clean",            muscle:"Full Body",equipment:"Barbell",      youtubeId:"HqSJlVHmAR8", calsPerSet:14, form:["Bar over mid-foot","First pull: lift bar past knees","Second pull: explosive hip extension, shrug","Receive in slight squat, elbows high","Stand to complete"], tips:"Technical lift. Learn with light weight. Speed > load." },
+  thruster:          { name:"Thruster (DB/BB)",       muscle:"Full Body",equipment:"Barbell",      youtubeId:"L219gS0AKG0", calsPerSet:14, form:["Front rack position, squat to parallel","Use leg drive to stand explosively","Transition into press overhead","Lock out fully overhead","Re-rack for next rep"], tips:"Metabolic monster. Combines squat and press." },
+  pushPress:         { name:"Push Press",             muscle:"Full Body",equipment:"Barbell",      youtubeId:"iaBVSJm78ko", calsPerSet:12, form:["Dip slightly at knees, torso upright","Explosively drive legs, then press overhead","Bar travels straight up","Lock out at top","Use the leg drive — that's the point"], tips:"Allows heavier loads than strict OHP. Trains power output." },
+  battleRopes:       { name:"Battle Ropes",           muscle:"Full Body",equipment:"Cables",       youtubeId:"9SRQhqkDIHU", calsPerSet:12, form:["Athletic stance, slight knee bend","Alternate or simultaneous waves","Drive from shoulders, not just arms","Keep core braced","Vary: slams, waves, circles"], tips:"High metabolic demand. 30-45 second bursts with rest." },
+  burpees:           { name:"Burpees",                muscle:"Full Body",equipment:"Bodyweight",   youtubeId:"JZQA08SlJnM", calsPerSet:10, form:["Stand, drop to squat, kick feet to plank","Chest to floor optional","Jump feet back in, stand and jump","Arms overhead at jump","Keep steady pace"], tips:"Full body conditioning. Scale by removing push-up or jump." },
+};
+
+// ----------------------------------------------------------
+// WORKOUT PLANS — 5 VARIATIONS × 6 DAYS
+// ----------------------------------------------------------
+const WORKOUT_PLANS = [
+  {
+    id: 1, name: "Push / Pull / Legs", shortName: "PPL",
+    description: "The gold standard for intermediate lifters. 6 days: Push A/B, Pull A/B, Legs A/B. Strength focus on day 1 of each; hypertrophy on day 2.",
+    goal: "Hypertrophy + Strength", level: "Intermediate",
+    days: [
+      { day:1, name:"Push A — Strength",   focus:"Chest / Shoulders / Triceps", color:"#c0392b",
+        exercises:[{key:"benchPress",sets:4,reps:"5",note:"Heavy"},{key:"ohp",sets:3,reps:"8",note:""},{key:"inclineDBPress",sets:3,reps:"10",note:""},{key:"lateralRaises",sets:4,reps:"15",note:"Strict form"},{key:"tricepPushdown",sets:3,reps:"12",note:""},{key:"overheadTricep",sets:3,reps:"12",note:""}]},
+      { day:2, name:"Pull A — Strength",   focus:"Back / Biceps", color:"#1e3a5f",
+        exercises:[{key:"deadlift",sets:4,reps:"5",note:"Heavy"},{key:"barbellRow",sets:3,reps:"8",note:""},{key:"latPulldown",sets:3,reps:"10",note:""},{key:"facePull",sets:3,reps:"15",note:"Always"},{key:"barbellCurl",sets:3,reps:"10",note:""},{key:"hammerCurl",sets:3,reps:"12",note:""}]},
+      { day:3, name:"Legs A — Strength",   focus:"Quads / Hamstrings / Glutes", color:"#2d7a2d",
+        exercises:[{key:"squat",sets:4,reps:"5",note:"Heavy"},{key:"romanianDL",sets:3,reps:"8",note:"Deep stretch"},{key:"legPress",sets:3,reps:"10",note:""},{key:"legCurl",sets:3,reps:"12",note:""},{key:"calfRaises",sets:4,reps:"15",note:""},{key:"legExtension",sets:3,reps:"15",note:"Finisher"}]},
+      { day:4, name:"Push B — Hypertrophy",focus:"Chest / Shoulders / Triceps", color:"#c0392b",
+        exercises:[{key:"inclineDBPress",sets:4,reps:"10",note:""},{key:"dbShoulderPress",sets:3,reps:"12",note:""},{key:"cableFly",sets:3,reps:"12",note:""},{key:"lateralRaises",sets:5,reps:"15",note:""},{key:"dips",sets:3,reps:"12",note:"Lean forward"},{key:"skullCrushers",sets:3,reps:"12",note:""}]},
+      { day:5, name:"Pull B — Hypertrophy",focus:"Back / Biceps", color:"#1e3a5f",
+        exercises:[{key:"pullUps",sets:4,reps:"8",note:""},{key:"cableRow",sets:3,reps:"12",note:""},{key:"chestsupRow",sets:3,reps:"12",note:""},{key:"facePull",sets:4,reps:"15",note:""},{key:"preacherCurl",sets:3,reps:"12",note:""},{key:"concentrationCurl",sets:3,reps:"12",note:""}]},
+      { day:6, name:"Legs B — Hypertrophy",focus:"Quads / Glutes / Calves / Core", color:"#2d7a2d",
+        exercises:[{key:"frontSquat",sets:3,reps:"8",note:""},{key:"hipThrust",sets:4,reps:"10",note:"Best glute"},{key:"walkingLunges",sets:3,reps:"12",note:"Per leg"},{key:"legExtension",sets:3,reps:"15",note:""},{key:"seatedCalfRaise",sets:4,reps:"15",note:""},{key:"cableCrunch",sets:3,reps:"15",note:""}]},
+    ]
+  },
+  {
+    id: 2, name: "Upper / Lower Split", shortName: "U/L",
+    description: "4 upper + 2 lower sessions. Higher upper body frequency. Strength first, hypertrophy second. Excellent for balanced development.",
+    goal: "Strength + Hypertrophy", level: "Intermediate",
+    days: [
+      { day:1, name:"Upper A — Strength",  focus:"Chest / Back Heavy", color:"#5d3a7a",
+        exercises:[{key:"benchPress",sets:4,reps:"5",note:"Heavy"},{key:"barbellRow",sets:4,reps:"5",note:""},{key:"ohp",sets:3,reps:"6",note:""},{key:"pullUps",sets:3,reps:"6",note:"Weighted"},{key:"dips",sets:3,reps:"8",note:""},{key:"barbellCurl",sets:2,reps:"10",note:""}]},
+      { day:2, name:"Lower A — Strength",  focus:"Quads / Posterior Chain", color:"#8b5e3c",
+        exercises:[{key:"squat",sets:4,reps:"5",note:""},{key:"romanianDL",sets:4,reps:"5",note:""},{key:"legPress",sets:3,reps:"8",note:""},{key:"hipThrust",sets:3,reps:"8",note:""},{key:"calfRaises",sets:4,reps:"12",note:""}]},
+      { day:3, name:"Upper B — Hypertrophy A",focus:"Chest / Shoulders", color:"#5d3a7a",
+        exercises:[{key:"inclineDBPress",sets:4,reps:"10",note:""},{key:"cableRow",sets:3,reps:"12",note:""},{key:"lateralRaises",sets:4,reps:"12",note:""},{key:"facePull",sets:3,reps:"15",note:""},{key:"tricepPushdown",sets:3,reps:"12",note:""},{key:"dbCurl",sets:3,reps:"12",note:""}]},
+      { day:4, name:"Lower B — Hypertrophy", focus:"Legs All Muscles", color:"#8b5e3c",
+        exercises:[{key:"legPress",sets:4,reps:"12",note:""},{key:"legCurl",sets:4,reps:"12",note:""},{key:"walkingLunges",sets:3,reps:"12",note:""},{key:"legExtension",sets:3,reps:"15",note:""},{key:"seatedCalfRaise",sets:4,reps:"15",note:""},{key:"cableCrunch",sets:3,reps:"15",note:""}]},
+      { day:5, name:"Upper C — Hypertrophy B",focus:"Back / Arms", color:"#5d3a7a",
+        exercises:[{key:"latPulldown",sets:4,reps:"10",note:""},{key:"chestsupRow",sets:4,reps:"12",note:""},{key:"cableFly",sets:3,reps:"12",note:""},{key:"arnoldPress",sets:3,reps:"12",note:""},{key:"skullCrushers",sets:3,reps:"12",note:""},{key:"hammerCurl",sets:3,reps:"12",note:""}]},
+      { day:6, name:"Full Body Power",     focus:"Power + Core", color:"#8b5e3c",
+        exercises:[{key:"deadlift",sets:3,reps:"3",note:"Max effort"},{key:"pushPress",sets:3,reps:"5",note:"Explosive"},{key:"squat",sets:3,reps:"3",note:"Heavy"},{key:"pullUps",sets:3,reps:"5",note:"Weighted"},{key:"plank",sets:3,reps:"60s",note:""},{key:"russianTwist",sets:3,reps:"20",note:""}]},
+    ]
+  },
+  {
+    id: 3, name: "Classic Bro Split", shortName: "Bro",
+    description: "One muscle group per day. Maximum volume per session. Great for hypertrophy and beginners learning individual muscles. Most popular gym split.",
+    goal: "Hypertrophy / Size", level: "Beginner–Intermediate",
+    days: [
+      { day:1, name:"Chest Day",           focus:"Chest", color:"#c0392b",
+        exercises:[{key:"benchPress",sets:4,reps:"8",note:""},{key:"inclineDBPress",sets:4,reps:"10",note:""},{key:"declineBench",sets:3,reps:"10",note:""},{key:"cableFly",sets:3,reps:"12",note:""},{key:"pecDeck",sets:3,reps:"15",note:""},{key:"pushups",sets:2,reps:"max",note:"Burnout"}]},
+      { day:2, name:"Back Day",            focus:"Back", color:"#1e3a5f",
+        exercises:[{key:"deadlift",sets:4,reps:"6",note:""},{key:"pullUps",sets:4,reps:"8",note:""},{key:"barbellRow",sets:4,reps:"10",note:""},{key:"latPulldown",sets:3,reps:"12",note:""},{key:"cableRow",sets:3,reps:"12",note:""},{key:"facePull",sets:3,reps:"15",note:""}]},
+      { day:3, name:"Shoulder Day",        focus:"Shoulders", color:"#c87d0e",
+        exercises:[{key:"ohp",sets:4,reps:"8",note:""},{key:"arnoldPress",sets:3,reps:"10",note:""},{key:"lateralRaises",sets:4,reps:"15",note:""},{key:"frontRaises",sets:3,reps:"12",note:""},{key:"facePull",sets:4,reps:"15",note:"Rear delts"},{key:"shrugs",sets:3,reps:"15",note:""}]},
+      { day:4, name:"Arms Day",            focus:"Biceps + Triceps", color:"#5d3a7a",
+        exercises:[{key:"barbellCurl",sets:4,reps:"10",note:""},{key:"inclineDBCurl",sets:3,reps:"12",note:""},{key:"concentrationCurl",sets:3,reps:"12",note:""},{key:"closeGripBench",sets:4,reps:"10",note:""},{key:"tricepPushdown",sets:3,reps:"12",note:""},{key:"skullCrushers",sets:3,reps:"12",note:""}]},
+      { day:5, name:"Legs Day",            focus:"Quads / Hamstrings / Glutes / Calves", color:"#2d7a2d",
+        exercises:[{key:"squat",sets:4,reps:"8",note:""},{key:"romanianDL",sets:3,reps:"10",note:""},{key:"legPress",sets:3,reps:"12",note:""},{key:"legCurl",sets:3,reps:"12",note:""},{key:"legExtension",sets:3,reps:"15",note:""},{key:"calfRaises",sets:4,reps:"20",note:""}]},
+      { day:6, name:"Core + Cardio",       focus:"Abs + Conditioning", color:"#1e3a5f",
+        exercises:[{key:"plank",sets:4,reps:"60s",note:""},{key:"russianTwist",sets:3,reps:"20",note:""},{key:"legRaises",sets:3,reps:"15",note:""},{key:"cableCrunch",sets:3,reps:"15",note:""},{key:"mountainClimbers",sets:3,reps:"45s",note:""},{key:"burpees",sets:3,reps:"15",note:"Conditioning"}]},
+    ]
+  },
+  {
+    id: 4, name: "Arnold Split", shortName: "Arnold",
+    description: "Arnold Schwarzenegger's training split. Chest+Back, Shoulders+Arms, Legs — repeated twice weekly. Agonist-antagonist pairing for maximum pump and volume.",
+    goal: "Hypertrophy / Size", level: "Intermediate–Advanced",
+    days: [
+      { day:1, name:"Chest + Back A",      focus:"Chest / Back Agonist-Antagonist", color:"#c0392b",
+        exercises:[{key:"benchPress",sets:4,reps:"8",note:""},{key:"pullUps",sets:4,reps:"8",note:"Superset"},{key:"inclineDBPress",sets:3,reps:"10",note:""},{key:"barbellRow",sets:3,reps:"10",note:""},{key:"cableFly",sets:3,reps:"12",note:""},{key:"latPulldown",sets:3,reps:"12",note:""}]},
+      { day:2, name:"Shoulders + Arms A",  focus:"Delts / Biceps / Triceps", color:"#8b5e3c",
+        exercises:[{key:"ohp",sets:4,reps:"8",note:""},{key:"barbellCurl",sets:3,reps:"10",note:""},{key:"lateralRaises",sets:4,reps:"12",note:""},{key:"skullCrushers",sets:3,reps:"10",note:""},{key:"facePull",sets:3,reps:"12",note:""},{key:"hammerCurl",sets:3,reps:"12",note:""}]},
+      { day:3, name:"Legs A",              focus:"Quads / Hamstrings / Glutes", color:"#2d7a2d",
+        exercises:[{key:"squat",sets:4,reps:"8",note:""},{key:"romanianDL",sets:3,reps:"10",note:""},{key:"legPress",sets:3,reps:"12",note:""},{key:"legCurl",sets:3,reps:"12",note:""},{key:"calfRaises",sets:4,reps:"15",note:""},{key:"plank",sets:3,reps:"45s",note:""}]},
+      { day:4, name:"Chest + Back B",      focus:"Upper Chest / Mid-Back", color:"#c0392b",
+        exercises:[{key:"inclineDBPress",sets:4,reps:"10",note:""},{key:"chestsupRow",sets:4,reps:"10",note:""},{key:"declineBench",sets:3,reps:"12",note:""},{key:"cableRow",sets:3,reps:"12",note:""},{key:"pecDeck",sets:3,reps:"12",note:""},{key:"straightArmPull",sets:3,reps:"12",note:""}]},
+      { day:5, name:"Shoulders + Arms B",  focus:"Rear Delts / Arm Detail", color:"#8b5e3c",
+        exercises:[{key:"dbShoulderPress",sets:4,reps:"10",note:""},{key:"preacherCurl",sets:3,reps:"12",note:""},{key:"arnoldPress",sets:3,reps:"12",note:""},{key:"closeGripBench",sets:3,reps:"12",note:""},{key:"lateralRaises",sets:4,reps:"15",note:""},{key:"cableCurl",sets:3,reps:"12",note:""}]},
+      { day:6, name:"Legs B",              focus:"Glutes / Hamstrings / Calves / Core", color:"#2d7a2d",
+        exercises:[{key:"frontSquat",sets:3,reps:"8",note:""},{key:"hipThrust",sets:4,reps:"10",note:""},{key:"legPress",sets:3,reps:"12",note:""},{key:"walkingLunges",sets:3,reps:"12",note:"Per leg"},{key:"legExtension",sets:3,reps:"15",note:""},{key:"seatedCalfRaise",sets:4,reps:"15",note:""}]},
+    ]
+  },
+  {
+    id: 5, name: "PHAT Training", shortName: "PHAT",
+    description: "Power Hypertrophy Adaptive Training by Dr. Layne Norton. 2 power days (low reps, heavy) + 4 hypertrophy days (moderate reps, high volume). Best of both worlds.",
+    goal: "Strength + Hypertrophy", level: "Advanced",
+    days: [
+      { day:1, name:"Upper Body Power",    focus:"Chest / Back — Max Strength", color:"#c0392b",
+        exercises:[{key:"benchPress",sets:3,reps:"3",note:"90-95% 1RM"},{key:"barbellRow",sets:3,reps:"3",note:"Heavy"},{key:"ohp",sets:3,reps:"5",note:""},{key:"pullUps",sets:3,reps:"5",note:"Weighted"},{key:"tricepPushdown",sets:3,reps:"8",note:""},{key:"barbellCurl",sets:3,reps:"8",note:""}]},
+      { day:2, name:"Lower Body Power",    focus:"Quads / Posterior Chain — Max", color:"#c0392b",
+        exercises:[{key:"squat",sets:3,reps:"3",note:"90-95% 1RM"},{key:"deadlift",sets:3,reps:"3",note:"Heavy"},{key:"legPress",sets:3,reps:"5",note:""},{key:"romanianDL",sets:3,reps:"5",note:""},{key:"calfRaises",sets:4,reps:"8",note:""}]},
+      { day:3, name:"Back + Shoulders Hyp",focus:"Back / Rear Delts / Traps", color:"#1e3a5f",
+        exercises:[{key:"latPulldown",sets:4,reps:"10",note:""},{key:"cableRow",sets:4,reps:"12",note:""},{key:"chestsupRow",sets:4,reps:"12",note:""},{key:"lateralRaises",sets:5,reps:"15",note:""},{key:"facePull",sets:4,reps:"15",note:""},{key:"shrugs",sets:3,reps:"15",note:""}]},
+      { day:4, name:"Lower Body Hyp",      focus:"Legs — High Volume", color:"#1e3a5f",
+        exercises:[{key:"hackSquat",sets:4,reps:"10",note:""},{key:"legPress",sets:4,reps:"12",note:""},{key:"legCurl",sets:4,reps:"12",note:""},{key:"legExtension",sets:4,reps:"15",note:""},{key:"walkingLunges",sets:3,reps:"12",note:""},{key:"calfRaises",sets:5,reps:"15",note:""}]},
+      { day:5, name:"Chest + Arms Hyp",    focus:"Chest / Biceps / Triceps", color:"#1e3a5f",
+        exercises:[{key:"inclineDBPress",sets:4,reps:"10",note:""},{key:"cableFly",sets:4,reps:"12",note:""},{key:"dips",sets:3,reps:"12",note:""},{key:"preacherCurl",sets:4,reps:"12",note:""},{key:"inclineDBCurl",sets:3,reps:"12",note:""},{key:"skullCrushers",sets:4,reps:"12",note:""},{key:"tricepPushdown",sets:3,reps:"15",note:""}]},
+      { day:6, name:"Metabolic / Full Body",focus:"Conditioning + Core", color:"#1e3a5f",
+        exercises:[{key:"thruster",sets:3,reps:"15",note:""},{key:"deadlift",sets:3,reps:"12",note:"Speed focus"},{key:"burpees",sets:3,reps:"15",note:""},{key:"mountainClimbers",sets:3,reps:"45s",note:""},{key:"battleRopes",sets:3,reps:"45s",note:""},{key:"cableCrunch",sets:3,reps:"15",note:""}]},
+    ]
+  },
+];
+
+// ----------------------------------------------------------
+// HELPERS
+// ----------------------------------------------------------
+function getCalsBurned(exerciseKey, sets, userWeightKg = 70) {
+  const ex = EXERCISES[exerciseKey];
+  if (!ex) return 0;
+  return Math.round(ex.calsPerSet * sets * (userWeightKg / 70));
+}
+
+function calculateBMR(weight, height, age, gender) {
+  if (gender === 'male')   return Math.round(10 * weight + 6.25 * height - 5 * age + 5);
+  return Math.round(10 * weight + 6.25 * height - 5 * age - 161);
+}
+
+const ACTIVITY_MULTIPLIERS = {
+  sedentary:   { label: "Sedentary (desk job, no exercise)",     value: 1.2   },
+  light:       { label: "Lightly Active (1–2 days/week)",        value: 1.375 },
+  moderate:    { label: "Moderately Active (3–5 days/week)",     value: 1.55  },
+  active:      { label: "Very Active (6–7 days hard training)",  value: 1.725 },
+  extraActive: { label: "Extra Active (athlete/physical job)",   value: 1.9   },
+};
+
+function calculateTDEE(bmr, activityKey) {
+  return Math.round(bmr * (ACTIVITY_MULTIPLIERS[activityKey]?.value || 1.55));
+}
+
+function calculateGoalCalories(tdee, goal) {
+  const map = {
+    aggressive_loss: tdee - 750,
+    loss:            tdee - 500,
+    maintain:        tdee,
+    recomp:          tdee,        // eat at maintenance, protein does the work
+    gain:            tdee + 300,
+    aggressive_gain: tdee + 500,
+  };
+  return Math.max(1200, map[goal] || tdee);
+}
+
+function calculateMacros(calories, weight, goal) {
+  // Recomp uses higher protein (2.4g/kg) to preserve/build muscle while in a fat-loss state
+  const proteinMultiplier =
+    (goal === 'gain' || goal === 'aggressive_gain') ? 2.2 :
+    (goal === 'recomp') ? 2.4 :
+    1.8;
+  const proteinG = Math.round(weight * proteinMultiplier);
+  const fatG     = Math.round(weight * 0.9);
+  const carbG    = Math.round(Math.max(0, calories - proteinG*4 - fatG*9) / 4);
+  return { protein: proteinG, fat: fatG, carbs: carbG };
+}
+
+function calculateBMI(weight, heightCm) {
+  const h = heightCm / 100;
+  return +(weight / (h * h)).toFixed(1);
+}
+
+function getBMICategory(bmi) {
+  if (bmi < 18.5) return { label:"Underweight",    color:"#3498db" };
+  if (bmi < 25)   return { label:"Normal Weight",  color:"#2d7a2d" };
+  if (bmi < 30)   return { label:"Overweight",     color:"#c87d0e" };
+  if (bmi < 35)   return { label:"Obese Class I",  color:"#c0392b" };
+  return                  { label:"Obese Class II", color:"#922b21" };
+}
+
+// ----------------------------------------------------------
+// WORKOUT RECOMMENDATION ENGINE
+// Returns { planId, reason, tips[] } based on profile data
+// Plan IDs: 1=PPL, 2=Upper/Lower, 3=Bro Split, 4=Arnold, 5=PHAT
+// ----------------------------------------------------------
+function getWorkoutRecommendation(profile) {
+  if (!profile) return null;
+  const { goal, activity, gender, weight } = profile;
+  const isHighActivity = activity === 'active' || activity === 'extraActive';
+  const isLowActivity  = activity === 'sedentary' || activity === 'light';
+
+  let planId, reason;
+
+  // Primary recommendation based on goal
+  if (goal === 'recomp') {
+    planId = isHighActivity ? 1 : 2;
+    reason = isHighActivity
+      ? 'PPL trains each muscle twice a week — the high frequency is ideal for body recomposition.'
+      : 'Upper/Lower gives 4 quality sessions a week, perfect for recomp on moderate activity.';
+
+  } else if (goal === 'aggressive_loss') {
+    planId = isLowActivity ? 3 : 2;
+    reason = isLowActivity
+      ? 'Bro Split is sustainable on a steep deficit — focused volume, plenty of recovery time.'
+      : 'Upper/Lower keeps intensity high while managing total fatigue on a large calorie deficit.';
+
+  } else if (goal === 'loss') {
+    planId = 2;
+    reason = 'Upper/Lower is efficient for fat loss — 4 sessions/week, full-body stimulus, good calorie burn.';
+
+  } else if (goal === 'gain' || goal === 'aggressive_gain') {
+    planId = isHighActivity ? 5 : 4;
+    reason = isHighActivity
+      ? 'PHAT blends strength and hypertrophy — the dual stimulus is optimal for aggressive muscle building.'
+      : 'Arnold Split delivers high volume per muscle group — a proven structure for size and strength.';
+
+  } else {
+    // maintain
+    planId = 1;
+    reason = 'PPL is the most balanced 6-day structure for maintaining fitness and strength long-term.';
+  }
+
+  // Beginners (low activity + gain/recomp) — don't recommend advanced plans
+  if (isLowActivity && (goal === 'gain' || goal === 'recomp' || goal === 'aggressive_gain')) {
+    planId = 3;
+    reason = 'Bro Split is great for building a foundation — one muscle group per session, manageable volume, easy to be consistent.';
+  }
+
+  // Personalised tips
+  const tips = [];
+
+  if (weight > 90) {
+    tips.push('At your bodyweight, compound lifts (squats, deadlifts, rows) burn significantly more calories — prioritise them over isolation work.');
+  } else if (weight < 60) {
+    tips.push('Focus on progressive overload — add weight or reps every week. At your weight, consistent progression is the fastest route to muscle.');
+  }
+
+  if (gender === 'female') {
+    tips.push('Research shows women build muscle effectively at higher rep ranges (12–15 reps). Consider adjusting sets in your plan to that range for hypertrophy work.');
+  }
+
+  if (goal === 'recomp') {
+    tips.push('Recomp takes patience — the scale may barely move while your body composition shifts. Track measurements and progress photos, not just weight.');
+  }
+
+  if (isLowActivity && goal !== 'maintain') {
+    tips.push('You marked a low activity level — even 8,000 steps a day significantly boosts TDEE and accelerates your goal without extra gym time.');
+  }
+
+  return { planId, reason, tips };
+}
+
+function searchFoods(query, category) {
+  const q = query.toLowerCase().trim();
+  return FOODS.filter(f => {
+    const matchQ = q === '' || f.name.toLowerCase().includes(q);
+    const matchC = !category || f.cat === category;
+    return matchQ && matchC;
+  });
+}
