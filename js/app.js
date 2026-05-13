@@ -832,6 +832,7 @@ function toggleMeal(meal) {
 }
 
 function closeFoodModal() {
+  clearInterval(_foodSearchPoll); _foodSearchPoll = null;
   document.getElementById('foodSearchModal').classList.remove('open');
   document.getElementById('foodSearchInput').value = '';
   document.getElementById('foodSearchResults').innerHTML = '';
@@ -839,18 +840,26 @@ function closeFoodModal() {
 
 function openFoodSearch(meal) {
   dietActiveSearch = meal;
-  document.getElementById('foodSearchInput').value = '';
+  const input = document.getElementById('foodSearchInput');
+  if (input) input.value = '';
   document.getElementById('foodSearchResults').innerHTML = '';
   document.getElementById('foodSearchModal').classList.add('open');
-  setTimeout(() => {
-    const input = document.getElementById('foodSearchInput');
-    input.focus();
-    // Re-trigger search in case there's a cached value
-    if (input.value) handleFoodSearch(input.value);
-  }, 120);
+
+  // Polling approach — bulletproof on iOS Safari where oninput can silently fail inside modals
+  clearInterval(_foodSearchPoll);
+  let _lastVal = '';
+  _foodSearchPoll = setInterval(() => {
+    const inp = document.getElementById('foodSearchInput');
+    if (!inp) { clearInterval(_foodSearchPoll); return; }
+    const v = inp.value;
+    if (v !== _lastVal) { _lastVal = v; handleFoodSearch(v); }
+  }, 150);
+
+  setTimeout(() => document.getElementById('foodSearchInput')?.focus(), 150);
 }
 
 let pendingFood = null;
+let _foodSearchPoll = null;
 
 function handleFoodSearch(val) {
   const results    = searchFoods(val);
