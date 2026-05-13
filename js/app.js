@@ -48,7 +48,7 @@ let LOG = {};               // logs for active profile
 let STATE = {
   currentDate:   todayStr(),
   activeSection: 'dashboard',
-  workout: { selectedVariation: 1 },
+  workout: { selectedVariation: 1, enrolledPlanId: null, enrolledDay: 1 },
 };
 
 // ── DATE HELPERS ──────────────────────────────────────────
@@ -117,19 +117,26 @@ function workoutCalsBurned(dateStr) {
   const log     = getLog(dateStr);
   const plan    = WORKOUT_PLANS.find(p=>p.id===log.workout.variation) || WORKOUT_PLANS[0];
   const dayPlan = plan.days.find(d=>d.day===(log.workout.activeDay||1)) || plan.days[0];
-  // New: use exerciseProgress if available
   const progress = log.workout.exerciseProgress || {};
-  return dayPlan.exercises.reduce((sum, ex) => {
+  // Plan exercises
+  let cals = dayPlan.exercises.reduce((sum, ex) => {
     const prog = progress[ex.key];
     if (prog && prog.done) {
       return sum + getActualCalsBurned(ex.key, ex.reps, prog.sets || ex.sets, prog.reps || parseInt(ex.reps)||10, ACTIVE_PROFILE?.weight||70);
     }
-    // Backward compat with old completedExercises array
     if ((log.workout.completedExercises||[]).includes(ex.key)) {
       return sum + getCalsBurned(ex.key, ex.sets, ACTIVE_PROFILE?.weight||70);
     }
     return sum;
   }, 0);
+  // Custom exercises
+  (log.workout.customExercises||[]).forEach(ex => {
+    const prog = progress[ex.key];
+    if (prog && prog.done) {
+      cals += getActualCalsBurned(ex.key, ex.reps, prog.sets || ex.sets, prog.reps || ex.reps, ACTIVE_PROFILE?.weight||70);
+    }
+  });
+  return cals;
 }
 
 function getActualCalsBurned(key, plannedReps, actualSets, actualReps, weight) {
@@ -198,16 +205,18 @@ function changeExerciseReps(key, delta) {
 }
 
 function _updateWorkoutTotals() {
-  const log     = getLog(STATE.currentDate);
-  const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
-  const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
-  const doneCnt = Object.values(log.workout.exerciseProgress||{}).filter(p=>p.done).length
-                  || (log.workout.completedExercises||[]).length;
-  const doneCal = workoutCalsBurned(STATE.currentDate);
+  const log      = getLog(STATE.currentDate);
+  const plan     = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
+  const dayPlan  = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
+  const customEx = log.workout.customExercises || [];
+  const total    = dayPlan.exercises.length + customEx.length;
+  const doneCnt  = Object.values(log.workout.exerciseProgress||{}).filter(p=>p.done).length
+                   || (log.workout.completedExercises||[]).length;
+  const doneCal  = workoutCalsBurned(STATE.currentDate);
   setText('workout_done_count',  doneCnt);
-  setText('workout_total_count', dayPlan.exercises.length);
+  setText('workout_total_count', total);
   setText('workout_cal_burned',  doneCal);
-  setBar('workout_progress_bar', dayPlan.exercises.length>0 ? Math.round(doneCnt/dayPlan.exercises.length*100) : 0);
+  setBar('workout_progress_bar', total>0 ? Math.round(doneCnt/total*100) : 0);
 }
 
 function getGoals() {
@@ -354,6 +363,8 @@ async function activateProfile(id) {
   LOG = loadLogs(id);
   const wk = loadWkState(id);
   if (wk.selectedVariation) STATE.workout.selectedVariation = wk.selectedVariation;
+  if (wk.enrolledPlanId)    STATE.workout.enrolledPlanId    = wk.enrolledPlanId;
+  if (wk.enrolledDay)       STATE.workout.enrolledDay       = wk.enrolledDay;
   // Hide all overlays
   document.getElementById('profilePickerScreen').style.display = 'none';
   document.getElementById('setupScreen').style.display = 'none';
@@ -549,7 +560,15 @@ function switchSection(name) {
   document.querySelector(`.bottom-nav-item[data-section="${name}"]`)?.classList.add('active');
   if (name==='dashboard') renderDashboard();
   if (name==='diet')      renderDiet();
-  if (name==='workout')   renderWorkout();
+  if (name==='workout') {
+    // If user has an enrolled plan, jump directly to their current day
+    if (STATE.workout.enrolledPlanId && workoutView === 'plans') {
+      STATE.workout.selectedVariation = STATE.workout.enrolledPlanId;
+      workoutDayNum = STATE.workout.enrolledDay || 1;
+      workoutView   = 'day';
+    }
+    renderWorkout();
+  }
   if (name==='bmi')       renderBMI();
   if (name==='habits')    renderHabits();
 }
@@ -592,16 +611,24 @@ function renderDashboard() {
   setBar('dash_water_bar', waterPct);
   setText('dash_water_val', `${log.water} / ${goals.water} glasses`);
 
-  // Workout status
-  const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
-  const dayN    = log.workout.activeDay||1;
+  // Workout status — show enrolled plan's current day if enrolled
+  const enrolledId   = STATE.workout.enrolledPlanId;
+  const displayPlanId = enrolledId || STATE.workout.selectedVariation;
+  const plan    = WORKOUT_PLANS.find(p=>p.id===displayPlanId)||WORKOUT_PLANS[0];
+  const dayN    = enrolledId ? (STATE.workout.enrolledDay || 1) : (log.workout.activeDay||1);
   const dayPlan = plan.days.find(d=>d.day===dayN)||plan.days[0];
-  const done    = (log.workout.completedExercises||[]).length;
-  const total   = dayPlan.exercises.length;
-  setText('dash_workout_name', `${plan.shortName} · Day ${dayN}`);
+  const customEx = (log.workout.customExercises||[]);
+  const done    = Object.values(log.workout.exerciseProgress||{}).filter(p=>p.done).length
+                  || (log.workout.completedExercises||[]).length;
+  const total   = dayPlan.exercises.length + customEx.length;
+  setText('dash_workout_name', enrolledId ? `${plan.shortName} · Day ${dayN} ✓ Enrolled` : `${plan.shortName} · Day ${dayN}`);
   setText('dash_workout_day',  dayPlan.name);
   setText('dash_workout_prog', `${done}/${total} exercises`);
   setBar('dash_workout_bar', total>0 ? Math.round(done/total*100) : 0);
+
+  // Enroll nudge — show if not enrolled
+  const enrollNudge = document.getElementById('dash_enroll_nudge');
+  if (enrollNudge) enrollNudge.style.display = enrolledId ? 'none' : 'block';
 
   renderStreaks();
 }
@@ -616,11 +643,16 @@ function renderStreaks() {
   }
   setText('streak_log', streak);
   const log     = getLog(STATE.currentDate);
-  const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
-  const dayPlan = plan.days.find(d=>d.day===(log.workout.activeDay||1))||plan.days[0];
+  const enrolledId = STATE.workout.enrolledPlanId;
+  const planId  = enrolledId || STATE.workout.selectedVariation;
+  const plan    = WORKOUT_PLANS.find(p=>p.id===planId)||WORKOUT_PLANS[0];
+  const dayN    = enrolledId ? (STATE.workout.enrolledDay||1) : (log.workout.activeDay||1);
+  const dayPlan = plan.days.find(d=>d.day===dayN)||plan.days[0];
+  const customEx = (log.workout.customExercises||[]);
+  const total   = dayPlan.exercises.length + customEx.length;
   const wDone   = Object.values(log.workout.exerciseProgress||{}).filter(p=>p.done).length
                   || (log.workout.completedExercises||[]).length;
-  setText('streak_workout', `${wDone}/${dayPlan.exercises.length}`);
+  setText('streak_workout', `${wDone}/${total}`);
   setText('streak_water',   log.water);
 }
 
@@ -830,39 +862,68 @@ function renderWorkoutPlans() {
       </div>`;
   }
 
-  const cards = WORKOUT_PLANS.map(plan => {
-    const isActive  = STATE.workout.selectedVariation === plan.id;
-    const isRec     = rec && rec.planId === plan.id;
-    const extraClass = isActive ? 'selected' : isRec ? 'recommended' : '';
+  const enrolledId = STATE.workout.enrolledPlanId;
 
-    const recBanner = isRec ? `
+  const cards = WORKOUT_PLANS.map(plan => {
+    const isActive   = STATE.workout.selectedVariation === plan.id;
+    const isEnrolled = enrolledId === plan.id;
+    const isRec      = rec && rec.planId === plan.id;
+    const extraClass = isEnrolled ? 'enrolled' : isActive ? 'selected' : isRec ? 'recommended' : '';
+
+    const recBanner = isRec && !isEnrolled ? `
       <div class="rec-banner">
         <span class="rec-star">★</span> Recommended for you
         <span class="rec-reason">${rec.reason}</span>
       </div>` : '';
 
+    const enrolledBanner = isEnrolled ? `
+      <div class="enrolled-banner">
+        <span class="enrolled-star">✓</span> Enrolled — Day ${STATE.workout.enrolledDay || 1} of 6
+        <span class="enrolled-sub">Workout auto-loads when you open the tab</span>
+      </div>` : '';
+
+    const actionButtons = isEnrolled
+      ? `<div style="display:flex;gap:8px;margin-top:0.875rem">
+           <button class="btn btn-primary btn-sm" style="flex:1"
+             onclick="event.stopPropagation();openEnrolledDay()">
+             Continue Day ${STATE.workout.enrolledDay || 1} →
+           </button>
+           <button class="btn btn-ghost btn-sm"
+             onclick="event.stopPropagation();unenrollPlan()">
+             Unenroll
+           </button>
+         </div>`
+      : `<div style="display:flex;gap:8px;margin-top:0.875rem">
+           <button class="btn btn-primary btn-sm" style="flex:1"
+             onclick="event.stopPropagation();enrollPlan(${plan.id})">
+             Enroll →
+           </button>
+           <button class="btn btn-ghost btn-sm"
+             onclick="event.stopPropagation();workoutView='day';openVariationDay(${plan.id},1)">
+             Preview
+           </button>
+         </div>`;
+
     return `
       <div class="variation-card ${extraClass}" onclick="selectVariation(${plan.id})">
-        ${recBanner}
+        ${enrolledBanner}${recBanner}
         <div class="variation-header">
           <div>
             <div class="variation-title">${plan.name}</div>
             <div class="variation-level">${plan.level} · ${plan.goal}</div>
           </div>
           <div style="display:flex;gap:6px;align-items:center;flex-shrink:0">
-            ${isActive ? '<span class="variation-badge">Active</span>' : ''}
-            ${isRec && !isActive ? '<span class="variation-badge rec-badge">Best fit</span>' : ''}
+            ${isEnrolled ? '<span class="variation-badge enrolled-badge">Enrolled</span>' : ''}
+            ${isActive && !isEnrolled ? '<span class="variation-badge">Active</span>' : ''}
+            ${isRec && !isActive && !isEnrolled ? '<span class="variation-badge rec-badge">Best fit</span>' : ''}
           </div>
         </div>
         <div class="variation-meta">
           <p class="variation-desc">${plan.description}</p>
           <div class="variation-days">
-            ${plan.days.map(d => `<span class="day-pill" style="color:${d.color};border-color:${d.color};background:${d.color}18">D${d.day}: ${d.name.split('—')[0].trim().split('–')[0].trim()}</span>`).join('')}
+            ${plan.days.map(d => `<span class="day-pill ${isEnrolled && d.day === (STATE.workout.enrolledDay||1) ? 'active-day-pill' : ''}" style="color:${d.color};border-color:${d.color};background:${d.color}18">D${d.day}: ${d.name.split('—')[0].trim().split('–')[0].trim()}</span>`).join('')}
           </div>
-          <button class="btn btn-navy btn-sm" style="margin-top:0.875rem;width:100%"
-            onclick="event.stopPropagation();workoutView='day';workoutDayNum=1;openVariationDay(${plan.id},1)">
-            Open Workout →
-          </button>
+          ${actionButtons}
         </div>
       </div>`;
   }).join('');
@@ -899,52 +960,67 @@ function renderWorkoutDay() {
   const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
   const log     = getLog(STATE.currentDate);
   const completed = log.workout.completedExercises||[];
+  const isEnrolled = STATE.workout.enrolledPlanId === plan.id;
 
-  document.getElementById('workout_day_tabs').innerHTML = plan.days.map(d => `
-    <button class="tab-btn ${workoutDayNum===d.day?'active':''}" onclick="switchWorkoutDay(${d.day})">Day ${d.day}</button>
-  `).join('');
+  document.getElementById('workout_day_tabs').innerHTML = plan.days.map(d => {
+    const isEnrolledDay = isEnrolled && d.day === (STATE.workout.enrolledDay || 1);
+    return `<button class="tab-btn ${workoutDayNum===d.day?'active':''} ${isEnrolledDay?'enrolled-tab':''}" onclick="switchWorkoutDay(${d.day})">Day ${d.day}${isEnrolledDay?' ●':''}</button>`;
+  }).join('');
 
   const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
   setText('workout_day_title', dayPlan.name);
   setText('workout_day_focus', dayPlan.focus);
   setText('workout_plan_name_badge', plan.shortName);
 
-  const exerciseProgress = log.workout.exerciseProgress || {};
-  document.getElementById('workout_exercises').innerHTML = dayPlan.exercises.map(ex => {
-    const exData = EXERCISES[ex.key];
+  // Enrolled badge in header
+  const enrolledBadgeEl = document.getElementById('workout_enrolled_badge');
+  if (enrolledBadgeEl) {
+    if (isEnrolled) {
+      enrolledBadgeEl.textContent = `Enrolled · Day ${STATE.workout.enrolledDay || 1}`;
+      enrolledBadgeEl.style.display = 'inline-flex';
+    } else {
+      enrolledBadgeEl.style.display = 'none';
+    }
+  }
+
+  function renderExCard(key, sets, reps, note, isCustom) {
+    const exData = EXERCISES[key];
     if (!exData) return '';
-    const prog     = exerciseProgress[ex.key];
-    const isSel    = prog ? prog.done : completed.includes(ex.key);
-    const muscleC  = getMuscleColor(exData.muscle);
-    const doneSets = prog ? prog.sets : (isSel ? ex.sets : 0);
-    const doneReps = prog ? prog.reps : (parseInt(ex.reps) || 10);
-    const calsBurned = getActualCalsBurned(ex.key, ex.reps, doneSets, doneReps, ACTIVE_PROFILE?.weight||70);
+    const exerciseProgress = log.workout.exerciseProgress || {};
+    const prog     = exerciseProgress[key];
+    const isSel    = prog ? prog.done : completed.includes(key);
+    const doneSets = prog ? prog.sets : (isSel ? sets : 0);
+    const doneReps = prog ? prog.reps : (parseInt(reps) || 10);
+    const calsBurned = getActualCalsBurned(key, reps, doneSets, doneReps, ACTIVE_PROFILE?.weight||70);
+    const customTag  = isCustom ? '<span class="custom-ex-tag">+Custom</span>' : '';
+    const removeBtn  = isCustom ? `<button class="ex-remove-btn" onclick="event.stopPropagation();removeCustomExercise('${key}')" title="Remove">×</button>` : '';
     return `
-    <div class="exercise-card ${isSel?'completed selected':''}" id="ex_card_${ex.key}">
+    <div class="exercise-card ${isSel?'completed selected':''}" id="ex_card_${key}">
       <div class="exercise-header">
-        <div class="exercise-info" onclick="toggleExerciseDetail('${ex.key}')" style="cursor:pointer;flex:1">
-          <div class="exercise-name">${exData.name}</div>
-          <div class="exercise-meta">${exData.equipment}${ex.note?' · '+ex.note:''}</div>
+        <div class="exercise-info" onclick="toggleExerciseDetail('${key}')" style="cursor:pointer;flex:1">
+          <div class="exercise-name">${exData.name} ${customTag}</div>
+          <div class="exercise-meta">${exData.equipment}${note?' · '+note:''}</div>
         </div>
         <div class="reps-tracker" onclick="event.stopPropagation()">
-          <span class="reps-planned">Plan: ${ex.sets}×${ex.reps}</span>
+          <span class="reps-planned">Plan: ${sets}×${reps}</span>
           <div class="reps-input-row">
             <label class="reps-label">Sets:</label>
-            <button class="reps-btn" onclick="changeExerciseSets('${ex.key}',-1)">−</button>
-            <span class="reps-val" id="sets_${ex.key}">${doneSets}</span>
-            <button class="reps-btn" onclick="changeExerciseSets('${ex.key}',1)">+</button>
+            <button class="reps-btn" onclick="changeExerciseSets('${key}',-1)">−</button>
+            <span class="reps-val" id="sets_${key}">${doneSets}</span>
+            <button class="reps-btn" onclick="changeExerciseSets('${key}',1)">+</button>
           </div>
           <div class="reps-input-row">
             <label class="reps-label">Reps:</label>
-            <button class="reps-btn" onclick="changeExerciseReps('${ex.key}',-1)">−</button>
-            <span class="reps-val" id="reps_${ex.key}">${doneReps}</span>
-            <button class="reps-btn" onclick="changeExerciseReps('${ex.key}',1)">+</button>
+            <button class="reps-btn" onclick="changeExerciseReps('${key}',-1)">−</button>
+            <span class="reps-val" id="reps_${key}">${doneReps}</span>
+            <button class="reps-btn" onclick="changeExerciseReps('${key}',1)">+</button>
           </div>
-          <div class="reps-cals" id="cal_${ex.key}">~${calsBurned} kcal</div>
+          <div class="reps-cals" id="cal_${key}">~${calsBurned} kcal</div>
         </div>
-        <button class="exercise-expand-btn" onclick="toggleExerciseDetail('${ex.key}')">▼</button>
+        ${removeBtn}
+        <button class="exercise-expand-btn" onclick="toggleExerciseDetail('${key}')">▼</button>
       </div>
-      <div class="exercise-detail" id="ex_detail_${ex.key}">
+      <div class="exercise-detail" id="ex_detail_${key}">
         <div class="video-wrap">
           <iframe src="https://www.youtube.com/embed/${exData.youtubeId}?rel=0&modestbranding=1&autoplay=0" loading="lazy" allowfullscreen title="${exData.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"></iframe>
           <div class="video-fallback" style="display:none">Video unavailable offline</div>
@@ -956,14 +1032,44 @@ function renderWorkoutDay() {
         <div class="exercise-tip-box">💡 ${exData.tips}</div>
       </div>
     </div>`;
-  }).join('');
+  }
 
-  const doneCnt = Object.values(exerciseProgress).filter(p=>p.done).length || completed.length;
+  const exerciseProgress = log.workout.exerciseProgress || {};
+  const planCards    = dayPlan.exercises.map(ex => renderExCard(ex.key, ex.sets, ex.reps, ex.note, false)).join('');
+  const customExs    = (log.workout.customExercises || []);
+  const customCards  = customExs.map(ex => renderExCard(ex.key, ex.sets, ex.reps, ex.note, true)).join('');
+
+  const addExBtn = `
+    <button class="btn btn-ghost btn-sm add-ex-btn" onclick="openExerciseSearch()" style="width:100%;margin-top:0.5rem;border-style:dashed">
+      + Add Exercise from Full Database
+    </button>`;
+
+  const totalExCount = dayPlan.exercises.length + customExs.length;
+  const doneCnt  = Object.values(exerciseProgress).filter(p=>p.done).length || completed.length;
+
+  // Complete Day button (only show when enrolled and on enrolled day)
+  const showCompleteBtn = isEnrolled && (workoutDayNum === (STATE.workout.enrolledDay || 1));
+  const allDone = totalExCount > 0 && doneCnt >= totalExCount;
+  const completeDayBtn = showCompleteBtn ? `
+    <button class="btn ${allDone ? 'btn-primary' : 'btn-ghost'} complete-day-btn"
+      onclick="completeDayAndAdvance()"
+      style="width:100%;margin-top:1rem">
+      ${allDone ? '🎉 Complete Day & Advance to Next →' : 'Mark Day Complete & Move On →'}
+    </button>` : '';
+
+  document.getElementById('workout_exercises').innerHTML = planCards + customCards + addExBtn + completeDayBtn;
+
   const doneCal = workoutCalsBurned(STATE.currentDate);
   setText('workout_done_count',  doneCnt);
-  setText('workout_total_count', dayPlan.exercises.length);
+  setText('workout_total_count', totalExCount);
   setText('workout_cal_burned',  doneCal);
-  setBar('workout_progress_bar', dayPlan.exercises.length>0 ? Math.round(doneCnt/dayPlan.exercises.length*100) : 0);
+  setBar('workout_progress_bar', totalExCount>0 ? Math.round(doneCnt/totalExCount*100) : 0);
+}
+
+function completeDayAndAdvance() {
+  advanceEnrolledDay();
+  workoutView = 'plans';
+  renderWorkoutPlans();
 }
 
 function switchWorkoutDay(dayNum) {
@@ -993,6 +1099,155 @@ function toggleExerciseDetail(key) {
 function backToPlans() {
   workoutView = 'plans';
   renderWorkoutPlans();
+}
+
+// ── ENROLLMENT ────────────────────────────────────────────
+function enrollPlan(planId) {
+  STATE.workout.enrolledPlanId    = planId;
+  STATE.workout.enrolledDay       = 1;
+  STATE.workout.selectedVariation = planId;
+  _saveEnrollmentState();
+  showToast('Enrolled! Your workout auto-loads from now on.', 'success');
+  openEnrolledDay();
+}
+
+function unenrollPlan() {
+  STATE.workout.enrolledPlanId = null;
+  STATE.workout.enrolledDay    = 1;
+  _saveEnrollmentState();
+  workoutView = 'plans';
+  showToast('Unenrolled from plan', 'info');
+  renderWorkoutPlans();
+}
+
+function openEnrolledDay() {
+  const planId = STATE.workout.enrolledPlanId;
+  const day    = STATE.workout.enrolledDay || 1;
+  if (!planId) { workoutView = 'plans'; renderWorkoutPlans(); return; }
+  STATE.workout.selectedVariation = planId;
+  workoutDayNum = day;
+  workoutView   = 'day';
+  const log = getLog(STATE.currentDate);
+  log.workout.variation = planId;
+  log.workout.activeDay = day;
+  persistLogs(STATE.currentDate);
+  renderWorkoutDay();
+}
+
+function advanceEnrolledDay() {
+  if (!STATE.workout.enrolledPlanId) return;
+  const plan    = WORKOUT_PLANS.find(p => p.id === STATE.workout.enrolledPlanId);
+  if (!plan) return;
+  const maxDay  = plan.days.length;
+  const nextDay = (STATE.workout.enrolledDay >= maxDay) ? 1 : STATE.workout.enrolledDay + 1;
+  STATE.workout.enrolledDay = nextDay;
+  _saveEnrollmentState();
+  showToast(`Day complete! Next: Day ${nextDay} — ${plan.days.find(d=>d.day===nextDay)?.name || ''}`, 'success');
+  renderDashboard();
+}
+
+function _saveEnrollmentState() {
+  const wk = loadWkState(ACTIVE_PROFILE.id);
+  wk.enrolledPlanId = STATE.workout.enrolledPlanId;
+  wk.enrolledDay    = STATE.workout.enrolledDay;
+  if (STATE.workout.selectedVariation) wk.selectedVariation = STATE.workout.selectedVariation;
+  saveWkState(ACTIVE_PROFILE.id, wk);
+}
+
+// ── CUSTOM EXERCISE SEARCH ────────────────────────────────
+let exSearchQuery = '';
+
+function openExerciseSearch() {
+  document.getElementById('exerciseSearchModal').classList.add('open');
+  const inp = document.getElementById('exSearchInput');
+  if (inp) { inp.value = ''; inp.focus(); }
+  renderExerciseSearchResults('');
+}
+
+function closeExerciseSearch() {
+  document.getElementById('exerciseSearchModal').classList.remove('open');
+}
+
+function onExSearchInput(val) {
+  exSearchQuery = val;
+  renderExerciseSearchResults(val);
+}
+
+function renderExerciseSearchResults(query) {
+  const container = document.getElementById('exSearchResults');
+  if (!container) return;
+  const q = (query || '').toLowerCase().trim();
+
+  // Get keys already in today's day (plan + custom)
+  const log = getLog(STATE.currentDate);
+  const plan    = WORKOUT_PLANS.find(p => p.id === STATE.workout.selectedVariation) || WORKOUT_PLANS[0];
+  const dayPlan = plan.days.find(d => d.day === workoutDayNum) || plan.days[0];
+  const planKeys = new Set(dayPlan.exercises.map(e => e.key));
+  const customKeys = new Set((log.workout.customExercises || []).map(e => e.key));
+
+  const results = Object.entries(EXERCISES).filter(([key, ex]) => {
+    if (!q) return true;
+    return ex.name.toLowerCase().includes(q)
+        || ex.muscle.toLowerCase().includes(q)
+        || ex.equipment.toLowerCase().includes(q);
+  }).slice(0, 30);
+
+  if (results.length === 0) {
+    container.innerHTML = `<div class="ex-search-empty">No exercises found for "${query}"</div>`;
+    return;
+  }
+
+  container.innerHTML = results.map(([key, ex]) => {
+    const alreadyIn = planKeys.has(key) || customKeys.has(key);
+    const muscleCol = getMuscleColor(ex.muscle);
+    return `
+      <div class="ex-search-item ${alreadyIn ? 'ex-search-added' : ''}" onclick="${alreadyIn ? '' : `addCustomExercise('${key}')`}">
+        <div class="ex-search-info">
+          <div class="ex-search-name">${ex.name}</div>
+          <div class="ex-search-meta" style="color:${muscleCol}">${ex.muscle} · ${ex.equipment}</div>
+        </div>
+        <div class="ex-search-action">
+          ${alreadyIn
+            ? `<span class="ex-search-done">✓ Added</span>`
+            : `<button class="btn btn-primary btn-xs">+ Add</button>`}
+        </div>
+      </div>`;
+  }).join('');
+}
+
+function filterExSearch(btn, muscle) {
+  document.querySelectorAll('.ex-filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const inp = document.getElementById('exSearchInput');
+  if (inp) inp.value = '';
+  exSearchQuery = muscle;
+  renderExerciseSearchResults(muscle);
+}
+
+function addCustomExercise(key) {
+  const exData = EXERCISES[key];
+  if (!exData) return;
+  const log = getLog(STATE.currentDate);
+  if (!log.workout.customExercises) log.workout.customExercises = [];
+  // Avoid duplicates
+  if (log.workout.customExercises.some(e => e.key === key)) return;
+  log.workout.customExercises.push({ key, sets: 3, reps: 10, note: 'Custom' });
+  persistLogs(STATE.currentDate);
+  showToast(`${exData.name} added to today's workout`, 'success');
+  // Update search results to mark as added
+  renderExerciseSearchResults(exSearchQuery);
+  // Re-render exercises list in background
+  renderWorkoutDay();
+}
+
+function removeCustomExercise(key) {
+  const log = getLog(STATE.currentDate);
+  if (!log.workout.customExercises) return;
+  log.workout.customExercises = log.workout.customExercises.filter(e => e.key !== key);
+  // Also remove from progress
+  if (log.workout.exerciseProgress) delete log.workout.exerciseProgress[key];
+  persistLogs(STATE.currentDate);
+  renderWorkoutDay();
 }
 
 function getMuscleColor(muscle) {

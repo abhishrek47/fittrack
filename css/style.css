@@ -1189,3 +1189,154 @@ button {
   font-size: 0.85rem; font-weight: 600;
   border-radius: var(--radius-sm);
 }
+
+/* ── ENROLLMENT UI ─────────────────────────────────────── */
+.variation-card.enrolled {
+  border-color: var(--navy);
+  box-shadow: 0 0 0 3px rgba(30,58,95,0.12);
+}
+.enrolled-banner {
+  background: linear-gradient(135deg, #edf2f9 0%, #dce8f5 100%);
+  border-bottom: 1px solid rgba(30,58,95,0.2);
+  padding: 0.6rem 1rem;
+  margin: -1rem -1rem 0.875rem -1rem;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+.enrolled-star {
+  color: var(--navy);
+  font-weight: 800;
+  margin-right: 0.35rem;
+  font-size: 0.85rem;
+}
+.enrolled-sub {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  font-family: var(--mono);
+  margin-left: 1.3rem;
+}
+.enrolled-badge {
+  background: var(--navy) !important;
+  color: white !important;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.enrolled-day-badge {
+  display: inline-flex;
+  align-items: center;
+  background: var(--navy);
+  color: white;
+  padding: 3px 10px;
+  border-radius: 99px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  font-family: var(--mono);
+  letter-spacing: 0.03em;
+}
+.active-day-pill {
+  font-weight: 900 !important;
+  box-shadow: 0 0 0 2px currentColor;
+}
+.enrolled-tab {
+  font-weight: 800 !important;
+}
+.enroll-nudge {
+  margin-top: 0.75rem;
+  padding: 0.6rem 0.875rem;
+  background: rgba(30,58,95,0.06);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  color: var(--navy);
+  border-left: 3px solid var(--navy);
+  line-height: 1.5;
+}
+.complete-day-btn {
+  margin-top: 1.25rem !important;
+  font-size: 0.9rem;
+}
+
+/* ── EXERCISE SEARCH MODAL ──────────────────────────────── */
+.ex-search-filter-row {
+  display: flex;
+  gap: 0.375rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.25rem;
+}
+.ex-filter-btn {
+  padding: 0.3rem 0.75rem;
+  border-radius: 99px;
+  border: 1.5px solid var(--border2);
+  background: transparent;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: all 0.12s;
+  font-family: var(--body);
+}
+.ex-filter-btn:hover { border-color: var(--navy); color: var(--navy); }
+.ex-filter-btn.active { background: var(--navy); border-color: var(--navy); color: white; }
+.ex-search-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border);
+  gap: 0.75rem;
+  cursor: pointer;
+  transition: background 0.12s;
+}
+.ex-search-item:last-child { border-bottom: none; }
+.ex-search-item:hover { background: var(--bg2); margin: 0 -0.25rem; padding-left: 0.25rem; padding-right: 0.25rem; border-radius: var(--radius-sm); }
+.ex-search-item.ex-search-added { opacity: 0.6; cursor: default; }
+.ex-search-item.ex-search-added:hover { background: transparent; margin: 0; padding-left: 0; padding-right: 0; }
+.ex-search-name { font-size: 0.875rem; font-weight: 600; color: var(--text); }
+.ex-search-meta { font-size: 0.7rem; font-family: var(--mono); font-weight: 700; margin-top: 0.15rem; }
+.ex-search-action { flex-shrink: 0; }
+.ex-search-done { font-size: 0.75rem; color: var(--success); font-weight: 700; }
+.ex-search-empty { padding: 2rem 0; text-align: center; color: var(--text-muted); font-size: 0.875rem; }
+.btn-xs {
+  padding: 0.3rem 0.75rem !important;
+  font-size: 0.75rem !important;
+  border-radius: var(--radius-sm) !important;
+}
+
+/* ── CUSTOM EXERCISE TAGS ───────────────────────────────── */
+.custom-ex-tag {
+  display: inline-block;
+  background: rgba(192,57,43,0.1);
+  color: var(--accent);
+  font-size: 0.6rem;
+  font-weight: 700;
+  padding: 1px 6px;
+  border-radius: 4px;
+  vertical-align: middle;
+  margin-left: 4px;
+  font-family: var(--mono);
+  letter-spacing: 0.03em;
+}
+.ex-remove-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 4px 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.12s;
+}
+.ex-remove-btn:hover { background: rgba(192,57,43,0.1); color: var(--accent); }
+.add-ex-btn {
+  color: var(--navy) !important;
+  font-weight: 600 !important;
+  border-color: var(--navy) !important;
+  opacity: 0.75;
+}
+.add-ex-btn:hover { opacity: 1; background: rgba(30,58,95,0.06) !important; }
