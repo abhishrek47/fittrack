@@ -455,7 +455,12 @@ function initApp() {
 }
 
 async function refreshApp() {
-  if (!ACTIVE_PROFILE) return;
+  if (!ACTIVE_PROFILE) {
+    // No profile loaded — re-trigger the auth/profile loading flow
+    showToast('Refreshing…', '');
+    switchSection(STATE.activeSection);
+    return;
+  }
   const logo = document.querySelector('.nav-logo');
   if (logo) { logo.style.opacity = '0.5'; logo.style.pointerEvents = 'none'; }
 
