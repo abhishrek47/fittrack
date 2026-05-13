@@ -33,17 +33,33 @@
 const SUPABASE_URL  = 'https://pzlwbnoepqjkglyougmj.supabase.co';
 const SUPABASE_KEY  = 'sb_publishable_0876vWBUjcAkiYiMIawszQ_b9klTfR0';
 
-// ── Derived ───────────────────────────────────────────────
-const SUPABASE_ENABLED = !!(SUPABASE_URL && SUPABASE_KEY);
+// ── Supabase JS client ────────────────────────────────────
+const supabaseClient = (window.supabase && window.supabase.createClient)
+  ? window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY)
+  : null;
+
+const SUPABASE_ENABLED = !!supabaseClient;
+
+// ── Get current auth token for REST calls ─────────────────
+async function getAuthToken() {
+  if (!supabaseClient) return SUPABASE_KEY;
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    return data?.session?.access_token || SUPABASE_KEY;
+  } catch(e) {
+    return SUPABASE_KEY;
+  }
+}
 
 // ── REST helpers ──────────────────────────────────────────
 async function sbFetch(path, method = 'GET', body = null) {
   if (!SUPABASE_ENABLED) return null;
+  const token = await getAuthToken();
   const opts = {
     method,
     headers: {
       'apikey': SUPABASE_KEY,
-      'Authorization': `Bearer ${SUPABASE_KEY}`,
+      'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
       'Prefer': 'resolution=merge-duplicates',
     },
@@ -62,7 +78,7 @@ async function sbFetch(path, method = 'GET', body = null) {
 
 // ── Public API (called from app.js) ───────────────────────
 
-/** Push a single day's log to Supabase */
+/** Push a single day's log to Supabase. Profile IDs are already auth-prefixed. */
 async function syncLogToCloud(profileId, dateStr, logData) {
   if (!SUPABASE_ENABLED) return;
   await sbFetch('fittrack_logs', 'POST', {
@@ -93,10 +109,12 @@ async function syncProfileToCloud(profile) {
   });
 }
 
-/** Pull all profiles from Supabase */
-async function pullProfilesFromCloud() {
+/** Pull all profiles from Supabase for a given auth user prefix */
+async function pullProfilesFromCloud(authUserId) {
   if (!SUPABASE_ENABLED) return null;
-  const rows = await sbFetch('fittrack_profiles?select=id,data');
+  const prefix = authUserId ? encodeURIComponent(authUserId + '_') : '';
+  const filter = prefix ? `id=like.${prefix}*` : '';
+  const rows = await sbFetch(`fittrack_profiles?${filter}&select=id,data`);
   if (!Array.isArray(rows)) return null;
   return rows.map(r => r.data);
 }

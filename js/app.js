@@ -117,10 +117,97 @@ function workoutCalsBurned(dateStr) {
   const log     = getLog(dateStr);
   const plan    = WORKOUT_PLANS.find(p=>p.id===log.workout.variation) || WORKOUT_PLANS[0];
   const dayPlan = plan.days.find(d=>d.day===(log.workout.activeDay||1)) || plan.days[0];
-  return (log.workout.completedExercises||[]).reduce((sum, key) => {
-    const ex = dayPlan.exercises.find(e=>e.key===key);
-    return sum + (ex ? getCalsBurned(key, ex.sets, ACTIVE_PROFILE?.weight||70) : 0);
+  // New: use exerciseProgress if available
+  const progress = log.workout.exerciseProgress || {};
+  return dayPlan.exercises.reduce((sum, ex) => {
+    const prog = progress[ex.key];
+    if (prog && prog.done) {
+      return sum + getActualCalsBurned(ex.key, ex.reps, prog.sets || ex.sets, prog.reps || parseInt(ex.reps)||10, ACTIVE_PROFILE?.weight||70);
+    }
+    // Backward compat with old completedExercises array
+    if ((log.workout.completedExercises||[]).includes(ex.key)) {
+      return sum + getCalsBurned(ex.key, ex.sets, ACTIVE_PROFILE?.weight||70);
+    }
+    return sum;
   }, 0);
+}
+
+function getActualCalsBurned(key, plannedReps, actualSets, actualReps, weight) {
+  const ex = EXERCISES[key];
+  if (!ex) return 0;
+  const plannedRepsNum = parseInt(plannedReps) || 10;
+  const factor = actualReps / Math.max(1, plannedRepsNum);
+  return Math.round(ex.calsPerSet * actualSets * factor * (weight / 70));
+}
+
+function changeExerciseSets(key, delta) {
+  const log = getLog(STATE.currentDate);
+  if (!log.workout.exerciseProgress) log.workout.exerciseProgress = {};
+  if (!log.workout.exerciseProgress[key]) {
+    const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
+    const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
+    const ex      = dayPlan.exercises.find(e=>e.key===key);
+    log.workout.exerciseProgress[key] = { sets: ex ? ex.sets : 3, reps: parseInt(ex?.reps)||10, done: false };
+  }
+  const prog = log.workout.exerciseProgress[key];
+  prog.sets = Math.max(0, (prog.sets||0) + delta);
+  prog.done = prog.sets > 0;
+  // Sync into old completedExercises for backward compat
+  if (!log.workout.completedExercises) log.workout.completedExercises = [];
+  const idx = log.workout.completedExercises.indexOf(key);
+  if (prog.done && idx < 0) log.workout.completedExercises.push(key);
+  if (!prog.done && idx >= 0) log.workout.completedExercises.splice(idx, 1);
+  persistLogs(STATE.currentDate);
+  // Update just the display elements without full re-render
+  const setsEl = document.getElementById(`sets_${key}`);
+  if (setsEl) setsEl.textContent = prog.sets;
+  const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
+  const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
+  const exPlan  = dayPlan.exercises.find(e=>e.key===key);
+  const calEl   = document.getElementById(`cal_${key}`);
+  if (calEl && exPlan) calEl.textContent = `~${getActualCalsBurned(key, exPlan.reps, prog.sets, prog.reps||parseInt(exPlan.reps)||10, ACTIVE_PROFILE?.weight||70)} kcal`;
+  const card = document.getElementById(`ex_card_${key}`);
+  if (card) {
+    card.classList.toggle('completed', prog.done);
+    card.classList.toggle('selected',  prog.done);
+  }
+  // Update totals
+  _updateWorkoutTotals();
+  renderDashboard();
+}
+
+function changeExerciseReps(key, delta) {
+  const log = getLog(STATE.currentDate);
+  if (!log.workout.exerciseProgress) log.workout.exerciseProgress = {};
+  if (!log.workout.exerciseProgress[key]) {
+    const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
+    const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
+    const ex      = dayPlan.exercises.find(e=>e.key===key);
+    log.workout.exerciseProgress[key] = { sets: ex ? ex.sets : 3, reps: parseInt(ex?.reps)||10, done: false };
+  }
+  const prog = log.workout.exerciseProgress[key];
+  prog.reps = Math.max(1, (prog.reps||10) + delta);
+  persistLogs(STATE.currentDate);
+  const repsEl = document.getElementById(`reps_${key}`);
+  if (repsEl) repsEl.textContent = prog.reps;
+  const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
+  const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
+  const exPlan  = dayPlan.exercises.find(e=>e.key===key);
+  const calEl   = document.getElementById(`cal_${key}`);
+  if (calEl && exPlan) calEl.textContent = `~${getActualCalsBurned(key, exPlan.reps, prog.sets||0, prog.reps, ACTIVE_PROFILE?.weight||70)} kcal`;
+}
+
+function _updateWorkoutTotals() {
+  const log     = getLog(STATE.currentDate);
+  const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
+  const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
+  const doneCnt = Object.values(log.workout.exerciseProgress||{}).filter(p=>p.done).length
+                  || (log.workout.completedExercises||[]).length;
+  const doneCal = workoutCalsBurned(STATE.currentDate);
+  setText('workout_done_count',  doneCnt);
+  setText('workout_total_count', dayPlan.exercises.length);
+  setText('workout_cal_burned',  doneCal);
+  setBar('workout_progress_bar', dayPlan.exercises.length>0 ? Math.round(doneCnt/dayPlan.exercises.length*100) : 0);
 }
 
 function getGoals() {
@@ -133,20 +220,130 @@ function getGoals() {
   return { calories:cal, protein:mac.protein, carbs:mac.carbs, fat:mac.fat, water:p.water||8 };
 }
 
-// ── INIT ──────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
+// ── AUTH STATE ────────────────────────────────────────────
+let AUTH_USER_ID = null;
+
+// ── AUTH FUNCTIONS ────────────────────────────────────────
+async function signIn() {
+  if (!supabaseClient) { _proceedAfterAuth(null); return; }
+  const email    = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl    = document.getElementById('authError');
+  errEl.textContent = ''; errEl.classList.remove('visible');
+  if (!email || !password) {
+    errEl.textContent = 'Please enter your email and password.';
+    errEl.classList.add('visible'); return;
+  }
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) { errEl.textContent = error.message; errEl.classList.add('visible'); return; }
+    await _proceedAfterAuth(data.session);
+  } catch(e) {
+    errEl.textContent = 'Sign in failed. Check your connection.';
+    errEl.classList.add('visible');
+  }
+}
+
+async function signUp() {
+  if (!supabaseClient) { _proceedAfterAuth(null); return; }
+  const email    = document.getElementById('authEmail').value.trim();
+  const password = document.getElementById('authPassword').value;
+  const errEl    = document.getElementById('authError');
+  errEl.textContent = ''; errEl.classList.remove('visible');
+  if (!email || !password) {
+    errEl.textContent = 'Please enter an email and password (min 6 chars).';
+    errEl.classList.add('visible'); return;
+  }
+  if (password.length < 6) {
+    errEl.textContent = 'Password must be at least 6 characters.';
+    errEl.classList.add('visible'); return;
+  }
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({ email, password });
+    if (error) { errEl.textContent = error.message; errEl.classList.add('visible'); return; }
+    // Auto sign-in after signup if session returned, else prompt email confirm
+    if (data.session) {
+      await _proceedAfterAuth(data.session);
+    } else {
+      errEl.textContent = 'Account created! Check your email to confirm, then sign in.';
+      errEl.classList.add('visible');
+      errEl.style.background = 'rgba(45,122,45,0.08)';
+      errEl.style.borderColor = 'rgba(45,122,45,0.3)';
+      errEl.style.color = 'var(--success)';
+    }
+  } catch(e) {
+    errEl.textContent = 'Sign up failed. Check your connection.';
+    errEl.classList.add('visible');
+  }
+}
+
+async function signOut() {
+  if (supabaseClient) {
+    await supabaseClient.auth.signOut().catch(() => {});
+  }
+  AUTH_USER_ID   = null;
+  ACTIVE_PROFILE = null;
+  LOG            = {};
+  document.getElementById('authScreen').style.display = 'block';
+  document.getElementById('profilePickerScreen').style.display = 'none';
+  document.getElementById('setupScreen').style.display = 'none';
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+}
+
+async function _proceedAfterAuth(session) {
+  AUTH_USER_ID = session?.user?.id || null;
+  document.getElementById('authScreen').style.display = 'none';
+
+  // Pull cloud profiles and merge with local
+  if (AUTH_USER_ID && typeof pullProfilesFromCloud === 'function') {
+    try {
+      const cloudProfiles = await pullProfilesFromCloud(AUTH_USER_ID);
+      if (Array.isArray(cloudProfiles) && cloudProfiles.length > 0) {
+        const local = getAllProfiles();
+        const localIds = new Set(local.map(p => p.id));
+        let changed = false;
+        cloudProfiles.forEach(cp => {
+          if (!localIds.has(cp.id)) { local.push(cp); changed = true; }
+        });
+        if (changed) saveAllProfiles(local);
+      }
+    } catch(e) { /* non-blocking */ }
+  }
+
   const profiles = getAllProfiles();
   const activeId = getActiveProfileId();
 
+  // Prefix migration: if user has old un-prefixed profiles and now has auth,
+  // we just load them as-is — they continue to work locally
   if (profiles.length === 0) {
-    // First ever open → setup
     showSetup();
   } else if (profiles.length === 1 && activeId) {
-    // Single profile, already chosen → go straight in
     activateProfile(activeId);
   } else {
-    // Multiple profiles or no active chosen → profile picker
     showProfilePicker();
+  }
+}
+
+// ── INIT ──────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  // Always show auth screen first (or skip if no Supabase)
+  if (!supabaseClient) {
+    // No Supabase — go straight to local profile logic
+    await _proceedAfterAuth(null);
+    return;
+  }
+
+  // Check existing session
+  try {
+    const { data } = await supabaseClient.auth.getSession();
+    if (data?.session) {
+      await _proceedAfterAuth(data.session);
+    } else {
+      document.getElementById('authScreen').style.display = 'block';
+    }
+  } catch(e) {
+    // Fallback to local on error
+    await _proceedAfterAuth(null);
   }
 });
 
@@ -411,7 +608,9 @@ function renderStreaks() {
   const log     = getLog(STATE.currentDate);
   const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
   const dayPlan = plan.days.find(d=>d.day===(log.workout.activeDay||1))||plan.days[0];
-  setText('streak_workout', `${(log.workout.completedExercises||[]).length}/${dayPlan.exercises.length}`);
+  const wDone   = Object.values(log.workout.exerciseProgress||{}).filter(p=>p.done).length
+                  || (log.workout.completedExercises||[]).length;
+  setText('streak_workout', `${wDone}/${dayPlan.exercises.length}`);
   setText('streak_water',   log.water);
 }
 
@@ -488,12 +687,23 @@ function toggleMeal(meal) {
   body.style.display = open ? 'none' : 'block';
 }
 
+function closeFoodModal() {
+  document.getElementById('foodSearchModal').classList.remove('open');
+  document.getElementById('foodSearchInput').value = '';
+  document.getElementById('foodSearchResults').innerHTML = '';
+}
+
 function openFoodSearch(meal) {
   dietActiveSearch = meal;
   document.getElementById('foodSearchInput').value = '';
   document.getElementById('foodSearchResults').innerHTML = '';
   document.getElementById('foodSearchModal').classList.add('open');
-  setTimeout(() => document.getElementById('foodSearchInput').focus(), 120);
+  setTimeout(() => {
+    const input = document.getElementById('foodSearchInput');
+    input.focus();
+    // Re-trigger search in case there's a cached value
+    if (input.value) handleFoodSearch(input.value);
+  }, 120);
 }
 
 let pendingFood = null;
@@ -689,42 +899,61 @@ function renderWorkoutDay() {
   setText('workout_day_focus', dayPlan.focus);
   setText('workout_plan_name_badge', plan.shortName);
 
+  const exerciseProgress = log.workout.exerciseProgress || {};
   document.getElementById('workout_exercises').innerHTML = dayPlan.exercises.map(ex => {
     const exData = EXERCISES[ex.key];
     if (!exData) return '';
-    const isSel    = completed.includes(ex.key);
+    const prog     = exerciseProgress[ex.key];
+    const isSel    = prog ? prog.done : completed.includes(ex.key);
     const muscleC  = getMuscleColor(exData.muscle);
+    const doneSets = prog ? prog.sets : (isSel ? ex.sets : 0);
+    const doneReps = prog ? prog.reps : (parseInt(ex.reps) || 10);
+    const calsBurned = getActualCalsBurned(ex.key, ex.reps, doneSets, doneReps, ACTIVE_PROFILE?.weight||70);
     return `
-    <div class="exercise-card ${isSel?'selected':''}" id="ex_card_${ex.key}">
-      <div class="exercise-header" onclick="toggleExerciseSelect('${ex.key}')">
-        <div class="exercise-checkbox">${isSel?'✓':''}</div>
-        <div class="exercise-info">
+    <div class="exercise-card ${isSel?'completed selected':''}" id="ex_card_${ex.key}">
+      <div class="exercise-header">
+        <div class="exercise-info" onclick="toggleExerciseDetail('${ex.key}')" style="cursor:pointer;flex:1">
           <div class="exercise-name">${exData.name}</div>
-          <div class="exercise-meta">${ex.sets}×${ex.reps} · ${exData.equipment}${ex.note?' · '+ex.note:''}</div>
+          <div class="exercise-meta">${exData.equipment}${ex.note?' · '+ex.note:''}</div>
         </div>
-        <span class="exercise-muscle" style="background:${muscleC}" title="${exData.muscle}"></span>
-        <button class="exercise-expand-btn" onclick="event.stopPropagation();toggleExerciseDetail('${ex.key}')">▼</button>
+        <div class="reps-tracker" onclick="event.stopPropagation()">
+          <span class="reps-planned">Plan: ${ex.sets}×${ex.reps}</span>
+          <div class="reps-input-row">
+            <label class="reps-label">Sets:</label>
+            <button class="reps-btn" onclick="changeExerciseSets('${ex.key}',-1)">−</button>
+            <span class="reps-val" id="sets_${ex.key}">${doneSets}</span>
+            <button class="reps-btn" onclick="changeExerciseSets('${ex.key}',1)">+</button>
+          </div>
+          <div class="reps-input-row">
+            <label class="reps-label">Reps:</label>
+            <button class="reps-btn" onclick="changeExerciseReps('${ex.key}',-1)">−</button>
+            <span class="reps-val" id="reps_${ex.key}">${doneReps}</span>
+            <button class="reps-btn" onclick="changeExerciseReps('${ex.key}',1)">+</button>
+          </div>
+          <div class="reps-cals" id="cal_${ex.key}">~${calsBurned} kcal</div>
+        </div>
+        <button class="exercise-expand-btn" onclick="toggleExerciseDetail('${ex.key}')">▼</button>
       </div>
       <div class="exercise-detail" id="ex_detail_${ex.key}">
-        <div class="exercise-video">
-          <iframe src="https://www.youtube.com/embed/${exData.youtubeId}?rel=0&modestbranding=1" loading="lazy" allowfullscreen title="${exData.name}"></iframe>
+        <div class="video-wrap">
+          <iframe src="https://www.youtube.com/embed/${exData.youtubeId}?rel=0&modestbranding=1&autoplay=0" loading="lazy" allowfullscreen title="${exData.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"></iframe>
+          <div class="video-fallback" style="display:none">Video unavailable offline</div>
         </div>
         <div class="form-tips">
           <h4>Form Cues</h4>
           ${exData.form.map((tip,i) => `<div class="form-tip-item"><span class="form-tip-num">${i+1}</span><span>${tip}</span></div>`).join('')}
         </div>
         <div class="exercise-tip-box">💡 ${exData.tips}</div>
-        <div style="margin-top:0.75rem;font-size:0.75rem;color:var(--text-muted)">Est. calories burned: ~${getCalsBurned(ex.key,ex.sets,ACTIVE_PROFILE?.weight||70)} kcal</div>
       </div>
     </div>`;
   }).join('');
 
-  const totalCal = dayPlan.exercises.reduce((s,ex) => s+getCalsBurned(ex.key,ex.sets,ACTIVE_PROFILE?.weight||70), 0);
-  const doneCal  = dayPlan.exercises.filter(ex=>completed.includes(ex.key)).reduce((s,ex) => s+getCalsBurned(ex.key,ex.sets,ACTIVE_PROFILE?.weight||70), 0);
-  setText('workout_done_count',  completed.length);
+  const doneCnt = Object.values(exerciseProgress).filter(p=>p.done).length || completed.length;
+  const doneCal = workoutCalsBurned(STATE.currentDate);
+  setText('workout_done_count',  doneCnt);
   setText('workout_total_count', dayPlan.exercises.length);
   setText('workout_cal_burned',  doneCal);
-  setBar('workout_progress_bar', dayPlan.exercises.length>0 ? Math.round(completed.length/dayPlan.exercises.length*100) : 0);
+  setBar('workout_progress_bar', dayPlan.exercises.length>0 ? Math.round(doneCnt/dayPlan.exercises.length*100) : 0);
 }
 
 function switchWorkoutDay(dayNum) {
@@ -939,7 +1168,15 @@ function setupEventListeners() {
     btn.addEventListener('click', () => switchSection(btn.dataset.section));
   });
   const si = document.getElementById('foodSearchInput');
-  if (si) si.addEventListener('input', e => handleFoodSearch(e.target.value));
+  if (si) {
+    let _searchTimer = null;
+    const debouncedSearch = (val) => {
+      clearTimeout(_searchTimer);
+      _searchTimer = setTimeout(() => handleFoodSearch(val), 150);
+    };
+    si.addEventListener('input', e => debouncedSearch(e.target.value));
+    si.addEventListener('keyup', e => debouncedSearch(e.target.value));
+  }
   document.querySelectorAll('.modal-overlay').forEach(ov => {
     ov.addEventListener('click', e => { if (e.target===ov) ov.classList.remove('open'); });
   });
@@ -966,6 +1203,12 @@ function showToast(msg, type='') {
 }
 
 // Globals (for onclick= attributes in HTML)
+window.signIn               = signIn;
+window.signUp               = signUp;
+window.signOut              = signOut;
+window.closeFoodModal       = closeFoodModal;
+window.changeExerciseSets   = changeExerciseSets;
+window.changeExerciseReps   = changeExerciseReps;
 window.selectGoal           = selectGoal;
 window.setupNext            = setupNext;
 window.finishSetup          = finishSetup;

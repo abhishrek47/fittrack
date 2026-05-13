@@ -1000,3 +1000,120 @@ h1,h2,h3,h4,h5 { line-height: 1.3; }
 ::-webkit-scrollbar { width: 4px; height: 4px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+/* ── AT LOADING SCREEN ───────────────────────────────────── */
+.at-loading-screen {
+  position: fixed; inset: 0; z-index: 9999;
+  background: #1e3a5f;
+  display: flex; align-items: center; justify-content: center;
+  animation: at-screen-fadeout 0.4s ease 2s forwards;
+  will-change: opacity;
+}
+.at-logo-wrap {
+  display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
+}
+.at-logo {
+  font-family: var(--serif);
+  font-weight: 800;
+  color: #ffffff;
+  font-size: 3rem;
+  line-height: 1;
+  animation: at-logo-grow 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+.at-sub {
+  font-family: var(--mono);
+  color: rgba(255,255,255,0.7);
+  font-size: 0.875rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  opacity: 0;
+  animation: at-sub-fadein 0.5s ease 0.6s forwards;
+}
+@keyframes at-logo-grow {
+  0%   { font-size: 3rem;  opacity: 0; transform: scale(0.8); }
+  60%  { opacity: 1; }
+  100% { font-size: 12rem; opacity: 1; transform: scale(1); }
+}
+@keyframes at-sub-fadein {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes at-screen-fadeout {
+  from { opacity: 1; pointer-events: all; }
+  to   { opacity: 0; pointer-events: none; display: none; }
+}
+
+/* ── MOBILE TOUCH TARGETS ────────────────────────────────── */
+.modal-close {
+  min-width: 44px;
+  min-height: 44px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.meal-item-remove {
+  min-width: 36px;
+  min-height: 36px;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+button {
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* ── REPS TRACKER ────────────────────────────────────────── */
+.reps-tracker {
+  display: flex; flex-direction: column; align-items: flex-end;
+  gap: 4px; flex-shrink: 0;
+}
+.reps-planned {
+  font-family: var(--mono); font-size: 0.7rem;
+  color: var(--text-muted); font-weight: 600;
+}
+.reps-input-row {
+  display: flex; align-items: center; gap: 4px;
+}
+.reps-label {
+  font-size: 0.68rem; color: var(--text-muted);
+  font-weight: 600; text-transform: uppercase;
+  letter-spacing: 0.04em; min-width: 30px; text-align: right;
+}
+.reps-btn {
+  width: 26px; height: 26px; border-radius: var(--radius-sm);
+  background: var(--bg2); border: 1px solid var(--border);
+  font-size: 1rem; font-weight: 700; color: var(--text);
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1; padding: 0;
+  transition: background 0.1s;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+}
+.reps-btn:hover, .reps-btn:active { background: var(--navy); color: white; border-color: var(--navy); }
+.reps-val {
+  font-family: var(--mono); font-weight: 700; font-size: 0.9rem;
+  min-width: 22px; text-align: center; color: var(--navy);
+}
+.reps-cals {
+  font-family: var(--mono); font-size: 0.68rem;
+  color: var(--accent); font-weight: 700;
+}
+.exercise-card.completed .reps-val { color: var(--success); }
+.exercise-card.completed .reps-cals { color: var(--success); }
+
+/* ── VIDEO WRAP ──────────────────────────────────────────── */
+.video-wrap {
+  width: 100%; aspect-ratio: 16/9;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  margin-bottom: 0.875rem;
+  position: relative;
+  background: #000;
+}
+.video-wrap iframe { width: 100%; height: 100%; border: none; }
+.video-fallback {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  background: var(--bg2); color: var(--text-muted);
+  font-size: 0.85rem; font-weight: 600;
+  border-radius: var(--radius-sm);
+}
