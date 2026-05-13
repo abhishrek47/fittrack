@@ -1115,9 +1115,9 @@ h1,h2,h3,h4,h5 { line-height: 1.3; }
 #profileSwitchList .profile-card.active-profile .profile-avatar {
   box-shadow: 0 0 0 2.5px var(--success) !important;
 }
-#profileSwitchList .profile-info { flex: 1; min-width: 0; text-align: left; }
-#profileSwitchList .profile-name  { font-size: 0.88rem; font-weight: 700; }
-#profileSwitchList .profile-meta  { font-size: 0.7rem; margin-top: 1px; }
+#profileSwitchList .profile-info { flex: 1; min-width: 0; text-align: left; overflow: hidden; }
+#profileSwitchList .profile-name  { font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#profileSwitchList .profile-meta  { font-size: 0.7rem; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 #profileSwitchList .profile-arrow {
   display: block; font-size: 1rem; color: var(--text-muted); opacity: 0.45; flex-shrink: 0;
 }
