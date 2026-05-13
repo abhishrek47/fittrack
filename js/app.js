@@ -118,8 +118,10 @@ function workoutCalsBurned(dateStr) {
   const plan    = WORKOUT_PLANS.find(p=>p.id===log.workout.variation) || WORKOUT_PLANS[0];
   const dayPlan = plan.days.find(d=>d.day===(log.workout.activeDay||1)) || plan.days[0];
   const progress = log.workout.exerciseProgress || {};
-  // Plan exercises
+  const removed  = new Set(log.workout.removedExercises || []);
+  // Plan exercises (skip removed)
   let cals = dayPlan.exercises.reduce((sum, ex) => {
+    if (removed.has(ex.key)) return sum;
     const prog = progress[ex.key];
     if (prog && prog.done) {
       return sum + getActualCalsBurned(ex.key, ex.reps, prog.sets || ex.sets, prog.reps || parseInt(ex.reps)||10, ACTIVE_PROFILE?.weight||70);
@@ -624,10 +626,11 @@ function renderDashboard() {
   const plan    = WORKOUT_PLANS.find(p=>p.id===displayPlanId)||WORKOUT_PLANS[0];
   const dayN    = enrolledId ? (STATE.workout.enrolledDay || 1) : (log.workout.activeDay||1);
   const dayPlan = plan.days.find(d=>d.day===dayN)||plan.days[0];
-  const customEx = (log.workout.customExercises||[]);
+  const customEx   = (log.workout.customExercises||[]);
+  const removedSet = new Set(log.workout.removedExercises||[]);
   const done    = Object.values(log.workout.exerciseProgress||{}).filter(p=>p.done).length
                   || (log.workout.completedExercises||[]).length;
-  const total   = dayPlan.exercises.length + customEx.length;
+  const total   = dayPlan.exercises.filter(e=>!removedSet.has(e.key)).length + customEx.length;
   setText('dash_workout_name', enrolledId ? `${plan.shortName} · Day ${dayN} ✓ Enrolled` : `${plan.shortName} · Day ${dayN}`);
   setText('dash_workout_day',  dayPlan.name);
   setText('dash_workout_prog', `${done}/${total} exercises`);
@@ -655,8 +658,9 @@ function renderStreaks() {
   const plan    = WORKOUT_PLANS.find(p=>p.id===planId)||WORKOUT_PLANS[0];
   const dayN    = enrolledId ? (STATE.workout.enrolledDay||1) : (log.workout.activeDay||1);
   const dayPlan = plan.days.find(d=>d.day===dayN)||plan.days[0];
-  const customEx = (log.workout.customExercises||[]);
-  const total   = dayPlan.exercises.length + customEx.length;
+  const customEx    = (log.workout.customExercises||[]);
+  const removedSet2 = new Set(log.workout.removedExercises||[]);
+  const total   = dayPlan.exercises.filter(e=>!removedSet2.has(e.key)).length + customEx.length;
   const wDone   = Object.values(log.workout.exerciseProgress||{}).filter(p=>p.done).length
                   || (log.workout.completedExercises||[]).length;
   setText('streak_workout', `${wDone}/${total}`);
@@ -990,6 +994,8 @@ function renderWorkoutDay() {
     }
   }
 
+  const removedExs = new Set(log.workout.removedExercises || []);
+
   function renderExCard(key, sets, reps, note, isCustom) {
     const exData = EXERCISES[key];
     if (!exData) return '';
@@ -1000,7 +1006,7 @@ function renderWorkoutDay() {
     const doneReps = prog ? prog.reps : (parseInt(reps) || 10);
     const calsBurned = getActualCalsBurned(key, reps, doneSets, doneReps, ACTIVE_PROFILE?.weight||70);
     const customTag  = isCustom ? '<span class="custom-ex-tag">+Custom</span>' : '';
-    const removeBtn  = isCustom ? `<button class="ex-remove-btn" onclick="event.stopPropagation();removeCustomExercise('${key}')" title="Remove">×</button>` : '';
+    const removeBtn  = `<button class="ex-remove-btn" onclick="event.stopPropagation();removeExercise('${key}',${isCustom})" title="Remove exercise">×</button>`;
     return `
     <div class="exercise-card ${isSel?'completed selected':''}" id="ex_card_${key}">
       <div class="exercise-header">
@@ -1042,7 +1048,9 @@ function renderWorkoutDay() {
   }
 
   const exerciseProgress = log.workout.exerciseProgress || {};
-  const planCards    = dayPlan.exercises.map(ex => renderExCard(ex.key, ex.sets, ex.reps, ex.note, false)).join('');
+  // Filter out removed plan exercises
+  const activePlanExs = dayPlan.exercises.filter(ex => !removedExs.has(ex.key));
+  const planCards    = activePlanExs.map(ex => renderExCard(ex.key, ex.sets, ex.reps, ex.note, false)).join('');
   const customExs    = (log.workout.customExercises || []);
   const customCards  = customExs.map(ex => renderExCard(ex.key, ex.sets, ex.reps, ex.note, true)).join('');
 
@@ -1051,7 +1059,7 @@ function renderWorkoutDay() {
       + Add Exercise from Full Database
     </button>`;
 
-  const totalExCount = dayPlan.exercises.length + customExs.length;
+  const totalExCount = activePlanExs.length + customExs.length;
   const doneCnt  = Object.values(exerciseProgress).filter(p=>p.done).length || completed.length;
 
   // Complete Day button (only show when enrolled and on enrolled day)
@@ -1247,15 +1255,24 @@ function addCustomExercise(key) {
   renderWorkoutDay();
 }
 
-function removeCustomExercise(key) {
+function removeExercise(key, isCustom) {
   const log = getLog(STATE.currentDate);
-  if (!log.workout.customExercises) return;
-  log.workout.customExercises = log.workout.customExercises.filter(e => e.key !== key);
-  // Also remove from progress
+  if (isCustom) {
+    // Remove from custom list
+    log.workout.customExercises = (log.workout.customExercises || []).filter(e => e.key !== key);
+  } else {
+    // Mark plan exercise as removed for today
+    if (!log.workout.removedExercises) log.workout.removedExercises = [];
+    if (!log.workout.removedExercises.includes(key)) log.workout.removedExercises.push(key);
+  }
+  // Clear any tracked progress for this exercise
   if (log.workout.exerciseProgress) delete log.workout.exerciseProgress[key];
   persistLogs(STATE.currentDate);
   renderWorkoutDay();
 }
+
+// Keep old name as alias so any cached HTML calling it still works
+function removeCustomExercise(key) { removeExercise(key, true); }
 
 function getMuscleColor(muscle) {
   const m = { Chest:'#c0392b', Back:'#1e3a5f', Shoulders:'#8b5e3c', Arms:'#2d7a2d', Legs:'#5d3a7a', Core:'#c87d0e', 'Full Body':'#1a1a1a' };
@@ -1502,6 +1519,8 @@ window.switchWorkoutDay     = switchWorkoutDay;
 window.toggleExerciseSelect = toggleExerciseSelect;
 window.toggleExerciseDetail = toggleExerciseDetail;
 window.backToPlans          = backToPlans;
+window.removeExercise       = removeExercise;
+window.removeCustomExercise = removeCustomExercise;
 window.changeHabit          = changeHabit;
 window.updateProfile        = updateProfile;
 window.openProfileMenu      = openProfileMenu;
