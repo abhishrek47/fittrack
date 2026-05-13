@@ -742,18 +742,29 @@
       </div>
     </div>
 
-    <div class="divider" style="margin:0.75rem 0 1rem"></div>
+    <div class="divider" style="margin:0.8rem 0 0.65rem"></div>
 
     <p class="modal-section-label">Profiles</p>
-    <div id="profileSwitchList" style="margin-bottom:0.75rem"></div>
+    <div id="profileSwitchList"></div>
 
-    <button class="btn btn-ghost btn-sm btn-full" style="border-style:dashed" onclick="document.getElementById('profileMenuModal').classList.remove('open');addNewProfile()">+ Add New Profile</button>
-    <button class="btn btn-ghost btn-sm btn-full" style="margin-top:0.5rem" onclick="document.getElementById('profileMenuModal').classList.remove('open');document.getElementById('updateProfileModal').classList.add('open')">Edit Current Profile</button>
+    <button class="profile-add-row" onclick="document.getElementById('profileMenuModal').classList.remove('open');addNewProfile()">
+      <div class="profile-add-icon">+</div>
+      <span>Add new profile</span>
+    </button>
 
-    <div class="divider" style="margin:0.75rem 0"></div>
+    <div class="divider" style="margin:0.8rem 0 0.65rem"></div>
 
-    <button class="btn btn-ghost btn-sm btn-full" style="margin-bottom:0.5rem" onclick="document.getElementById('profileMenuModal').classList.remove('open');retrySyncProfiles()">↻ Sync Profiles from Cloud</button>
-    <button class="btn btn-ghost btn-sm btn-full" style="color:var(--accent);border-color:rgba(192,57,43,0.3)" onclick="document.getElementById('profileMenuModal').classList.remove('open');signOut()">Sign Out</button>
+    <div class="profile-actions-grid">
+      <button class="profile-action-btn" onclick="document.getElementById('profileMenuModal').classList.remove('open');document.getElementById('updateProfileModal').classList.add('open')">
+        <span class="btn-icon">✏️</span> Edit Profile
+      </button>
+      <button class="profile-action-btn" onclick="document.getElementById('profileMenuModal').classList.remove('open');retrySyncProfiles()">
+        <span class="btn-icon">↻</span> Sync Cloud
+      </button>
+    </div>
+    <button class="profile-signout-btn" style="margin-top:0.4rem" onclick="document.getElementById('profileMenuModal').classList.remove('open');signOut()">
+      Sign Out
+    </button>
   </div>
 </div>
 
