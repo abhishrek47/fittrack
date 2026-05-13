@@ -330,13 +330,52 @@ async function _proceedAfterAuth(session) {
   const activeId = getActiveProfileId();
 
   if (profiles.length === 0) {
-    showSetup();
+    if (AUTH_USER_ID) {
+      // Authenticated but no profiles — show sync screen before setup
+      document.getElementById('syncScreen').style.display = 'block';
+    } else {
+      showSetup();
+    }
   } else if (profiles.length === 1) {
     // Only one profile — activate it directly (no picker needed)
     activateProfile(activeId || profiles[0].id);
   } else if (activeId && profiles.find(p => p.id === activeId)) {
     // Multiple profiles, but one was last active on this device — go straight in
     activateProfile(activeId);
+  } else {
+    showProfilePicker();
+  }
+}
+
+// Re-attempt cloud sync — used by the sync screen and the profile menu button
+async function retrySyncProfiles() {
+  // Hide sync screen while retrying
+  const syncScreen = document.getElementById('syncScreen');
+  const retryBtn   = document.getElementById('syncRetryBtn');
+  if (retryBtn) { retryBtn.textContent = '↻ Syncing…'; retryBtn.disabled = true; }
+
+  try {
+    if (AUTH_USER_ID && typeof pullProfilesFromCloud === 'function') {
+      const cloudProfiles = await pullProfilesFromCloud(AUTH_USER_ID);
+      if (Array.isArray(cloudProfiles) && cloudProfiles.length > 0) {
+        const local   = getAllProfiles();
+        const localIds = new Set(local.map(p => p.id));
+        cloudProfiles.forEach(cp => { if (!localIds.has(cp.id)) local.push(cp); });
+        saveAllProfiles(local);
+      }
+    }
+  } catch(e) { /* non-blocking */ }
+
+  if (syncScreen) syncScreen.style.display = 'none';
+  if (retryBtn)   { retryBtn.textContent = '↻ Sync Profiles from Cloud'; retryBtn.disabled = false; }
+
+  const profiles = getAllProfiles();
+  const activeId = getActiveProfileId();
+  if (profiles.length === 0) {
+    showToast('No profiles found in cloud. Please set up a new profile.', '');
+    showSetup();
+  } else if (profiles.length === 1) {
+    activateProfile(activeId || profiles[0].id);
   } else {
     showProfilePicker();
   }
@@ -1425,6 +1464,29 @@ function goToToday() {
 function openProfileMenu() {
   const profiles = getAllProfiles();
   const menu = document.getElementById('profileMenuModal');
+
+  // Populate account info bar
+  const p = ACTIVE_PROFILE;
+  const avatarEl = document.getElementById('accountInfoAvatar');
+  const nameEl   = document.getElementById('accountInfoName');
+  const emailEl  = document.getElementById('accountInfoEmail');
+  if (avatarEl) {
+    avatarEl.textContent = p ? p.name.charAt(0).toUpperCase() : '?';
+    avatarEl.style.background = p?.avatarColor || 'var(--accent)';
+  }
+  if (nameEl) nameEl.textContent = p?.name || 'Unknown';
+  if (emailEl) {
+    // Try to get auth email from Supabase session
+    if (supabaseClient) {
+      supabaseClient.auth.getSession().then(({ data }) => {
+        if (emailEl) emailEl.textContent = data?.session?.user?.email || 'Signed in';
+      }).catch(() => {});
+    } else {
+      emailEl.textContent = 'Local mode (no cloud sync)';
+    }
+  }
+
+  // Populate profile switcher list
   const list = document.getElementById('profileSwitchList');
   if (list) {
     list.innerHTML = profiles.map(p => `
@@ -1432,7 +1494,7 @@ function openProfileMenu() {
         <div class="profile-avatar" style="background:${p.avatarColor||'var(--accent)'};">${p.name.charAt(0).toUpperCase()}</div>
         <div class="profile-info">
           <div class="profile-name">${p.name}</div>
-          <div class="profile-meta">${p.weight}kg · ${p.age}y</div>
+          <div class="profile-meta">${p.weight}kg · ${p.age}y · ${p.goal?.replace('_',' ') || ''}</div>
         </div>
         ${p.id===ACTIVE_PROFILE?.id ? '<span class="tag tag-green">Active</span>' : '<span class="profile-arrow">→</span>'}
       </div>
@@ -1521,6 +1583,7 @@ window.toggleExerciseDetail = toggleExerciseDetail;
 window.backToPlans          = backToPlans;
 window.removeExercise       = removeExercise;
 window.removeCustomExercise = removeCustomExercise;
+window.retrySyncProfiles    = retrySyncProfiles;
 window.changeHabit          = changeHabit;
 window.updateProfile        = updateProfile;
 window.openProfileMenu      = openProfileMenu;

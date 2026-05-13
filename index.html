@@ -44,6 +44,16 @@
   <p class="text-xs text-muted" style="text-align:center;margin-top:1.5rem">Your data stays private and syncs only to your account.</p>
 </div>
 
+<!-- ── SYNC SCREEN (authenticated, no local profiles yet) ── -->
+<div id="syncScreen" class="setup-screen" style="display:none">
+  <div class="setup-logo" style="text-align:center;margin-bottom:2rem">FitTrack<span>.</span></div>
+  <h1 class="setup-heading" style="text-align:center">No profiles found<br><em>on this device.</em></h1>
+  <p class="setup-sub" style="text-align:center;margin-bottom:2rem">Your profiles may be in the cloud. Tap Sync to pull them, or create a fresh profile for this device.</p>
+  <button class="btn btn-primary btn-full" id="syncRetryBtn" onclick="retrySyncProfiles()" style="margin-bottom:0.75rem">↻ Sync Profiles from Cloud</button>
+  <button class="btn btn-ghost btn-full" onclick="document.getElementById('syncScreen').style.display='none';showSetup()">Set Up New Profile →</button>
+  <button class="btn btn-ghost btn-sm btn-full" style="margin-top:1.25rem;opacity:0.6" onclick="signOut()">Sign out · try a different account</button>
+</div>
+
 <!-- ── PROFILE PICKER SCREEN ──────────────────────────── -->
 <div id="profilePickerScreen" class="setup-screen profile-picker-screen" style="display:none">
   <div class="profile-picker-inner">
@@ -722,12 +732,27 @@
   <div class="modal" style="position:relative">
     <div class="modal-handle"></div>
     <button class="modal-close" onclick="document.getElementById('profileMenuModal').classList.remove('open')">×</button>
-    <h3 class="modal-title">Profiles</h3>
-    <div id="profileSwitchList" style="margin-bottom:1rem"></div>
-    <div class="divider"></div>
-    <button class="btn btn-ghost btn-sm btn-full" style="border-style:dashed;margin-top:0.75rem" onclick="document.getElementById('profileMenuModal').classList.remove('open');addNewProfile()">+ Add New Profile</button>
+
+    <!-- Account info bar -->
+    <div class="account-info-bar" id="accountInfoBar">
+      <div class="account-info-avatar" id="accountInfoAvatar">?</div>
+      <div class="account-info-text">
+        <div class="account-info-name" id="accountInfoName">—</div>
+        <div class="account-info-email" id="accountInfoEmail">Not signed in</div>
+      </div>
+    </div>
+
+    <div class="divider" style="margin:0.75rem 0 1rem"></div>
+
+    <p class="modal-section-label">Profiles</p>
+    <div id="profileSwitchList" style="margin-bottom:0.75rem"></div>
+
+    <button class="btn btn-ghost btn-sm btn-full" style="border-style:dashed" onclick="document.getElementById('profileMenuModal').classList.remove('open');addNewProfile()">+ Add New Profile</button>
     <button class="btn btn-ghost btn-sm btn-full" style="margin-top:0.5rem" onclick="document.getElementById('profileMenuModal').classList.remove('open');document.getElementById('updateProfileModal').classList.add('open')">Edit Current Profile</button>
+
     <div class="divider" style="margin:0.75rem 0"></div>
+
+    <button class="btn btn-ghost btn-sm btn-full" style="margin-bottom:0.5rem" onclick="document.getElementById('profileMenuModal').classList.remove('open');retrySyncProfiles()">↻ Sync Profiles from Cloud</button>
     <button class="btn btn-ghost btn-sm btn-full" style="color:var(--accent);border-color:rgba(192,57,43,0.3)" onclick="document.getElementById('profileMenuModal').classList.remove('open');signOut()">Sign Out</button>
   </div>
 </div>
