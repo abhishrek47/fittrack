@@ -301,6 +301,24 @@ async function signOut() {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
 }
 
+// Merge cloud profiles into local, deduplicating by ID and by name
+function _mergeProfiles(local, cloudProfiles) {
+  const seenIds   = new Set(local.map(p => p.id));
+  const seenNames = new Set(local.map(p => p.name.trim().toLowerCase()));
+  let changed = false;
+  cloudProfiles.forEach(cp => {
+    if (!cp?.id || !cp?.name) return;
+    const nameKey = cp.name.trim().toLowerCase();
+    if (!seenIds.has(cp.id) && !seenNames.has(nameKey)) {
+      local.push(cp);
+      seenIds.add(cp.id);
+      seenNames.add(nameKey);
+      changed = true;
+    }
+  });
+  return changed;
+}
+
 async function _proceedAfterAuth(session) {
   AUTH_USER_ID = session?.user?.id || null;
   document.getElementById('authScreen').style.display = 'none';
@@ -311,12 +329,7 @@ async function _proceedAfterAuth(session) {
       const cloudProfiles = await pullProfilesFromCloud(AUTH_USER_ID);
       if (Array.isArray(cloudProfiles) && cloudProfiles.length > 0) {
         const local = getAllProfiles();
-        const localIds = new Set(local.map(p => p.id));
-        let changed = false;
-        cloudProfiles.forEach(cp => {
-          if (!localIds.has(cp.id)) { local.push(cp); changed = true; }
-        });
-        if (changed) saveAllProfiles(local);
+        if (_mergeProfiles(local, cloudProfiles)) saveAllProfiles(local);
       }
     } catch(e) { /* non-blocking */ }
 
@@ -358,10 +371,8 @@ async function retrySyncProfiles() {
     if (AUTH_USER_ID && typeof pullProfilesFromCloud === 'function') {
       const cloudProfiles = await pullProfilesFromCloud(AUTH_USER_ID);
       if (Array.isArray(cloudProfiles) && cloudProfiles.length > 0) {
-        const local   = getAllProfiles();
-        const localIds = new Set(local.map(p => p.id));
-        cloudProfiles.forEach(cp => { if (!localIds.has(cp.id)) local.push(cp); });
-        saveAllProfiles(local);
+        const local = getAllProfiles();
+        if (_mergeProfiles(local, cloudProfiles)) saveAllProfiles(local);
       }
     }
   } catch(e) { /* non-blocking */ }
@@ -441,6 +452,42 @@ function initApp() {
   renderAllDateNavs();
   switchSection('dashboard');
   setupEventListeners();
+}
+
+async function refreshApp() {
+  if (!ACTIVE_PROFILE) return;
+  const logo = document.querySelector('.nav-logo');
+  if (logo) { logo.style.opacity = '0.5'; logo.style.pointerEvents = 'none'; }
+
+  try {
+    // Pull fresh logs from cloud
+    if (typeof pullLogsFromCloud === 'function') {
+      const cloudLogs = await pullLogsFromCloud(ACTIVE_PROFILE.id);
+      if (cloudLogs && typeof cloudLogs === 'object') {
+        Object.keys(cloudLogs).forEach(date => {
+          if (!LOG[date]) LOG[date] = cloudLogs[date];
+          else LOG[date] = cloudLogs[date]; // cloud wins on refresh
+        });
+        saveLogs(ACTIVE_PROFILE.id, LOG);
+      }
+    }
+    // Pull fresh profiles from cloud
+    if (typeof pullProfilesFromCloud === 'function') {
+      const cloudProfiles = await pullProfilesFromCloud(ACTIVE_PROFILE.id);
+      if (Array.isArray(cloudProfiles) && cloudProfiles.length > 0) {
+        const local = getAllProfiles();
+        if (_mergeProfiles(local, cloudProfiles)) saveAllProfiles(local);
+      }
+    }
+    showToast('Data synced ✓', 'success');
+  } catch(e) {
+    showToast('Sync failed — check connection', '');
+  } finally {
+    if (logo) { logo.style.opacity = ''; logo.style.pointerEvents = ''; }
+  }
+
+  // Re-render current section with fresh data
+  switchSection(STATE.activeSection);
 }
 
 // ── PROFILE PICKER ─────────────────────────────────────────
@@ -1462,6 +1509,16 @@ function goToToday() {
 
 // ── PROFILE MANAGEMENT ────────────────────────────────────
 function openProfileMenu() {
+  // De-dupe localStorage in case cloud sync created duplicates by name
+  const raw = getAllProfiles();
+  const seenNames = new Set();
+  const deduped = raw.filter(p => {
+    const key = p.name.trim().toLowerCase();
+    if (seenNames.has(key)) return false;
+    seenNames.add(key); return true;
+  });
+  if (deduped.length !== raw.length) saveAllProfiles(deduped);
+
   const profiles = getAllProfiles();
   const menu = document.getElementById('profileMenuModal');
 
@@ -1584,6 +1641,7 @@ window.backToPlans          = backToPlans;
 window.removeExercise       = removeExercise;
 window.removeCustomExercise = removeCustomExercise;
 window.retrySyncProfiles    = retrySyncProfiles;
+window.refreshApp           = refreshApp;
 window.changeHabit          = changeHabit;
 window.updateProfile        = updateProfile;
 window.openProfileMenu      = openProfileMenu;

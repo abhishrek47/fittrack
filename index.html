@@ -180,7 +180,7 @@
 
 <!-- ── TOP NAV ─────────────────────────────────────────── -->
 <nav class="top-nav">
-  <div class="nav-logo">FitTrack<span>.</span></div>
+  <div class="nav-logo" onclick="refreshApp()" style="cursor:pointer">FitTrack<span>.</span></div>
   <span class="nav-date" id="navGreeting">Today</span>
   <button class="nav-profile-btn" id="profileBtn" title="Edit Profile">A</button>
 </nav>
@@ -679,7 +679,7 @@
     </div>
     <div class="search-wrap" style="margin-bottom:0.75rem">
       <svg class="search-icon" viewBox="0 0 20 20" fill="none"><circle cx="8.5" cy="8.5" r="5.5" stroke="currentColor" stroke-width="1.5"/><path d="M13 13l3.5 3.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
-      <input class="form-input" id="foodSearchInput" placeholder="Search — try 'idli', 'thepla', 'oats', 'paneer'…" type="text" autocomplete="off">
+      <input class="form-input" id="foodSearchInput" placeholder="Search — try 'idli', 'thepla', 'oats', 'paneer'…" type="text" autocomplete="off" oninput="handleFoodSearch(this.value)" onkeyup="handleFoodSearch(this.value)">
     </div>
     <div id="foodSearchResults" class="search-results"></div>
     <div class="divider"></div>
