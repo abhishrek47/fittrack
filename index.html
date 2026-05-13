@@ -45,14 +45,13 @@
 </div>
 
 <!-- ── PROFILE PICKER SCREEN ──────────────────────────── -->
-<div id="profilePickerScreen" class="setup-screen" style="display:none">
-  <div class="setup-logo">FitTrack<span>.</span></div>
-  <h1 class="setup-heading" style="margin-bottom:0.5rem">Who's <em>training?</em></h1>
-  <p class="setup-sub">Select your profile to load your data.</p>
-  <div id="profileList" style="margin-bottom:1.5rem"></div>
-  <button class="btn btn-ghost btn-full" onclick="showSetup(true)" style="border-style:dashed">
-    + Add New Profile
-  </button>
+<div id="profilePickerScreen" class="setup-screen profile-picker-screen" style="display:none">
+  <div class="profile-picker-inner">
+    <div class="setup-logo" style="text-align:center;margin-bottom:2.5rem">FitTrack<span>.</span></div>
+    <h1 class="profile-picker-heading">Who's <em>training?</em></h1>
+    <div id="profileList" class="profile-grid"></div>
+    <p class="profile-picker-hint">Select your profile to load your data</p>
+  </div>
 </div>
 
 <!-- ── SETUP SCREEN ─────────────────────────────────────── -->

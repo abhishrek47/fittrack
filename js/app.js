@@ -395,18 +395,28 @@ function renderProfileList() {
   const profiles = getAllProfiles();
   const container = document.getElementById('profileList');
   if (!container) return;
-  container.innerHTML = profiles.map(p => `
+  const goalShort = g => {
+    const map = { aggressive_loss:'Cut', loss:'Lose', maintain:'Maintain', recomp:'Recomp', gain:'Build', aggressive_gain:'Bulk' };
+    return map[g] || (g||'').replace('_',' ');
+  };
+  const profileCards = profiles.map(p => `
     <div class="profile-card" onclick="activateProfile('${p.id}')">
       <div class="profile-avatar" style="background:${p.avatarColor||'var(--accent)'}">
         ${p.name.charAt(0).toUpperCase()}
       </div>
       <div class="profile-info">
         <div class="profile-name">${p.name}</div>
-        <div class="profile-meta">${p.goal?.replace('_',' ')} · ${p.weight}kg · ${p.age}y</div>
+        <div class="profile-meta">${goalShort(p.goal)} · ${p.weight}kg · ${p.age}y</div>
       </div>
-      <div class="profile-arrow">→</div>
     </div>
   `).join('');
+  const addCard = `
+    <div class="profile-card-add" onclick="showSetup(true)">
+      <div class="profile-add-avatar">＋</div>
+      <div class="profile-add-label">Add Profile</div>
+    </div>
+  `;
+  container.innerHTML = profileCards + addCard;
 }
 
 // ── SETUP FLOW ─────────────────────────────────────────────
