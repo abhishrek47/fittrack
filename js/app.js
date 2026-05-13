@@ -317,16 +317,23 @@ async function _proceedAfterAuth(session) {
         if (changed) saveAllProfiles(local);
       }
     } catch(e) { /* non-blocking */ }
+
+    // Backfill: push any local-only profiles to cloud (handles first-time sync)
+    if (typeof syncProfileToCloud === 'function') {
+      getAllProfiles().forEach(p => syncProfileToCloud(p).catch(() => {}));
+    }
   }
 
   const profiles = getAllProfiles();
   const activeId = getActiveProfileId();
 
-  // Prefix migration: if user has old un-prefixed profiles and now has auth,
-  // we just load them as-is — they continue to work locally
   if (profiles.length === 0) {
     showSetup();
-  } else if (profiles.length === 1 && activeId) {
+  } else if (profiles.length === 1) {
+    // Only one profile — activate it directly (no picker needed)
+    activateProfile(activeId || profiles[0].id);
+  } else if (activeId && profiles.find(p => p.id === activeId)) {
+    // Multiple profiles, but one was last active on this device — go straight in
     activateProfile(activeId);
   } else {
     showProfilePicker();

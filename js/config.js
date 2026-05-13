@@ -109,12 +109,11 @@ async function syncProfileToCloud(profile) {
   });
 }
 
-/** Pull all profiles from Supabase for a given auth user prefix */
+/** Pull all profiles from Supabase (personal app — one auth account per user) */
 async function pullProfilesFromCloud(authUserId) {
   if (!SUPABASE_ENABLED) return null;
-  const prefix = authUserId ? encodeURIComponent(authUserId + '_') : '';
-  const filter = prefix ? `id=like.${prefix}*` : '';
-  const rows = await sbFetch(`fittrack_profiles?${filter}&select=id,data`);
+  // Profile IDs are local keys (p_xxxxx) — no auth prefix. Fetch all rows.
+  const rows = await sbFetch('fittrack_profiles?select=id,data');
   if (!Array.isArray(rows)) return null;
   return rows.map(r => r.data);
 }
