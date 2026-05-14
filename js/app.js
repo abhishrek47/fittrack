@@ -1,6 +1,6 @@
 // ============================================================
-// FITTRACK PRO — APP.JS
-// Multi-profile · localStorage · No backend required
+// FITTRACK — APP.JS
+// Multi-profile · localStorage · Supabase sync
 // ============================================================
 
 // ── PROFILE STORE ─────────────────────────────────────────
@@ -169,7 +169,7 @@ function changeExerciseSets(key, delta) {
   persistLogs(STATE.currentDate);
   // Update just the display elements without full re-render
   const setsEl = document.getElementById(`sets_${key}`);
-  if (setsEl) setsEl.textContent = prog.sets;
+  if (setsEl) setsEl.value = prog.sets;
   const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
   const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
   const exPlan  = dayPlan.exercises.find(e=>e.key===key);
@@ -200,12 +200,66 @@ function changeExerciseReps(key, delta) {
   prog.reps = Math.max(1, (prog.reps||10) + delta);
   persistLogs(STATE.currentDate);
   const repsEl = document.getElementById(`reps_${key}`);
-  if (repsEl) repsEl.textContent = prog.reps;
+  if (repsEl) repsEl.value = prog.reps;
   const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
   const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
   const exPlan  = dayPlan.exercises.find(e=>e.key===key);
   const calEl   = document.getElementById(`cal_${key}`);
   if (calEl && exPlan) calEl.textContent = `~${getActualCalsBurned(key, exPlan.reps, prog.sets||0, prog.reps, ACTIVE_PROFILE?.weight||70)} kcal`;
+}
+
+function setExerciseSetsDirectly(key, rawVal) {
+  const val = Math.max(0, Math.min(20, parseInt(rawVal) || 0));
+  const log = getLog(STATE.currentDate);
+  if (!log.workout.exerciseProgress) log.workout.exerciseProgress = {};
+  if (!log.workout.exerciseProgress[key]) {
+    const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
+    const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
+    const ex      = dayPlan.exercises.find(e=>e.key===key);
+    log.workout.exerciseProgress[key] = { sets: ex ? ex.sets : 3, reps: parseInt(ex?.reps)||10, done: false };
+  }
+  const prog = log.workout.exerciseProgress[key];
+  prog.sets = val;
+  prog.done = val > 0;
+  if (!log.workout.completedExercises) log.workout.completedExercises = [];
+  const idx = log.workout.completedExercises.indexOf(key);
+  if (prog.done && idx < 0) log.workout.completedExercises.push(key);
+  if (!prog.done && idx >= 0) log.workout.completedExercises.splice(idx, 1);
+  persistLogs(STATE.currentDate);
+  // Sync input value to clamped result
+  const setsEl = document.getElementById(`sets_${key}`);
+  if (setsEl) setsEl.value = val;
+  const card = document.getElementById(`ex_card_${key}`);
+  if (card) { card.classList.toggle('completed', prog.done); card.classList.toggle('selected', prog.done); }
+  const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
+  const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
+  const exPlan  = dayPlan.exercises.find(e=>e.key===key);
+  const calEl   = document.getElementById(`cal_${key}`);
+  if (calEl && exPlan) calEl.textContent = `~${getActualCalsBurned(key, exPlan.reps, val, prog.reps||parseInt(exPlan.reps)||10, ACTIVE_PROFILE?.weight||70)} kcal`;
+  _updateWorkoutTotals();
+  renderDashboard();
+}
+
+function setExerciseRepsDirectly(key, rawVal) {
+  const val = Math.max(1, Math.min(200, parseInt(rawVal) || 1));
+  const log = getLog(STATE.currentDate);
+  if (!log.workout.exerciseProgress) log.workout.exerciseProgress = {};
+  if (!log.workout.exerciseProgress[key]) {
+    const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
+    const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
+    const ex      = dayPlan.exercises.find(e=>e.key===key);
+    log.workout.exerciseProgress[key] = { sets: ex ? ex.sets : 3, reps: parseInt(ex?.reps)||10, done: false };
+  }
+  const prog = log.workout.exerciseProgress[key];
+  prog.reps = val;
+  persistLogs(STATE.currentDate);
+  const repsEl = document.getElementById(`reps_${key}`);
+  if (repsEl) repsEl.value = val;
+  const plan    = WORKOUT_PLANS.find(p=>p.id===STATE.workout.selectedVariation)||WORKOUT_PLANS[0];
+  const dayPlan = plan.days.find(d=>d.day===workoutDayNum)||plan.days[0];
+  const exPlan  = dayPlan.exercises.find(e=>e.key===key);
+  const calEl   = document.getElementById(`cal_${key}`);
+  if (calEl && exPlan) calEl.textContent = `~${getActualCalsBurned(key, exPlan.reps, prog.sets||0, val, ACTIVE_PROFILE?.weight||70)} kcal`;
 }
 
 function _updateWorkoutTotals() {
@@ -774,6 +828,20 @@ function renderStreaks() {
   setText('streak_protein', proStreak);
 }
 
+// ── YOUTUBE PLAYER ────────────────────────────────────────
+function playYouTube(key, videoId) {
+  const wrap = document.getElementById(`video_${key}`);
+  if (!wrap) return;
+  // Replace thumbnail with live iframe (autoplay=1 so user gets instant playback)
+  wrap.innerHTML = `<iframe
+    src="https://www.youtube.com/embed/${videoId}?rel=0&modestbranding=1&autoplay=1"
+    allowfullscreen
+    allow="autoplay; encrypted-media"
+    loading="lazy"
+    style="width:100%;height:100%;border:none"
+  ></iframe>`;
+}
+
 // ── DIET ──────────────────────────────────────────────────
 let dietActiveSearch = null;
 
@@ -1135,13 +1203,17 @@ function renderWorkoutDay() {
           <div class="reps-input-row">
             <label class="reps-label">Sets:</label>
             <button class="reps-btn" onclick="changeExerciseSets('${key}',-1)">−</button>
-            <span class="reps-val" id="sets_${key}">${doneSets}</span>
+            <input class="reps-val-input" id="sets_${key}" type="number" min="0" max="20" value="${doneSets}"
+              onchange="setExerciseSetsDirectly('${key}',this.value)"
+              onblur="setExerciseSetsDirectly('${key}',this.value)">
             <button class="reps-btn" onclick="changeExerciseSets('${key}',1)">+</button>
           </div>
           <div class="reps-input-row">
             <label class="reps-label">Reps:</label>
             <button class="reps-btn" onclick="changeExerciseReps('${key}',-1)">−</button>
-            <span class="reps-val" id="reps_${key}">${doneReps}</span>
+            <input class="reps-val-input" id="reps_${key}" type="number" min="1" max="200" value="${doneReps}"
+              onchange="setExerciseRepsDirectly('${key}',this.value)"
+              onblur="setExerciseRepsDirectly('${key}',this.value)">
             <button class="reps-btn" onclick="changeExerciseReps('${key}',1)">+</button>
           </div>
           <div class="reps-cals" id="cal_${key}">~${calsBurned} kcal</div>
@@ -1150,9 +1222,9 @@ function renderWorkoutDay() {
         <button class="exercise-expand-btn" onclick="toggleExerciseDetail('${key}')">▼</button>
       </div>
       <div class="exercise-detail" id="ex_detail_${key}">
-        <div class="video-wrap">
-          <iframe src="https://www.youtube.com/embed/${exData.youtubeId}?rel=0&modestbranding=1&autoplay=0" loading="lazy" allowfullscreen title="${exData.name}" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"></iframe>
-          <div class="video-fallback" style="display:none">Video unavailable offline</div>
+        <div class="video-wrap" id="video_${key}">
+          <img class="yt-thumb" src="https://img.youtube.com/vi/${exData.youtubeId}/hqdefault.jpg" alt="${exData.name}" loading="lazy">
+          <button class="yt-play-btn" onclick="playYouTube('${key}','${exData.youtubeId}')" aria-label="Watch ${exData.name} on YouTube">▶</button>
         </div>
         <div class="form-tips">
           <h4>Form Cues</h4>
@@ -2002,3 +2074,6 @@ window.uploadProgressPhoto  = uploadProgressPhoto;
 window.openPhotoFullscreen  = openPhotoFullscreen;
 window.closePhotoFullscreen = closePhotoFullscreen;
 window.renderPhotoGallery   = renderPhotoGallery;
+window.playYouTube              = playYouTube;
+window.setExerciseSetsDirectly  = setExerciseSetsDirectly;
+window.setExerciseRepsDirectly  = setExerciseRepsDirectly;
