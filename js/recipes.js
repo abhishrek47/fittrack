@@ -10,7 +10,6 @@ const RECIPE_CATS = [
   { id:'rajma',       label:'Rajma',          emoji:'🫘' },
   { id:'chhole',      label:'Chhole',         emoji:'🫘' },
   { id:'dal',         label:'Dal',            emoji:'🥣' },
-  { id:'eggs',        label:'Eggs',           emoji:'🥚' },
   { id:'sprouts',     label:'Sprouts',        emoji:'🌱' },
   { id:'oats',        label:'Oats & Quinoa',  emoji:'🌾' },
   { id:'curd',        label:'Curd & Milk',    emoji:'🥛' },
@@ -78,16 +77,6 @@ const RECIPES = [
   { id:2043, name:'Panchratan Dal',            cat:'dal',         emoji:'🥣', protein:14, cal:280, carbs:36, fat:6,  fiber:10, sodium:460, calcium:70,  iron:4.5, vitC:5,  servingSize:'1 bowl',      bestMeal:['lunch','dinner'],             difficulty:'medium', prepTime:40, desc:'Five-lentil blend cooked together — ultimate protein combo' },
   { id:2044, name:'Moong Dal Uttapam',         cat:'dal',         emoji:'🥣', protein:12, cal:220, carbs:32, fat:5,  fiber:5,  sodium:340, calcium:55,  iron:2.5, vitC:8,  servingSize:'2 uttapams',  bestMeal:['breakfast'],                  difficulty:'medium', prepTime:25, desc:'Thick moong dal pancakes topped with onion and tomato' },
 
-  // ── EGGS ──────────────────────────────────────────────────── (8)
-  { id:2045, name:'Egg Bhurji',                cat:'eggs',        emoji:'🥚', protein:14, cal:220, carbs:4,  fat:16, fiber:1, sodium:440, calcium:60,  iron:1.8, vitC:5,  servingSize:'2 eggs',      bestMeal:['breakfast','dinner'],         difficulty:'easy',   prepTime:10, desc:'Indian scrambled eggs with onions, tomatoes and spices' },
-  { id:2046, name:'Boiled Egg Salad',          cat:'eggs',        emoji:'🥚', protein:12, cal:180, carbs:6,  fat:10, fiber:2, sodium:300, calcium:55,  iron:1.5, vitC:12, servingSize:'2 eggs',      bestMeal:['snacks','lunch'],             difficulty:'easy',   prepTime:10, desc:'Boiled eggs with cucumber, tomato, chaat masala and lemon' },
-  { id:2047, name:'Egg Paratha',               cat:'eggs',        emoji:'🥚', protein:16, cal:340, carbs:36, fat:14, fiber:3, sodium:460, calcium:70,  iron:2.0, vitC:4,  servingSize:'2 parathas',  bestMeal:['breakfast','lunch'],          difficulty:'medium', prepTime:20, desc:'Whole-wheat flatbread stuffed with spiced egg filling' },
-  { id:2048, name:'Masala Omelette',           cat:'eggs',        emoji:'🥚', protein:14, cal:200, carbs:4,  fat:14, fiber:1, sodium:400, calcium:60,  iron:1.8, vitC:8,  servingSize:'2 eggs',      bestMeal:['breakfast'],                  difficulty:'easy',   prepTime:10, desc:'Fluffy omelette loaded with veggies, green chilli and spices' },
-  { id:2049, name:'Egg Curry',                 cat:'eggs',        emoji:'🥚', protein:16, cal:280, carbs:10, fat:18, fiber:2, sodium:520, calcium:70,  iron:2.5, vitC:8,  servingSize:'2 eggs',      bestMeal:['lunch','dinner'],             difficulty:'medium', prepTime:25, desc:'Hard-boiled eggs in aromatic onion-tomato gravy' },
-  { id:2050, name:'Shakshuka',                 cat:'eggs',        emoji:'🥚', protein:14, cal:250, carbs:14, fat:14, fiber:3, sodium:500, calcium:80,  iron:3.0, vitC:20, servingSize:'2 eggs',      bestMeal:['breakfast','dinner'],         difficulty:'easy',   prepTime:20, desc:'Eggs poached in spiced tomato-pepper sauce — Middle-Eastern style' },
-  { id:2051, name:'Egg Sandwich',              cat:'eggs',        emoji:'🥚', protein:16, cal:300, carbs:30, fat:12, fiber:3, sodium:440, calcium:100, iron:2.0, vitC:5,  servingSize:'2 slices',    bestMeal:['breakfast','snacks'],         difficulty:'easy',   prepTime:10, desc:'Grilled egg and vegetable sandwich on whole-grain bread' },
-  { id:2052, name:'Egg Fried Rice',            cat:'eggs',        emoji:'🥚', protein:16, cal:380, carbs:52, fat:10, fiber:3, sodium:580, calcium:65,  iron:2.0, vitC:8,  servingSize:'1.5 cups',    bestMeal:['lunch','dinner'],             difficulty:'easy',   prepTime:20, desc:'Indo-Chinese style fried rice with eggs and vegetables' },
-
   // ── SPROUTS ───────────────────────────────────────────────── (7)
   { id:2053, name:'Moong Sprouts Salad',       cat:'sprouts',     emoji:'🌱', protein:8,  cal:130, carbs:18, fat:2,  fiber:5, sodium:200, calcium:40,  iron:2.5, vitC:12, servingSize:'1 bowl',      bestMeal:['snacks','lunch'],             difficulty:'easy',   prepTime:10, desc:'Crunchy sprouted moong with lemon, cumin and fresh veggies' },
   { id:2054, name:'Sprouts Chaat',             cat:'sprouts',     emoji:'🌱', protein:9,  cal:160, carbs:24, fat:3,  fiber:6, sodium:280, calcium:45,  iron:2.8, vitC:15, servingSize:'1 bowl',      bestMeal:['snacks'],                     difficulty:'easy',   prepTime:10, desc:'Tangy sprouts chaat with chutneys, pomegranate and spices' },
@@ -126,7 +115,6 @@ const RECIPES = [
   { id:2081, name:'Green Moong Dal',           cat:'greens',      emoji:'🥬', protein:12, cal:200, carbs:28, fat:3,  fiber:7, sodium:360, calcium:55,  iron:3.0, vitC:8,  servingSize:'1 bowl',      bestMeal:['lunch','dinner'],             difficulty:'easy',   prepTime:20, desc:'Whole green moong cooked with ginger, turmeric and lemon' },
   { id:2082, name:'Methi Paratha',             cat:'greens',      emoji:'🥬', protein:8,  cal:280, carbs:42, fat:7,  fiber:5, sodium:340, calcium:100, iron:2.8, vitC:10, servingSize:'2 parathas',  bestMeal:['breakfast','lunch'],          difficulty:'medium', prepTime:20, desc:'Fenugreek-infused flatbread — naturally iron-rich and aromatic' },
   { id:2083, name:'Broccoli Paneer Stir Fry',  cat:'greens',      emoji:'🥬', protein:15, cal:240, carbs:10, fat:16, fiber:4, sodium:400, calcium:240, iron:2.5, vitC:85, servingSize:'1 bowl',      bestMeal:['lunch','dinner'],             difficulty:'easy',   prepTime:20, desc:'High-protein stir fry with broccoli, paneer and garlic sauce' },
-  { id:2084, name:'Spinach Egg White Omelette',cat:'greens',      emoji:'🥬', protein:16, cal:180, carbs:4,  fat:6,  fiber:2, sodium:360, calcium:100, iron:3.5, vitC:20, servingSize:'3 egg whites', bestMeal:['breakfast'],                  difficulty:'easy',   prepTime:10, desc:'Light, fluffy egg white omelette packed with fresh spinach' },
 
   // ── NUTS ──────────────────────────────────────────────────── (5)
   { id:2085, name:'Peanut Butter Toast',       cat:'nuts',        emoji:'🥜', protein:8,  cal:280, carbs:26, fat:14, fiber:4, sodium:220, calcium:30,  iron:1.5, vitC:2,  servingSize:'2 slices',    bestMeal:['breakfast'],                  difficulty:'easy',   prepTime:5,  desc:'Whole-grain toast with natural peanut butter and banana slices' },
