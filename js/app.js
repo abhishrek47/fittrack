@@ -2154,9 +2154,8 @@ function _buildRecipeCard(recipe, triedData) {
   // Difficulty dot
   const diffDot = `<span class="recipe-diff-dot ${recipe.difficulty}"></span>`;
 
-  // Watch YouTube button
-  const ytQuery = encodeURIComponent(recipe.name + ' recipe vegetarian protein rich');
-  const watchBtn = `<button class="recipe-watch-btn" onclick="watchRecipe('${ytQuery}')">▶ Watch Recipe</button>`;
+  // Watch YouTube button — use pinned ytId if available, else search fallback
+  const watchBtn = `<button class="recipe-watch-btn" onclick="watchRecipe(${recipe.id})">▶ Watch Recipe</button>`;
 
   return `
     <div class="recipe-card${triedData ? ' tried' : ''}" id="rcard_${recipe.id}">
@@ -2236,9 +2235,14 @@ function addRecipeToMeal(recipeId, meal) {
   showToast(`${recipe.emoji} ${recipe.name} added to ${getMealLabel(meal)} ✓`, 'success');
 }
 
-// Open YouTube search in new tab
-function watchRecipe(encodedQuery) {
-  window.open(`https://www.youtube.com/results?search_query=${encodedQuery}`, '_blank', 'noopener');
+// Open YouTube — direct video if ytId is set, else search fallback
+function watchRecipe(recipeId) {
+  const recipe = RECIPES.find(r => r.id === recipeId);
+  if (!recipe) return;
+  const url = recipe.ytId
+    ? `https://www.youtube.com/watch?v=${recipe.ytId}`
+    : `https://www.youtube.com/results?search_query=${encodeURIComponent(recipe.name + ' recipe Ranveer Brar')}`;
+  window.open(url, '_blank', 'noopener');
 }
 
 // ── UTILITIES ──────────────────────────────────────────────
