@@ -183,6 +183,8 @@ function changeExerciseSets(key, delta) {
   // Update totals
   _updateWorkoutTotals();
   renderDashboard();
+  // Start rest timer when a set is marked done
+  if (prog.done && delta > 0) startRestTimer(_rt.duration || 90);
 }
 
 function changeExerciseReps(key, delta) {
@@ -659,7 +661,8 @@ function switchSection(name) {
   document.getElementById(`section-${name}`)?.classList.add('active');
   document.querySelector(`.bottom-nav-item[data-section="${name}"]`)?.classList.add('active');
   if (name==='dashboard') renderDashboard();
-  if (name==='diet')      renderDiet();
+  if (name==='diet')      { renderDiet(); renderAllTemplateButtons(); }
+  if (name==='bmi')       { renderBMI(); renderTodayPhoto(); renderPhotoGallery(); }
   if (name==='workout') {
     // If user has an enrolled plan, jump directly to their current day
     if (STATE.workout.enrolledPlanId && workoutView === 'plans') {
@@ -669,7 +672,6 @@ function switchSection(name) {
     }
     renderWorkout();
   }
-  if (name==='bmi')       renderBMI();
   if (name==='habits')    renderHabits();
 }
 
@@ -732,30 +734,44 @@ function renderDashboard() {
   if (enrollNudge) enrollNudge.style.display = enrolledId ? 'none' : 'block';
 
   renderStreaks();
+  renderWeightDash();
+  renderWeeklySummary();
+  renderMeasurementsDash();
 }
 
 function renderStreaks() {
-  let streak = 0;
-  let d = STATE.currentDate;
+  const goals = getGoals();
+  // Logging streak — consecutive days with any food logged
+  let logStreak = 0, d = STATE.currentDate;
   for (let i=0;i<365;i++) {
     const l = LOG[d];
-    if (l && Object.values(l.meals).flat().length>0) { streak++; d=offsetDate(d,-1); }
+    if (l && Object.values(l.meals).flat().length>0) { logStreak++; d=offsetDate(d,-1); }
     else break;
   }
-  setText('streak_log', streak);
-  const log     = getLog(STATE.currentDate);
-  const enrolledId = STATE.workout.enrolledPlanId;
-  const planId  = enrolledId || STATE.workout.selectedVariation;
-  const plan    = WORKOUT_PLANS.find(p=>p.id===planId)||WORKOUT_PLANS[0];
-  const dayN    = enrolledId ? (STATE.workout.enrolledDay||1) : (log.workout.activeDay||1);
-  const dayPlan = plan.days.find(d=>d.day===dayN)||plan.days[0];
-  const customEx    = (log.workout.customExercises||[]);
-  const removedSet2 = new Set(log.workout.removedExercises||[]);
-  const total   = dayPlan.exercises.filter(e=>!removedSet2.has(e.key)).length + customEx.length;
-  const wDone   = Object.values(log.workout.exerciseProgress||{}).filter(p=>p.done).length
-                  || (log.workout.completedExercises||[]).length;
-  setText('streak_workout', `${wDone}/${total}`);
-  setText('streak_water',   log.water);
+  setText('streak_log', logStreak);
+
+  // Workout streak — consecutive days with ≥1 exercise done
+  let wkStreak = 0; d = STATE.currentDate;
+  for (let i=0;i<365;i++) {
+    const l = LOG[d];
+    const done = l ? (Object.values(l.workout?.exerciseProgress||{}).filter(p=>p.done).length
+                      || (l.workout?.completedExercises||[]).length) : 0;
+    if (done > 0) { wkStreak++; d=offsetDate(d,-1); }
+    else break;
+  }
+  setText('streak_workout', wkStreak);
+
+  // Protein streak — consecutive days hitting ≥90% protein goal
+  let proStreak = 0; d = STATE.currentDate;
+  for (let i=0;i<365;i++) {
+    const l = LOG[d];
+    if (l) {
+      const t = logTotals(d);
+      if (t.pro >= goals.protein * 0.9) { proStreak++; d=offsetDate(d,-1); }
+      else break;
+    } else break;
+  }
+  setText('streak_protein', proStreak);
 }
 
 // ── DIET ──────────────────────────────────────────────────
@@ -1605,6 +1621,312 @@ function setupEventListeners() {
   document.getElementById('profileBtn')?.addEventListener('click', openProfileMenu);
 }
 
+// ── WATER QUICK-ADD (dashboard) ───────────────────────────
+function addWaterDash() {
+  const log = getLog(STATE.currentDate);
+  const goals = getGoals();
+  log.water = Math.min(log.water + 1, goals.water + 4);
+  persistLogs(STATE.currentDate);
+  renderDashboard();
+  renderHabits();
+  showToast('Hydration logged 💧');
+}
+
+// ── WEIGHT LOG (dashboard) ────────────────────────────────
+function logWeightToday() {
+  const inp = document.getElementById('dash_weight_input');
+  const val = parseFloat(inp?.value);
+  if (!val || val < 20 || val > 300) { showToast('Enter a valid weight (20–300 kg)', 'error'); return; }
+  const log = getLog(STATE.currentDate);
+  log.weight = val;
+  persistLogs(STATE.currentDate);
+  renderWeightDash();
+  renderWeightLog();
+  if (inp) inp.blur();
+  showToast(`Weight logged: ${val} kg ✓`, 'success');
+}
+
+function renderWeightDash() {
+  const log     = getLog(STATE.currentDate);
+  const valEl   = document.getElementById('dash_weight_val');
+  const trendEl = document.getElementById('dash_weight_trend');
+  const inp     = document.getElementById('dash_weight_input');
+  if (valEl) valEl.textContent = log.weight ? `${log.weight} kg` : '—';
+  if (inp && log.weight) inp.value = log.weight;
+  if (trendEl) {
+    const yday = offsetDate(STATE.currentDate, -1);
+    const ylog = LOG[yday];
+    if (log.weight && ylog?.weight) {
+      const diff = +(log.weight - ylog.weight).toFixed(1);
+      trendEl.textContent = diff === 0 ? '=' : (diff > 0 ? `↑${diff}` : `↓${Math.abs(diff)}`) + ' kg';
+      trendEl.className   = 'dash-weight-trend ' + (diff < 0 ? 'clr-success' : diff > 0 ? 'clr-accent' : 'clr-muted');
+    } else { trendEl.textContent = ''; }
+  }
+}
+
+// ── WEEKLY SUMMARY ────────────────────────────────────────
+function renderWeeklySummary() {
+  const container = document.getElementById('weekly_summary_stats');
+  if (!container) return;
+  const goals = getGoals();
+  let calSum = 0, calDays = 0, proHit = 0, proDays = 0, workoutDays = 0;
+  const weights = [];
+  for (let i = 6; i >= 0; i--) {
+    const d   = offsetDate(STATE.currentDate, -i);
+    const log = LOG[d];
+    if (!log) continue;
+    const t = logTotals(d);
+    if (t.cal > 0) {
+      calSum += t.cal; calDays++;
+      proDays++;
+      if (t.pro >= goals.protein * 0.9) proHit++;
+    }
+    const wkDone = Object.values(log.workout?.exerciseProgress || {}).filter(p => p.done).length
+                   || (log.workout?.completedExercises || []).length;
+    if (wkDone > 0) workoutDays++;
+    if (log.weight) weights.push(log.weight);
+  }
+  const avgCal  = calDays  > 0 ? Math.round(calSum / calDays) : 0;
+  const proRate = proDays  > 0 ? Math.round(proHit / proDays * 100) : 0;
+  const wtTrend = weights.length >= 2 ? +(weights[weights.length-1] - weights[0]).toFixed(1) : null;
+  const wtHtml  = wtTrend !== null
+    ? `<div class="weekly-stat"><div class="weekly-val ${wtTrend<0?'clr-success':wtTrend>0?'clr-accent':''}">${wtTrend>0?'+':''}${wtTrend} kg</div><div class="weekly-lbl">Weight</div></div>`
+    : `<div class="weekly-stat"><div class="weekly-val clr-muted">—</div><div class="weekly-lbl">Weight</div></div>`;
+  container.innerHTML = `
+    <div class="weekly-stat"><div class="weekly-val">${avgCal||'—'}</div><div class="weekly-lbl">Avg kcal</div></div>
+    <div class="weekly-stat"><div class="weekly-val ${proRate>=80?'clr-success':''}">${proRate}%</div><div class="weekly-lbl">Protein</div></div>
+    <div class="weekly-stat"><div class="weekly-val">${workoutDays}/7</div><div class="weekly-lbl">Workouts</div></div>
+    ${wtHtml}`;
+}
+
+// ── COPY YESTERDAY'S MEALS ────────────────────────────────
+function copyYesterdayMeals() {
+  const today     = STATE.currentDate;
+  const yesterday = offsetDate(today, -1);
+  const yLog = LOG[yesterday];
+  if (!yLog || Object.values(yLog.meals).every(m => m.length === 0)) {
+    showToast('No meals logged yesterday', ''); return;
+  }
+  const todayLog  = getLog(today);
+  const hasMeals  = Object.values(todayLog.meals).some(m => m.length > 0);
+  if (hasMeals) { showToast('Today already has meals logged', ''); return; }
+  todayLog.meals = JSON.parse(JSON.stringify(yLog.meals));
+  persistLogs(today);
+  renderDiet();
+  renderDashboard();
+  showToast("Yesterday's meals copied ✓", 'success');
+}
+
+// ── MEAL TEMPLATES ────────────────────────────────────────
+function getMealTemplates() {
+  if (!ACTIVE_PROFILE) return {};
+  return JSON.parse(localStorage.getItem(`ft_templates_${ACTIVE_PROFILE.id}`) || '{}');
+}
+function saveMealTemplatesStore(t) {
+  if (!ACTIVE_PROFILE) return;
+  localStorage.setItem(`ft_templates_${ACTIVE_PROFILE.id}`, JSON.stringify(t));
+}
+function saveAsMealTemplate(meal) {
+  const log   = getLog(STATE.currentDate);
+  const items = log.meals[meal] || [];
+  if (items.length === 0) { showToast('No items to save as template', ''); return; }
+  const name = prompt(`Template name:`, `My ${meal.charAt(0).toUpperCase()+meal.slice(1)}`);
+  if (!name?.trim()) return;
+  const t = getMealTemplates();
+  if (!t[meal]) t[meal] = {};
+  t[meal][name.trim()] = JSON.parse(JSON.stringify(items));
+  saveMealTemplatesStore(t);
+  renderTemplateButtons(meal);
+  showToast(`Template "${name.trim()}" saved ✓`, 'success');
+}
+function loadMealTemplate(meal, name) {
+  const t     = getMealTemplates();
+  const items = t[meal]?.[name];
+  if (!items) return;
+  const log = getLog(STATE.currentDate);
+  log.meals[meal] = [...(log.meals[meal]||[]), ...JSON.parse(JSON.stringify(items))];
+  persistLogs(STATE.currentDate);
+  renderDiet(); renderDashboard();
+  showToast(`"${name}" loaded ✓`, 'success');
+}
+function deleteMealTemplate(meal, name) {
+  const t = getMealTemplates();
+  if (t[meal]) delete t[meal][name];
+  saveMealTemplatesStore(t);
+  renderTemplateButtons(meal);
+  showToast('Template deleted', '');
+}
+function renderTemplateButtons(meal) {
+  const container = document.getElementById(`template_btns_${meal}`);
+  if (!container) return;
+  const t     = getMealTemplates();
+  const names = Object.keys(t[meal] || {});
+  container.innerHTML = names.map(n =>
+    `<div class="template-chip">
+       <span onclick="loadMealTemplate('${meal}','${n.replace(/'/g,"\\'")}')">${n}</span>
+       <button onclick="deleteMealTemplate('${meal}','${n.replace(/'/g,"\\'")}')">×</button>
+     </div>`).join('');
+}
+function renderAllTemplateButtons() {
+  ['breakfast','lunch','dinner','snacks'].forEach(m => renderTemplateButtons(m));
+}
+
+// ── REST TIMER ────────────────────────────────────────────
+const _rt = { active:false, remaining:0, duration:90, _iv:null };
+function startRestTimer(secs) {
+  stopRestTimer();
+  _rt.duration  = secs || 90;
+  _rt.remaining = _rt.duration;
+  _rt.active    = true;
+  _renderRestTimerBar();
+  _rt._iv = setInterval(() => {
+    _rt.remaining--;
+    _renderRestTimerBar();
+    if (_rt.remaining <= 0) {
+      stopRestTimer();
+      if (navigator.vibrate) navigator.vibrate([200,100,200]);
+      showToast('Rest done — next set! 💪', 'success');
+    }
+  }, 1000);
+}
+function stopRestTimer() {
+  clearInterval(_rt._iv); _rt.active = false; _rt._iv = null;
+  _renderRestTimerBar();
+}
+function setRestDuration(secs) {
+  if (_rt.active) startRestTimer(secs);
+  else { _rt.duration = secs; }
+  document.querySelectorAll('.rest-dur-btn').forEach(b => b.classList.toggle('active', +b.dataset.secs===secs));
+}
+function _renderRestTimerBar() {
+  const bar = document.getElementById('restTimerBar');
+  if (!bar) return;
+  if (!_rt.active) { bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  const m = Math.floor(_rt.remaining/60), s = _rt.remaining%60;
+  const pct = Math.round((_rt.remaining/_rt.duration)*100);
+  const countEl = document.getElementById('restTimerCount');
+  const progEl  = document.getElementById('restTimerProgress');
+  if (countEl) countEl.textContent = `${m}:${String(s).padStart(2,'0')}`;
+  if (progEl)  progEl.style.width  = pct + '%';
+}
+
+// ── BODY MEASUREMENTS ─────────────────────────────────────
+function openMeasurementsModal() {
+  const log = getLog(STATE.currentDate);
+  const m   = log.measurements || {};
+  ['chest','waist','hips','arms','neck'].forEach(k => {
+    const el = document.getElementById(`meas_${k}`);
+    if (el) el.value = m[k] || '';
+  });
+  document.getElementById('measurementsModal').classList.add('open');
+}
+function closeMeasurementsModal() {
+  document.getElementById('measurementsModal').classList.remove('open');
+}
+function saveMeasurements() {
+  const log = getLog(STATE.currentDate);
+  const m   = {};
+  ['chest','waist','hips','arms','neck'].forEach(k => {
+    const v = parseFloat(document.getElementById(`meas_${k}`)?.value);
+    if (v > 0) m[k] = v;
+  });
+  log.measurements = m;
+  persistLogs(STATE.currentDate);
+  closeMeasurementsModal();
+  renderMeasurementsDash();
+  showToast('Measurements saved ✓', 'success');
+}
+function renderMeasurementsDash() {
+  const container = document.getElementById('dash_measurements');
+  if (!container) return;
+  const log  = getLog(STATE.currentDate);
+  const m    = log.measurements;
+  const keys = m ? Object.keys(m) : [];
+  if (keys.length === 0) {
+    container.innerHTML = `<div class="meas-empty">Tap + to log today's measurements</div>`;
+    return;
+  }
+  const labels = { chest:'Chest', waist:'Waist', hips:'Hips', arms:'Arms', neck:'Neck' };
+  container.innerHTML = keys.map(k =>
+    `<div class="meas-chip"><span class="meas-val">${m[k]}</span><span class="meas-lbl">${labels[k]||k}</span></div>`
+  ).join('');
+}
+
+// ── PROGRESS PHOTOS ───────────────────────────────────────
+async function uploadProgressPhoto(input) {
+  const file = input.files?.[0];
+  if (!file || !ACTIVE_PROFILE) return;
+  if (!supabaseClient) { showToast('Sign in to save photos to cloud', 'error'); return; }
+  if (file.size > 8 * 1024 * 1024) { showToast('Photo must be under 8 MB', 'error'); return; }
+  const ext  = file.type.includes('png') ? 'png' : 'jpg';
+  const path = `${ACTIVE_PROFILE.id}/${STATE.currentDate}.${ext}`;
+  showToast('Uploading…', '');
+  try {
+    const { error } = await supabaseClient.storage
+      .from('progress-photos').upload(path, file, { upsert: true, contentType: file.type });
+    if (error) throw error;
+    const log = getLog(STATE.currentDate);
+    log.photoPath = path;
+    persistLogs(STATE.currentDate);
+    renderTodayPhoto();
+    showToast('Photo saved ✓', 'success');
+  } catch(e) {
+    showToast('Upload failed — check connection', 'error');
+    console.warn('[FitTrack] Photo upload:', e);
+  }
+}
+async function _getPhotoUrl(path) {
+  if (!supabaseClient || !path) return null;
+  try {
+    return supabaseClient.storage.from('progress-photos').getPublicUrl(path).data?.publicUrl || null;
+  } catch(e) { return null; }
+}
+async function renderTodayPhoto() {
+  const container = document.getElementById('today_photo_wrap');
+  if (!container) return;
+  const log = getLog(STATE.currentDate);
+  if (!log.photoPath) {
+    container.innerHTML = `<label class="photo-upload-area" for="photoFileInput">
+      <span class="photo-upload-icon">📷</span>
+      <span class="photo-upload-lbl">Add progress photo</span>
+      <input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none" onchange="uploadProgressPhoto(this)">
+    </label>`; return;
+  }
+  const url = await _getPhotoUrl(log.photoPath);
+  if (url) container.innerHTML = `<div class="today-photo-wrap">
+    <img src="${url}" class="today-photo-img" onclick="openPhotoFullscreen('${url}')" alt="Today">
+    <label class="photo-retake-btn" for="photoFileInput">📷 Retake
+      <input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none" onchange="uploadProgressPhoto(this)">
+    </label></div>`;
+}
+async function renderPhotoGallery() {
+  const container = document.getElementById('photoGalleryGrid');
+  if (!container) return;
+  const photoDates = Object.entries(LOG).filter(([,l]) => l.photoPath)
+    .sort((a,b) => b[0].localeCompare(a[0])).slice(0,24);
+  if (photoDates.length === 0) {
+    container.innerHTML = '<div class="photo-gallery-empty">No progress photos yet</div>'; return;
+  }
+  container.innerHTML = '<div class="photo-loading">Loading…</div>';
+  const items = await Promise.all(photoDates.map(async ([date, l]) => {
+    const url = await _getPhotoUrl(l.photoPath);
+    if (!url) return '';
+    return `<div class="photo-thumb" onclick="openPhotoFullscreen('${url}')">
+      <img src="${url}" loading="lazy" alt="${date}">
+      <span>${formatDate(date)}</span></div>`;
+  }));
+  container.innerHTML = items.filter(Boolean).join('') || '<div class="photo-gallery-empty">No photos available</div>';
+}
+function openPhotoFullscreen(url) {
+  const ov = document.getElementById('photoFullscreenOverlay');
+  const im = document.getElementById('photoFullscreenImg');
+  if (ov && im) { im.src = url; ov.classList.add('open'); }
+}
+function closePhotoFullscreen() {
+  document.getElementById('photoFullscreenOverlay')?.classList.remove('open');
+}
+
 // ── UTILITIES ──────────────────────────────────────────────
 function setText(id, val) { const el=document.getElementById(id); if(el) el.textContent=val; }
 function setBar(id, pct) {
@@ -1663,3 +1985,20 @@ window.switchProfile        = switchProfile;
 window.addNewProfile        = addNewProfile;
 window.activateProfile      = activateProfile;
 window.STATE                = STATE;
+// New features
+window.addWaterDash         = addWaterDash;
+window.logWeightToday       = logWeightToday;
+window.copyYesterdayMeals   = copyYesterdayMeals;
+window.saveAsMealTemplate   = saveAsMealTemplate;
+window.loadMealTemplate     = loadMealTemplate;
+window.deleteMealTemplate   = deleteMealTemplate;
+window.startRestTimer       = startRestTimer;
+window.stopRestTimer        = stopRestTimer;
+window.setRestDuration      = setRestDuration;
+window.openMeasurementsModal  = openMeasurementsModal;
+window.closeMeasurementsModal = closeMeasurementsModal;
+window.saveMeasurements     = saveMeasurements;
+window.uploadProgressPhoto  = uploadProgressPhoto;
+window.openPhotoFullscreen  = openPhotoFullscreen;
+window.closePhotoFullscreen = closePhotoFullscreen;
+window.renderPhotoGallery   = renderPhotoGallery;

@@ -244,10 +244,25 @@
 
     <!-- Water -->
     <div class="card">
-      <div class="card-title"><span class="dot" style="background:#2980b9"></span>Hydration</div>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem">
+        <div class="card-title" style="margin-bottom:0"><span class="dot" style="background:#2980b9"></span>Hydration</div>
+        <button class="quick-add-btn" onclick="addWaterDash()">+ Glass</button>
+      </div>
       <div class="progress-wrap" style="margin-bottom:0">
         <div class="progress-label"><span>Water</span><span id="dash_water_val">0 / 8 glasses</span></div>
         <div class="progress-bar"><div class="progress-fill water" id="dash_water_bar" style="width:0%"></div></div>
+      </div>
+    </div>
+
+    <!-- Weight log -->
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#8b5e3c"></span>Today's Weight
+        <span class="dash-weight-trend" id="dash_weight_trend" style="margin-left:0.5rem;font-size:0.75rem"></span>
+      </div>
+      <div style="display:flex;align-items:center;gap:0.5rem">
+        <span class="weight-current-val" id="dash_weight_val">—</span>
+        <input type="number" id="dash_weight_input" class="weight-quick-input" placeholder="kg" min="20" max="300" step="0.1" onkeydown="if(event.key==='Enter')logWeightToday()">
+        <button class="quick-add-btn" onclick="logWeightToday()">Log</button>
       </div>
     </div>
 
@@ -273,19 +288,42 @@
       <div class="streak-badge">
         <div class="streak-icon">🔥</div>
         <div class="streak-num" id="streak_log">0</div>
-        <div class="streak-lbl">Day Streak</div>
+        <div class="streak-lbl">Log Streak</div>
       </div>
       <div class="streak-badge">
         <div class="streak-icon">💪</div>
-        <div class="streak-num" id="streak_workout">0/0</div>
-        <div class="streak-lbl">Exercises</div>
+        <div class="streak-num" id="streak_workout">0</div>
+        <div class="streak-lbl">Workout Streak</div>
       </div>
       <div class="streak-badge">
-        <div class="streak-icon">💧</div>
-        <div class="streak-num" id="streak_water">0</div>
-        <div class="streak-lbl">Glasses</div>
+        <div class="streak-icon">🥩</div>
+        <div class="streak-num" id="streak_protein">0</div>
+        <div class="streak-lbl">Protein Streak</div>
       </div>
     </div>
+
+    <!-- Weekly summary -->
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#5d3a7a"></span>Last 7 Days</div>
+      <div class="weekly-summary-grid" id="weekly_summary_stats">
+        <div class="weekly-stat"><div class="weekly-val">—</div><div class="weekly-lbl">Avg kcal</div></div>
+        <div class="weekly-stat"><div class="weekly-val">—</div><div class="weekly-lbl">Protein</div></div>
+        <div class="weekly-stat"><div class="weekly-val">—</div><div class="weekly-lbl">Workouts</div></div>
+        <div class="weekly-stat"><div class="weekly-val clr-muted">—</div><div class="weekly-lbl">Weight</div></div>
+      </div>
+    </div>
+
+    <!-- Body measurements -->
+    <div class="card">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.6rem">
+        <div class="card-title" style="margin-bottom:0"><span class="dot" style="background:#2d7a2d"></span>Measurements</div>
+        <button class="quick-add-btn" onclick="openMeasurementsModal()">+ Log</button>
+      </div>
+      <div class="meas-chips-row" id="dash_measurements">
+        <div class="meas-empty">Tap + to log today's measurements</div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -336,6 +374,9 @@
       <div class="micro-chip"><div class="val text-accent" style="cursor:pointer" onclick="document.getElementById('customFoodModal').classList.add('open');dietActiveSearch='breakfast'">+ Custom</div><div class="lbl">Add Food</div></div>
     </div>
 
+    <!-- Copy yesterday button -->
+    <button class="copy-yesterday-btn" onclick="copyYesterdayMeals()">↩ Copy from yesterday</button>
+
     <!-- Meals -->
     <!-- BREAKFAST -->
     <div class="meal-section">
@@ -348,9 +389,11 @@
         <button class="meal-toggle" id="meal_toggle_breakfast">▼</button>
       </div>
       <div class="meal-body" id="meal_body_breakfast">
-        <div class="meal-add-area">
-          <button class="btn btn-ghost btn-sm btn-full" onclick="openFoodSearch('breakfast')">+ Add Food</button>
+        <div class="meal-add-area" style="display:flex;gap:0.4rem">
+          <button class="btn btn-ghost btn-sm" style="flex:1" onclick="openFoodSearch('breakfast')">+ Add Food</button>
+          <button class="btn btn-ghost btn-sm template-save-btn" onclick="saveAsMealTemplate('breakfast')" title="Save as template">💾</button>
         </div>
+        <div class="template-chips-row" id="template_btns_breakfast"></div>
         <div class="meal-items" id="meal_items_breakfast"></div>
       </div>
     </div>
@@ -366,9 +409,11 @@
         <button class="meal-toggle" id="meal_toggle_lunch">▼</button>
       </div>
       <div class="meal-body" id="meal_body_lunch">
-        <div class="meal-add-area">
-          <button class="btn btn-ghost btn-sm btn-full" onclick="openFoodSearch('lunch')">+ Add Food</button>
+        <div class="meal-add-area" style="display:flex;gap:0.4rem">
+          <button class="btn btn-ghost btn-sm" style="flex:1" onclick="openFoodSearch('lunch')">+ Add Food</button>
+          <button class="btn btn-ghost btn-sm template-save-btn" onclick="saveAsMealTemplate('lunch')" title="Save as template">💾</button>
         </div>
+        <div class="template-chips-row" id="template_btns_lunch"></div>
         <div class="meal-items" id="meal_items_lunch"></div>
       </div>
     </div>
@@ -384,9 +429,11 @@
         <button class="meal-toggle" id="meal_toggle_snacks">▼</button>
       </div>
       <div class="meal-body" id="meal_body_snacks">
-        <div class="meal-add-area">
-          <button class="btn btn-ghost btn-sm btn-full" onclick="openFoodSearch('snacks')">+ Add Snack</button>
+        <div class="meal-add-area" style="display:flex;gap:0.4rem">
+          <button class="btn btn-ghost btn-sm" style="flex:1" onclick="openFoodSearch('snacks')">+ Add Snack</button>
+          <button class="btn btn-ghost btn-sm template-save-btn" onclick="saveAsMealTemplate('snacks')" title="Save as template">💾</button>
         </div>
+        <div class="template-chips-row" id="template_btns_snacks"></div>
         <div class="meal-items" id="meal_items_snacks"></div>
       </div>
     </div>
@@ -402,9 +449,11 @@
         <button class="meal-toggle" id="meal_toggle_dinner">▼</button>
       </div>
       <div class="meal-body" id="meal_body_dinner">
-        <div class="meal-add-area">
-          <button class="btn btn-ghost btn-sm btn-full" onclick="openFoodSearch('dinner')">+ Add Food</button>
+        <div class="meal-add-area" style="display:flex;gap:0.4rem">
+          <button class="btn btn-ghost btn-sm" style="flex:1" onclick="openFoodSearch('dinner')">+ Add Food</button>
+          <button class="btn btn-ghost btn-sm template-save-btn" onclick="saveAsMealTemplate('dinner')" title="Save as template">💾</button>
         </div>
+        <div class="template-chips-row" id="template_btns_dinner"></div>
         <div class="meal-items" id="meal_items_dinner"></div>
       </div>
     </div>
@@ -460,6 +509,25 @@
       <div class="tab-row" id="workout_day_tabs"></div>
 
       <div id="workout_exercises"></div>
+    </div>
+
+    <!-- Rest Timer Bar (fixed bottom of workout section) -->
+    <div id="restTimerBar" class="rest-timer-bar" style="display:none">
+      <div class="rest-timer-inner">
+        <div class="rest-timer-left">
+          <span class="rest-timer-label">Rest</span>
+          <span class="rest-timer-count" id="restTimerCount">1:30</span>
+        </div>
+        <div class="rest-timer-progress-wrap">
+          <div class="rest-timer-progress" id="restTimerProgress" style="width:100%"></div>
+        </div>
+        <div class="rest-dur-btns">
+          <button class="rest-dur-btn" data-secs="60"  onclick="setRestDuration(60)">60s</button>
+          <button class="rest-dur-btn active" data-secs="90" onclick="setRestDuration(90)">90s</button>
+          <button class="rest-dur-btn" data-secs="120" onclick="setRestDuration(120)">2m</button>
+        </div>
+        <button class="rest-stop-btn" onclick="stopRestTimer()">✕</button>
+      </div>
     </div>
   </div>
 </section>
@@ -528,7 +596,27 @@
     <!-- Weight log -->
     <div class="card">
       <div class="card-title"><span class="dot"></span>Weight History</div>
-      <div id="weight_log_list"><div class="empty-state" style="padding:1rem"><p>Update your weight daily via the button above to track progress.</p></div></div>
+      <div id="weight_log_list"><div class="empty-state" style="padding:1rem"><p>Log your weight daily from the dashboard to track progress.</p></div></div>
+    </div>
+
+    <!-- Progress photos -->
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#8b5e3c"></span>Progress Photo</div>
+      <div id="today_photo_wrap">
+        <label class="photo-upload-area" for="photoFileInput">
+          <span class="photo-upload-icon">📷</span>
+          <span class="photo-upload-lbl">Add today's progress photo</span>
+          <input type="file" id="photoFileInput" accept="image/*" capture="environment" style="display:none" onchange="uploadProgressPhoto(this)">
+        </label>
+      </div>
+    </div>
+
+    <!-- Photo gallery -->
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#8b5e3c"></span>Photo Gallery</div>
+      <div id="photoGalleryGrid" class="photo-gallery-grid">
+        <div class="photo-gallery-empty">No progress photos yet</div>
+      </div>
     </div>
   </div>
 </section>
@@ -799,6 +887,45 @@
     </div>
     <p class="text-xs text-muted" style="margin-bottom:0.875rem">Today's weight will be logged for trend tracking.</p>
     <button class="btn btn-primary btn-full" onclick="updateProfile()">Save Changes →</button>
+  </div>
+</div>
+
+<!-- Body Measurements Modal -->
+<div class="modal-overlay modal-center" id="measurementsModal">
+  <div class="modal" style="position:relative;max-width:360px">
+    <button class="modal-close" onclick="closeMeasurementsModal()">×</button>
+    <h3 class="modal-title">Body Measurements</h3>
+    <p class="text-muted text-xs" style="margin-bottom:1rem">All values in cm. Leave blank to skip.</p>
+    <div class="meas-input-grid">
+      <div class="meas-input-row">
+        <label>Chest</label>
+        <input type="number" id="meas_chest" class="form-input" placeholder="cm" min="40" max="200" step="0.1">
+      </div>
+      <div class="meas-input-row">
+        <label>Waist</label>
+        <input type="number" id="meas_waist" class="form-input" placeholder="cm" min="40" max="200" step="0.1">
+      </div>
+      <div class="meas-input-row">
+        <label>Hips</label>
+        <input type="number" id="meas_hips" class="form-input" placeholder="cm" min="40" max="200" step="0.1">
+      </div>
+      <div class="meas-input-row">
+        <label>Arms</label>
+        <input type="number" id="meas_arms" class="form-input" placeholder="cm" min="15" max="80" step="0.1">
+      </div>
+      <div class="meas-input-row">
+        <label>Neck</label>
+        <input type="number" id="meas_neck" class="form-input" placeholder="cm" min="20" max="70" step="0.1">
+      </div>
+    </div>
+    <button class="btn btn-primary btn-full" style="margin-top:1rem" onclick="saveMeasurements()">Save Measurements</button>
+  </div>
+</div>
+
+<!-- Photo Fullscreen Overlay -->
+<div class="modal-overlay" id="photoFullscreenOverlay" style="background:rgba(0,0,0,0.92);z-index:9999" onclick="closePhotoFullscreen()">
+  <div style="display:flex;align-items:center;justify-content:center;width:100%;height:100%;padding:1rem">
+    <img id="photoFullscreenImg" src="" alt="Progress photo" style="max-width:100%;max-height:90vh;border-radius:12px;object-fit:contain">
   </div>
 </div>
 
