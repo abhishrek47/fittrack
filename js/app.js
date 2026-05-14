@@ -2157,6 +2157,9 @@ function _buildRecipeCard(recipe, triedData) {
   // Watch YouTube button — use pinned ytId if available, else search fallback
   const watchBtn = `<button class="recipe-watch-btn" onclick="watchRecipe(${recipe.id})">▶ Watch Recipe</button>`;
 
+  // Share button
+  const shareBtn = `<button class="recipe-share-btn" onclick="shareRecipe(${recipe.id})" title="Share recipe"><svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg></button>`;
+
   return `
     <div class="recipe-card${triedData ? ' tried' : ''}" id="rcard_${recipe.id}">
       ${triedBadge}
@@ -2164,6 +2167,7 @@ function _buildRecipeCard(recipe, triedData) {
         <div class="recipe-emoji">${recipe.emoji}</div>
         <div class="recipe-name">${recipe.name}</div>
         <div class="recipe-cat-badge">${getRecipeCatLabel(recipe.cat)}</div>
+        ${shareBtn}
       </div>
       <div class="recipe-protein-row">
         <span class="recipe-protein-val">${recipe.protein}g</span>
@@ -2233,6 +2237,26 @@ function addRecipeToMeal(recipeId, meal) {
   renderDashboard();
 
   showToast(`${recipe.emoji} ${recipe.name} added to ${getMealLabel(meal)} ✓`, 'success');
+}
+
+// Share recipe via native share sheet (WhatsApp, iMessage, etc.) or clipboard fallback
+function shareRecipe(recipeId) {
+  const recipe = RECIPES.find(r => r.id === recipeId);
+  if (!recipe) return;
+  const ytLink = recipe.ytId ? `\n▶ Watch: https://www.youtube.com/watch?v=${recipe.ytId}` : '';
+  const text = `${recipe.emoji} *${recipe.name}*\n${recipe.desc}\n\n💪 ${recipe.protein}g protein · ${recipe.cal} kcal · ${recipe.prepTime} min${ytLink}`;
+  if (navigator.share) {
+    navigator.share({ title: recipe.name, text }).catch(() => {});
+  } else {
+    navigator.clipboard.writeText(text).then(() => {
+      const btn = document.querySelector(`#rcard_${recipeId} .recipe-share-btn`);
+      if (btn) {
+        btn.classList.add('copied');
+        btn.title = 'Copied!';
+        setTimeout(() => { btn.classList.remove('copied'); btn.title = 'Share recipe'; }, 2000);
+      }
+    }).catch(() => {});
+  }
 }
 
 // Open YouTube — direct video if ytId is set, else search fallback
@@ -2331,3 +2355,4 @@ window.setRecipeCat             = setRecipeCat;
 window.filterRecipes            = filterRecipes;
 window.addRecipeToMeal          = addRecipeToMeal;
 window.watchRecipe              = watchRecipe;
+window.shareRecipe              = shareRecipe;

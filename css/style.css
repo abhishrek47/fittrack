@@ -1921,6 +1921,34 @@ button {
   color: var(--accent);
   background: rgba(192,57,43,0.05);
 }
+.recipe-share-btn {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.55rem;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1.5px solid var(--border);
+  border-radius: 50%;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: border-color 0.18s, color 0.18s, background 0.18s;
+  padding: 0;
+  flex-shrink: 0;
+}
+.recipe-share-btn:hover {
+  border-color: #25D366;
+  color: #25D366;
+  background: rgba(37,211,102,0.08);
+}
+.recipe-share-btn.copied {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: rgba(192,57,43,0.08);
+}
 .recipe-add-row {
   display: flex;
   flex-wrap: wrap;
