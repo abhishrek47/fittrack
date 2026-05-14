@@ -225,6 +225,26 @@ const FOODS = [
   { id:325, name:"Tomato Rice",             cat:"rice",     emoji:"🍚", serving:1,  unit:"bowl",   cal:225, pro:5,   carb:44,  fat:3,   fiber:1.5, sodium:290, calcium:25,  iron:1.2, vitC:8   },
   { id:326, name:"Veg Fried Rice",          cat:"rice",     emoji:"🍛", serving:1,  unit:"bowl",   cal:290, pro:7,   carb:52,  fat:6,   fiber:2.5, sodium:520, calcium:25,  iron:1.2, vitC:5   },
   { id:327, name:"Sabudana Khichdi",        cat:"rice",     emoji:"⚪", serving:1,  unit:"bowl",   cal:350, pro:5,   carb:65,  fat:9,   fiber:1.5, sodium:280, calcium:30,  iron:1,   vitC:0   },
+  { id:381, name:"Plain White Rice",        cat:"rice",     emoji:"🍚", serving:1,  unit:"cup",    cal:200, pro:4,   carb:44,  fat:0.4, fiber:0.4, sodium:1,   calcium:10,  iron:0.2, vitC:0   },
+  { id:382, name:"Sona Masoori Rice",       cat:"rice",     emoji:"🍚", serving:1,  unit:"cup",    cal:195, pro:4,   carb:43,  fat:0.3, fiber:0.5, sodium:2,   calcium:12,  iron:0.3, vitC:0   },
+  { id:383, name:"Red Rice",                cat:"rice",     emoji:"🍚", serving:1,  unit:"cup",    cal:216, pro:4.9, carb:45,  fat:1.8, fiber:2,   sodium:8,   calcium:12,  iron:0.5, vitC:0   },
+  { id:384, name:"Brown Rice",              cat:"rice",     emoji:"🍚", serving:1,  unit:"cup",    cal:218, pro:4.5, carb:46,  fat:1.6, fiber:3.5, sodium:10,  calcium:20,  iron:1,   vitC:0   },
+  { id:385, name:"Matar Pulao",             cat:"rice",     emoji:"🍛", serving:1,  unit:"bowl",   cal:255, pro:7,   carb:48,  fat:4,   fiber:3,   sodium:360, calcium:30,  iron:1.5, vitC:8   },
+  { id:386, name:"Coconut Rice",            cat:"rice",     emoji:"🍚", serving:1,  unit:"bowl",   cal:290, pro:5,   carb:46,  fat:9,   fiber:2,   sodium:200, calcium:20,  iron:1,   vitC:0   },
+  { id:387, name:"Tamarind Rice",           cat:"rice",     emoji:"🍚", serving:1,  unit:"bowl",   cal:260, pro:5,   carb:50,  fat:5,   fiber:1.5, sodium:400, calcium:20,  iron:1.5, vitC:4   },
+  { id:388, name:"Methi Rice",              cat:"rice",     emoji:"🍛", serving:1,  unit:"bowl",   cal:240, pro:6,   carb:44,  fat:4,   fiber:3,   sodium:310, calcium:80,  iron:3,   vitC:6   },
+  { id:389, name:"Dal Khichdi",             cat:"rice",     emoji:"🍛", serving:1,  unit:"bowl",   cal:280, pro:10,  carb:48,  fat:5,   fiber:5,   sodium:380, calcium:50,  iron:2.5, vitC:3   },
+  { id:390, name:"Bisi Bele Bath",          cat:"rice",     emoji:"🍛", serving:1,  unit:"bowl",   cal:320, pro:10,  carb:54,  fat:7,   fiber:6,   sodium:460, calcium:60,  iron:3,   vitC:6   },
+  { id:391, name:"Khichdi",                 cat:"rice",     emoji:"🍛", serving:1,  unit:"bowl",   cal:260, pro:8,   carb:46,  fat:4,   fiber:4,   sodium:340, calcium:45,  iron:2,   vitC:2   },
+  { id:392, name:"Pongal",                  cat:"rice",     emoji:"🍛", serving:1,  unit:"bowl",   cal:310, pro:9,   carb:50,  fat:9,   fiber:3,   sodium:320, calcium:40,  iron:2,   vitC:2   },
+
+  // ── GUJARATI SPECIALTIES ─────────────────────────────────────
+  // Fajeto: traditional Gujarati mango-yogurt curry. Made by simmering ripe mango
+  // pulp with beaten yogurt, turmeric, mustard, cumin, asafoetida, ginger, green
+  // chilli and curry leaves. A seasonal summer dish — sweet, sour and spiced.
+  // Eaten as a curry alongside roti or rice. No cream, low fat, probiotic.
+  { id:393, name:"Fajeto",                  cat:"rice",     emoji:"🥭", serving:1,  unit:"bowl",   cal:160, pro:5,   carb:26,  fat:4,   fiber:1.5, sodium:280, calcium:130, iron:0.8, vitC:18  },
+  { id:394, name:"Aam Ras",                 cat:"rice",     emoji:"🥭", serving:1,  unit:"cup",    cal:120, pro:1.2, carb:28,  fat:0.4, fiber:1.5, sodium:10,  calcium:18,  iron:0.4, vitC:36  },
 
   // ── TEA & COFFEE VARIETIES ───────────────────────────────────
   { id:340, name:"Masala Chai",             cat:"tea",      emoji:"🍵", serving:1,  unit:"cup",    cal:90,  pro:2.2, carb:16,  fat:2.2, fiber:0,   sodium:25,  calcium:95,  iron:0.1, vitC:0   },
@@ -624,12 +644,43 @@ function getWorkoutRecommendation(profile) {
   return { planId, reason, tips };
 }
 
+// Alternate-name aliases so common shorthands still find the right item
+const FOOD_ALIASES = {
+  'rice':        ['basmati rice','jeera rice','veg fried rice','curd rice','lemon rice','tomato rice',
+                  'plain white rice','brown rice','red rice','sona masoori rice','matar pulao',
+                  'coconut rice','tamarind rice','methi rice','dal khichdi','bisi bele bath','khichdi','pongal'],
+  'chawal':      ['basmati rice','plain white rice','jeera rice','curd rice'],
+  'dahi chawal': ['curd rice'],
+  'thayir sadam':['curd rice'],
+  'puliyodarai': ['tamarind rice'],
+  'fajeto':      ['fajeto'],
+  'aam ras':     ['aam ras'],
+  'mango curry': ['fajeto'],
+  'khichdi':     ['khichdi','dal khichdi','sabudana khichdi'],
+};
+
 function searchFoods(query, category) {
   const q = query.toLowerCase().trim();
+  if (q === '') {
+    return category ? FOODS.filter(f => f.cat === category) : FOODS;
+  }
+
+  // Build set of item names matched by any alias
+  const aliasMatches = new Set();
+  for (const [alias, targets] of Object.entries(FOOD_ALIASES)) {
+    if (alias.includes(q) || q.includes(alias)) {
+      targets.forEach(t => aliasMatches.add(t.toLowerCase()));
+    }
+  }
+
   return FOODS.filter(f => {
-    // Prefix match: type "C" → only items starting with C; "CH" → items starting with CH etc.
-    const matchQ = q === '' || f.name.toLowerCase().startsWith(q);
-    const matchC = !category || f.cat === category;
-    return matchQ && matchC;
+    if (category && f.cat !== category) return false;
+    const name = f.name.toLowerCase();
+    return name.includes(q) || aliasMatches.has(name);
+  }).sort((a, b) => {
+    // starts-with ranked above contains
+    const aS = a.name.toLowerCase().startsWith(q) ? 0 : 1;
+    const bS = b.name.toLowerCase().startsWith(q) ? 0 : 1;
+    return aS - bS || a.name.localeCompare(b.name);
   });
 }
