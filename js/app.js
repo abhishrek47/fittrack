@@ -911,7 +911,14 @@ function renderMealItems(meal) {
     <div class="meal-item">
       <div class="meal-item-info">
         <div class="meal-item-name">${item.emoji||''} ${item.name}</div>
-        <div class="meal-item-meta">${item.qty||1}× ${item.unit} · P:${Math.round((item.pro||0)*(item.qty||1))}g C:${Math.round((item.carb||0)*(item.qty||1))}g F:${Math.round((item.fat||0)*(item.qty||1))}g</div>
+        <div class="meal-item-meta">
+          <span class="qty-stepper">
+            <button class="qty-btn" onclick="changeItemQty('${meal}',${i},-0.5)">−</button>
+            <span class="qty-val">${+(item.qty||1)}×</span>
+            <button class="qty-btn" onclick="changeItemQty('${meal}',${i},0.5)">+</button>
+          </span>
+          ${item.unit} · P:${Math.round((item.pro||0)*(item.qty||1))}g C:${Math.round((item.carb||0)*(item.qty||1))}g F:${Math.round((item.fat||0)*(item.qty||1))}g
+        </div>
       </div>
       <div style="display:flex;align-items:center;gap:8px;flex-shrink:0">
         <span class="meal-item-cal">${Math.round((item.cal||0)*(item.qty||1))}</span>
@@ -1017,6 +1024,17 @@ function confirmAddFood() {
   renderDiet();
   renderDashboard();
   showToast(`Added ${added.name} ✓`, 'success');
+}
+
+function changeItemQty(meal, index, delta) {
+  const log = getLog(STATE.currentDate);
+  const item = log.meals[meal]?.[index];
+  if (!item) return;
+  const newQty = Math.max(0.5, +((item.qty||1) + delta).toFixed(1));
+  item.qty = newQty;
+  persistLogs(STATE.currentDate);
+  renderMealItems(meal);
+  renderDashboard();
 }
 
 function removeFood(meal, index) {
@@ -2307,6 +2325,7 @@ window.selectFood           = selectFood;
 window.updateQtyPreview     = updateQtyPreview;
 window.changeQty            = changeQty;
 window.confirmAddFood       = confirmAddFood;
+window.changeItemQty        = changeItemQty;
 window.removeFood           = removeFood;
 window.toggleMeal           = toggleMeal;
 window.addCustomFood        = addCustomFood;
