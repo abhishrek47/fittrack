@@ -473,6 +473,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function activateProfile(id) {
   ACTIVE_PROFILE = getProfile(id);
+  window.ACTIVE_PROFILE = ACTIVE_PROFILE; // expose for recipes.js
   if (!ACTIVE_PROFILE) { showProfilePicker(); return; }
   setActiveProfileId(id);
   LOG = loadLogs(id);
@@ -681,6 +682,7 @@ function finishSetup() {
   delete profile.isAdditional;
   saveProfile(profile);
   ACTIVE_PROFILE = profile;
+  window.ACTIVE_PROFILE = ACTIVE_PROFILE; // keep in sync for recipes.js
   setActiveProfileId(id);
   LOG = {};
   persistLogs(STATE.currentDate);
@@ -727,6 +729,7 @@ function switchSection(name) {
     renderWorkout();
   }
   if (name==='habits')    renderHabits();
+  if (name==='recipes')   renderRecipes();
 }
 
 // ── DASHBOARD ─────────────────────────────────────────────
@@ -2012,6 +2015,230 @@ function closePhotoFullscreen() {
   document.getElementById('photoFullscreenOverlay')?.classList.remove('open');
 }
 
+// ── RECIPES ───────────────────────────────────────────────
+
+const _RS = {           // recipe section state
+  cat:   'all',
+  sort:  'recommended',
+  query: '',
+};
+
+// Render the category tab buttons
+function renderRecipeCatTabs() {
+  const container = document.getElementById('recipeCatTabs');
+  if (!container) return;
+  container.innerHTML = RECIPE_CATS.map(c =>
+    `<button class="recipe-cat-btn${_RS.cat === c.id ? ' active' : ''}"
+       onclick="setRecipeCat('${c.id}')">${c.emoji} ${c.label}</button>`
+  ).join('');
+}
+
+// Called by sort buttons
+function setRecipeSort(mode) {
+  _RS.sort = mode;
+  document.querySelectorAll('.recipe-sort-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.sort === mode);
+  });
+  renderRecipeGrid();
+}
+
+// Called by category tab buttons
+function setRecipeCat(catId) {
+  _RS.cat = catId;
+  renderRecipeCatTabs();
+  renderRecipeSuggestBanner();
+  renderRecipeGrid();
+}
+
+// Called by search input
+function filterRecipes(query) {
+  _RS.query = query || '';
+  renderRecipeGrid();
+}
+
+// Main render — full recipes section
+function renderRecipes() {
+  renderRecipeCatTabs();
+  renderRecipeSuggestBanner();
+  renderRecipeGrid();
+}
+
+// Suggest banner — top recommendation
+function renderRecipeSuggestBanner() {
+  const banner = document.getElementById('recipeSuggestBanner');
+  const allTriedBanner = document.getElementById('recipeAllTriedBanner');
+  if (!banner) return;
+
+  const tried = loadTriedRecipes();
+  const suggestion = getTopSuggestion(_RS.cat, null);
+
+  if (!suggestion) {
+    banner.classList.remove('visible');
+    if (allTriedBanner) { allTriedBanner.textContent = '🏆 You\'ve tried every recipe in this category! Explore another.'; allTriedBanner.classList.add('visible'); }
+    return;
+  }
+
+  if (allTriedBanner) allTriedBanner.classList.remove('visible');
+
+  // Check if all in this category are tried
+  const catRecipes = _RS.cat === 'all' ? RECIPES : RECIPES.filter(r => r.cat === _RS.cat);
+  const allTried = catRecipes.every(r => tried[r.id]);
+  if (allTried) {
+    banner.classList.remove('visible');
+    if (allTriedBanner) { allTriedBanner.textContent = '🏆 You\'ve tried every recipe in this category! Explore another.'; allTriedBanner.classList.add('visible'); }
+    return;
+  }
+
+  const triedCount = catRecipes.filter(r => tried[r.id]).length;
+  const triedLabel = triedCount > 0 ? `· ${triedCount}/${catRecipes.length} tried` : '';
+
+  banner.classList.add('visible');
+  banner.innerHTML = `
+    <div class="recipe-suggest-label">✨ Try something new ${triedLabel}</div>
+    <div class="recipe-suggest-title">${suggestion.emoji} ${suggestion.name}</div>
+    <div class="recipe-suggest-meta">
+      ${suggestion.protein}g protein · ${suggestion.cal} kcal · ${suggestion.prepTime}min
+      &nbsp;·&nbsp; ${suggestion.desc}
+    </div>
+    <div class="recipe-suggest-add-row">
+      ${suggestion.bestMeal.map(m =>
+        `<button class="recipe-suggest-btn" onclick="addRecipeToMeal(${suggestion.id},'${m}')">
+           + ${getMealLabel(m)}
+         </button>`
+      ).join('')}
+    </div>
+  `;
+}
+
+// Render the recipe grid cards
+function renderRecipeGrid() {
+  const grid      = document.getElementById('recipeGrid');
+  const countLine = document.getElementById('recipeCountLine');
+  if (!grid) return;
+
+  const recipes = getScoredRecipes(_RS.cat, _RS.sort, _RS.query, null);
+  const tried   = loadTriedRecipes();
+
+  if (countLine) {
+    const triedTotal = RECIPES.filter(r => tried[r.id]).length;
+    countLine.textContent = `${recipes.length} recipes shown · ${triedTotal} / ${RECIPES.length} tried`;
+  }
+
+  if (recipes.length === 0) {
+    grid.innerHTML = `<div class="recipe-empty">
+      <div class="big-emoji">🔍</div>
+      <div>No recipes match your search.</div>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = recipes.map(r => _buildRecipeCard(r, tried[r.id])).join('');
+}
+
+// Build a single recipe card HTML
+function _buildRecipeCard(recipe, triedData) {
+  const triedBadge = triedData
+    ? `<div class="recipe-tried-badge">✓ ${triedData.count}×</div>`
+    : '';
+
+  const mealBadges = recipe.bestMeal.map(m =>
+    `<span class="recipe-meal-badge ${m}">${_mealIcon(m)} ${getMealLabel(m)}</span>`
+  ).join('');
+
+  const addButtons = recipe.bestMeal.map(m =>
+    `<button class="recipe-add-btn" onclick="addRecipeToMeal(${recipe.id},'${m}')">${getMealLabel(m)}</button>`
+  ).join('');
+
+  // Difficulty dot
+  const diffDot = `<span class="recipe-diff-dot ${recipe.difficulty}"></span>`;
+
+  // Watch YouTube button
+  const ytQuery = encodeURIComponent(recipe.name + ' recipe vegetarian protein rich');
+  const watchBtn = `<button class="recipe-watch-btn" onclick="watchRecipe('${ytQuery}')">▶ Watch Recipe</button>`;
+
+  return `
+    <div class="recipe-card${triedData ? ' tried' : ''}" id="rcard_${recipe.id}">
+      ${triedBadge}
+      <div class="recipe-card-header">
+        <div class="recipe-emoji">${recipe.emoji}</div>
+        <div class="recipe-name">${recipe.name}</div>
+        <div class="recipe-cat-badge">${getRecipeCatLabel(recipe.cat)}</div>
+      </div>
+      <div class="recipe-protein-row">
+        <span class="recipe-protein-val">${recipe.protein}g</span>
+        <span class="recipe-protein-lbl">protein</span>
+        <span class="recipe-cal-val">· ${recipe.cal} kcal</span>
+      </div>
+      <div class="recipe-meal-badges">${mealBadges}</div>
+      <div class="recipe-prep-row">
+        ${diffDot}${_capFirst(recipe.difficulty)} · ${recipe.prepTime} min
+      </div>
+      <div class="recipe-card-actions">
+        ${watchBtn}
+        <div class="recipe-add-row">${addButtons}</div>
+      </div>
+    </div>`;
+}
+
+function _mealIcon(meal) {
+  const m = { breakfast:'🌅', lunch:'☀️', snacks:'🍎', dinner:'🌙' };
+  return m[meal] || '';
+}
+function _capFirst(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : s; }
+
+// Add recipe nutrition to a meal log + mark as tried
+function addRecipeToMeal(recipeId, meal) {
+  const recipe = RECIPES.find(r => r.id === recipeId);
+  if (!recipe) return;
+
+  const log = getLog(STATE.currentDate);
+  if (!log.meals[meal]) log.meals[meal] = [];
+
+  // Add as a food item — compatible with the existing diet rendering
+  log.meals[meal].push({
+    id:      `recipe_${recipe.id}`,
+    name:    recipe.name,
+    emoji:   recipe.emoji,
+    cat:     'recipe',
+    cal:     recipe.cal,
+    pro:     recipe.protein,
+    carb:    recipe.carbs,
+    fat:     recipe.fat,
+    fiber:   recipe.fiber,
+    sodium:  recipe.sodium,
+    calcium: recipe.calcium,
+    iron:    recipe.iron,
+    vitC:    recipe.vitC,
+    servingSize: recipe.servingSize,
+    qty: 1,
+    isRecipe: true,
+  });
+
+  persistLogs(STATE.currentDate);
+  markRecipeTried(recipeId, meal);
+
+  // Refresh the recipe card to show tried badge
+  const card = document.getElementById(`rcard_${recipeId}`);
+  if (card) {
+    const tried = loadTriedRecipes();
+    card.outerHTML = _buildRecipeCard(recipe, tried[recipeId]);
+  }
+
+  // Refresh the suggest banner (something new might surface)
+  renderRecipeSuggestBanner();
+
+  // Update diet + dashboard totals
+  renderDiet();
+  renderDashboard();
+
+  showToast(`${recipe.emoji} ${recipe.name} added to ${getMealLabel(meal)} ✓`, 'success');
+}
+
+// Open YouTube search in new tab
+function watchRecipe(encodedQuery) {
+  window.open(`https://www.youtube.com/results?search_query=${encodedQuery}`, '_blank', 'noopener');
+}
+
 // ── UTILITIES ──────────────────────────────────────────────
 function setText(id, val) { const el=document.getElementById(id); if(el) el.textContent=val; }
 function setBar(id, pct) {
@@ -2091,3 +2318,10 @@ window.playYouTube              = playYouTube;
 window.quickAddFood             = quickAddFood;
 window.setExerciseSetsDirectly  = setExerciseSetsDirectly;
 window.setExerciseRepsDirectly  = setExerciseRepsDirectly;
+// Recipes
+window.renderRecipes            = renderRecipes;
+window.setRecipeSort            = setRecipeSort;
+window.setRecipeCat             = setRecipeCat;
+window.filterRecipes            = filterRecipes;
+window.addRecipeToMeal          = addRecipeToMeal;
+window.watchRecipe              = watchRecipe;

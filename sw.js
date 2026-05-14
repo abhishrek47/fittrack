@@ -3,13 +3,14 @@
 // Caches all app assets for offline use
 // ============================================================
 
-const CACHE_NAME = 'fittrack-v11';
+const CACHE_NAME = 'fittrack-v12';
 const ASSETS = [
   '/',
   '/index.html',
   '/css/style.css',
   '/js/config.js',
   '/js/data.js',
+  '/js/recipes.js',
   '/js/app.js',
   '/manifest.json',
   'https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js',
