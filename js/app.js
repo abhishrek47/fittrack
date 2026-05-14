@@ -1397,11 +1397,13 @@ function renderExerciseSearchResults(query) {
   if (!container) return;
   const q = (query || '').toLowerCase().trim();
 
-  // Get keys already in today's day (plan + custom)
+  // Get keys already in today's day (plan + custom), minus any the user removed
   const log = getLog(STATE.currentDate);
   const plan    = WORKOUT_PLANS.find(p => p.id === STATE.workout.selectedVariation) || WORKOUT_PLANS[0];
   const dayPlan = plan.days.find(d => d.day === workoutDayNum) || plan.days[0];
-  const planKeys = new Set(dayPlan.exercises.map(e => e.key));
+  const removed = new Set(log.workout.removedExercises || []);
+  // Plan exercises still active (not removed)
+  const planKeys = new Set(dayPlan.exercises.filter(e => !removed.has(e.key)).map(e => e.key));
   const customKeys = new Set((log.workout.customExercises || []).map(e => e.key));
 
   const results = Object.entries(EXERCISES).filter(([key, ex]) => {
