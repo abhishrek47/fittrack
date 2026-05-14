@@ -128,6 +128,141 @@ const FOODS = [
   { id:141, name:"Tofu (grilled 100g)", cat:"lunch",     emoji:"🟨", serving:100,unit:"g",       cal:120, pro:13,  carb:3,   fat:6,   fiber:0.3, sodium:10,  calcium:200, iron:2.5, vitC:0  },
   { id:142, name:"Broccoli (steamed)",  cat:"lunch",     emoji:"🥦", serving:1,  unit:"cup",     cal:55,  pro:4,   carb:11,  fat:0.6, fiber:5,   sodium:30,  calcium:47,  iron:0.7, vitC:81 },
   { id:143, name:"Spinach (palak)",     cat:"lunch",     emoji:"🥬", serving:100,unit:"g",       cal:23,  pro:2.9, carb:3.6, fat:0.4, fiber:2.2, sodium:79,  calcium:99,  iron:2.7, vitC:28 },
+
+  // ── FRUITS ──────────────────────────────────────────────────
+  { id:200, name:"Papaya",                  cat:"fruits",   emoji:"🧡", serving:1,  unit:"cup",    cal:62,  pro:0.7, carb:15.7,fat:0.4, fiber:2.5, sodium:12,  calcium:29,  iron:0.1, vitC:86  },
+  { id:201, name:"Guava (Amrood)",          cat:"fruits",   emoji:"💚", serving:1,  unit:"medium", cal:112, pro:4.2, carb:23.6,fat:1.6, fiber:8.9, sodium:3,   calcium:30,  iron:0.4, vitC:228 },
+  { id:202, name:"Pomegranate (Dadam)",     cat:"fruits",   emoji:"🔴", serving:1,  unit:"cup",    cal:144, pro:2.9, carb:32.7,fat:2,   fiber:7,   sodium:5,   calcium:28,  iron:0.8, vitC:28  },
+  { id:203, name:"Watermelon",              cat:"fruits",   emoji:"🍉", serving:1,  unit:"slice",  cal:91,  pro:1.9, carb:22.9,fat:0.5, fiber:1.1, sodium:3,   calcium:20,  iron:0.7, vitC:21  },
+  { id:204, name:"Orange (Narangi)",        cat:"fruits",   emoji:"🍊", serving:1,  unit:"medium", cal:62,  pro:1.2, carb:15.4,fat:0.2, fiber:3.1, sodium:0,   calcium:60,  iron:0.1, vitC:70  },
+  { id:205, name:"Grapes (Angoor)",         cat:"fruits",   emoji:"🍇", serving:1,  unit:"cup",    cal:104, pro:1.1, carb:27.3,fat:0.2, fiber:1.4, sodium:3,   calcium:15,  iron:0.5, vitC:4   },
+  { id:206, name:"Pineapple (Ananas)",      cat:"fruits",   emoji:"🍍", serving:1,  unit:"cup",    cal:82,  pro:0.9, carb:21.6,fat:0.2, fiber:2.3, sodium:2,   calcium:21,  iron:0.5, vitC:79  },
+  { id:207, name:"Chikoo (Sapota)",         cat:"fruits",   emoji:"🟤", serving:1,  unit:"medium", cal:140, pro:0.6, carb:34,  fat:0.4, fiber:5.3, sodium:12,  calcium:26,  iron:0.8, vitC:25  },
+  { id:208, name:"Sitafal (Custard Apple)", cat:"fruits",   emoji:"💚", serving:1,  unit:"medium", cal:215, pro:2.8, carb:52,  fat:0.6, fiber:4.4, sodium:5,   calcium:33,  iron:1.6, vitC:36  },
+  { id:209, name:"Strawberry",              cat:"fruits",   emoji:"🍓", serving:1,  unit:"cup",    cal:49,  pro:1,   carb:11.7,fat:0.5, fiber:3,   sodium:2,   calcium:27,  iron:0.6, vitC:89  },
+  { id:210, name:"Kiwi",                    cat:"fruits",   emoji:"🥝", serving:1,  unit:"medium", cal:61,  pro:1.1, carb:14.7,fat:0.5, fiber:3,   sodium:3,   calcium:34,  iron:0.3, vitC:93  },
+  { id:211, name:"Pear (Nashpati)",         cat:"fruits",   emoji:"🍐", serving:1,  unit:"medium", cal:101, pro:0.6, carb:27,  fat:0.2, fiber:5.5, sodium:2,   calcium:16,  iron:0.3, vitC:7   },
+  { id:212, name:"Litchi",                  cat:"fruits",   emoji:"🔴", serving:10, unit:"pieces", cal:66,  pro:0.8, carb:16.5,fat:0.4, fiber:1.3, sodium:2,   calcium:10,  iron:0.3, vitC:68  },
+  { id:213, name:"Jamun (Black Plum)",      cat:"fruits",   emoji:"🫐", serving:1,  unit:"cup",    cal:75,  pro:0.7, carb:19,  fat:0.2, fiber:0.9, sodium:14,  calcium:25,  iron:0.3, vitC:18  },
+  { id:214, name:"Sweet Lime (Mosambi)",    cat:"fruits",   emoji:"🍋", serving:1,  unit:"medium", cal:48,  pro:0.7, carb:11.5,fat:0.1, fiber:1.9, sodium:3,   calcium:37,  iron:0.8, vitC:30  },
+  { id:215, name:"Fig (fresh, Anjeer)",     cat:"fruits",   emoji:"🟣", serving:2,  unit:"pieces", cal:74,  pro:0.7, carb:19.2,fat:0.3, fiber:2.9, sodium:1,   calcium:35,  iron:0.4, vitC:2   },
+  { id:216, name:"Jackfruit (Kathal)",      cat:"fruits",   emoji:"🟡", serving:1,  unit:"cup",    cal:155, pro:2.8, carb:39.6,fat:1,   fiber:2.6, sodium:3,   calcium:56,  iron:0.6, vitC:22  },
+  { id:217, name:"Coconut (fresh, grated)", cat:"fruits",   emoji:"🥥", serving:1,  unit:"cup",    cal:283, pro:2.7, carb:12.2,fat:26.8,fiber:7.2, sodium:16,  calcium:11,  iron:2.4, vitC:3   },
+  { id:218, name:"Plum (Aloo Bukhara)",     cat:"fruits",   emoji:"🟣", serving:2,  unit:"pieces", cal:60,  pro:0.9, carb:15.3,fat:0.4, fiber:1.8, sodium:0,   calcium:10,  iron:0.2, vitC:15  },
+  { id:219, name:"Peach (Aadoo)",           cat:"fruits",   emoji:"🍑", serving:1,  unit:"medium", cal:59,  pro:1.4, carb:14.3,fat:0.4, fiber:2.3, sodium:0,   calcium:9,   iron:0.4, vitC:10  },
+
+  // ── DRY FRUITS & SEEDS ──────────────────────────────────────
+  { id:230, name:"Cashews (Kaju)",          cat:"dryfruit", emoji:"🟤", serving:30, unit:"g",      cal:163, pro:4.3, carb:9.1, fat:13,  fiber:0.9, sodium:4,   calcium:12,  iron:1.9, vitC:0   },
+  { id:231, name:"Raisins (Kishmish)",      cat:"dryfruit", emoji:"🟤", serving:30, unit:"g",      cal:90,  pro:1,   carb:24,  fat:0.1, fiber:1.1, sodium:3,   calcium:16,  iron:0.6, vitC:1   },
+  { id:232, name:"Dates (Khajoor)",         cat:"dryfruit", emoji:"🟤", serving:3,  unit:"pieces", cal:72,  pro:0.6, carb:19.4,fat:0.1, fiber:1.9, sodium:1,   calcium:19,  iron:0.4, vitC:0   },
+  { id:233, name:"Pistachios (Pista)",      cat:"dryfruit", emoji:"🟢", serving:30, unit:"g",      cal:162, pro:6,   carb:8.5, fat:13,  fiber:3,   sodium:3,   calcium:34,  iron:1.2, vitC:1   },
+  { id:234, name:"Dried Figs (Anjeer)",     cat:"dryfruit", emoji:"🟤", serving:3,  unit:"pieces", cal:111, pro:1.5, carb:28.8,fat:0.4, fiber:4.3, sodium:5,   calcium:90,  iron:1,   vitC:0   },
+  { id:235, name:"Dried Apricots (Jardalu)",cat:"dryfruit", emoji:"🟠", serving:5,  unit:"pieces", cal:84,  pro:1.1, carb:21.8,fat:0.2, fiber:2.9, sodium:3,   calcium:28,  iron:1,   vitC:0   },
+  { id:236, name:"Hazelnuts",               cat:"dryfruit", emoji:"🟤", serving:30, unit:"g",      cal:188, pro:4.5, carb:5.1, fat:18.8,fiber:2.7, sodium:0,   calcium:56,  iron:1.3, vitC:1   },
+  { id:237, name:"Flaxseeds (Alsi)",        cat:"dryfruit", emoji:"🟤", serving:1,  unit:"tbsp",   cal:55,  pro:1.9, carb:3,   fat:4.3, fiber:2.8, sodium:3,   calcium:26,  iron:0.6, vitC:0   },
+  { id:238, name:"Chia Seeds",              cat:"dryfruit", emoji:"⚫", serving:1,  unit:"tbsp",   cal:58,  pro:2,   carb:5,   fat:3.7, fiber:4,   sodium:2,   calcium:90,  iron:0.7, vitC:0   },
+  { id:239, name:"Sunflower Seeds",         cat:"dryfruit", emoji:"🌻", serving:30, unit:"g",      cal:174, pro:6.1, carb:7.4, fat:15.1,fiber:3,   sodium:1,   calcium:20,  iron:1.5, vitC:0   },
+  { id:240, name:"Pumpkin Seeds (Kaddu)",   cat:"dryfruit", emoji:"🟢", serving:30, unit:"g",      cal:160, pro:8.5, carb:5,   fat:13,  fiber:1.8, sodium:2,   calcium:15,  iron:2.7, vitC:0   },
+  { id:241, name:"Fox Nuts (Makhana)",      cat:"dryfruit", emoji:"⚪", serving:30, unit:"g",      cal:106, pro:3.5, carb:20,  fat:0.4, fiber:0.5, sodium:20,  calcium:20,  iron:0.5, vitC:0   },
+  { id:242, name:"Peanuts (roasted, plain)",cat:"dryfruit", emoji:"🥜", serving:30, unit:"g",      cal:171, pro:7.4, carb:5.1, fat:14.5,fiber:2.4, sodium:2,   calcium:26,  iron:0.8, vitC:0   },
+  { id:243, name:"Mixed Dry Fruits",        cat:"dryfruit", emoji:"🟤", serving:30, unit:"g",      cal:160, pro:4,   carb:14,  fat:11,  fiber:2,   sodium:10,  calcium:40,  iron:1,   vitC:0   },
+  { id:244, name:"Dried Coconut (Kopra)",   cat:"dryfruit", emoji:"🟤", serving:30, unit:"g",      cal:187, pro:2,   carb:7,   fat:18,  fiber:4.7, sodium:10,  calcium:12,  iron:1.5, vitC:0   },
+
+  // ── VEGETABLES ──────────────────────────────────────────────
+  { id:250, name:"Tomato (raw)",            cat:"vegetable",emoji:"🍅", serving:1,  unit:"medium", cal:22,  pro:1.1, carb:4.8, fat:0.2, fiber:1.5, sodium:6,   calcium:18,  iron:0.3, vitC:23  },
+  { id:251, name:"Onion (raw)",             cat:"vegetable",emoji:"🧅", serving:1,  unit:"medium", cal:44,  pro:1.2, carb:10.3,fat:0.1, fiber:1.9, sodium:4,   calcium:23,  iron:0.2, vitC:8   },
+  { id:252, name:"Potato (boiled)",         cat:"vegetable",emoji:"🥔", serving:1,  unit:"medium", cal:130, pro:3,   carb:30,  fat:0.1, fiber:2.4, sodium:10,  calcium:12,  iron:1.2, vitC:20  },
+  { id:253, name:"Carrot (raw)",            cat:"vegetable",emoji:"🥕", serving:1,  unit:"medium", cal:25,  pro:0.6, carb:5.8, fat:0.1, fiber:1.7, sodium:42,  calcium:20,  iron:0.3, vitC:4   },
+  { id:254, name:"Cauliflower (Phool Gobhi)",cat:"vegetable",emoji:"🥦",serving:1,  unit:"cup",    cal:29,  pro:2.3, carb:5.3, fat:0.6, fiber:2.5, sodium:30,  calcium:22,  iron:0.4, vitC:55  },
+  { id:255, name:"Cabbage (Patta Gobhi)",   cat:"vegetable",emoji:"🥬", serving:1,  unit:"cup",    cal:22,  pro:1.1, carb:5.2, fat:0.1, fiber:2.2, sodium:16,  calcium:40,  iron:0.4, vitC:33  },
+  { id:256, name:"Capsicum (Bell Pepper)",  cat:"vegetable",emoji:"🫑", serving:1,  unit:"medium", cal:37,  pro:1.5, carb:7.2, fat:0.4, fiber:2.5, sodium:4,   calcium:11,  iron:0.4, vitC:128 },
+  { id:257, name:"Cucumber (Kheera)",       cat:"vegetable",emoji:"🥒", serving:1,  unit:"medium", cal:45,  pro:2,   carb:10.9,fat:0.3, fiber:1.5, sodium:4,   calcium:48,  iron:0.7, vitC:8   },
+  { id:258, name:"Bitter Gourd (Karela)",   cat:"vegetable",emoji:"🟢", serving:1,  unit:"cup",    cal:24,  pro:1,   carb:5.4, fat:0.2, fiber:2.6, sodium:13,  calcium:20,  iron:0.6, vitC:84  },
+  { id:259, name:"Cluster Beans (Gawar)",   cat:"vegetable",emoji:"🟢", serving:1,  unit:"cup",    cal:44,  pro:2.7, carb:10,  fat:0.2, fiber:6.5, sodium:5,   calcium:130, iron:1.8, vitC:35  },
+  { id:260, name:"Drumstick (Saragvo)",     cat:"vegetable",emoji:"🟢", serving:5,  unit:"pieces", cal:37,  pro:2.1, carb:8.5, fat:0.2, fiber:3.2, sodium:42,  calcium:185, iron:0.4, vitC:28  },
+  { id:261, name:"Green Peas (Matar)",      cat:"vegetable",emoji:"🟢", serving:1,  unit:"cup",    cal:134, pro:8.6, carb:25,  fat:0.4, fiber:8.8, sodium:5,   calcium:43,  iron:2.5, vitC:58  },
+  { id:262, name:"Corn (Makka, boiled)",    cat:"vegetable",emoji:"🌽", serving:1,  unit:"ear",    cal:130, pro:5,   carb:29,  fat:1.5, fiber:3.6, sodium:21,  calcium:3,   iron:0.8, vitC:7   },
+  { id:263, name:"Beetroot (boiled)",       cat:"vegetable",emoji:"🔴", serving:1,  unit:"medium", cal:44,  pro:1.7, carb:9.9, fat:0.2, fiber:2.8, sodium:65,  calcium:14,  iron:0.8, vitC:6   },
+  { id:264, name:"Yam (Suran) boiled",      cat:"vegetable",emoji:"🟤", serving:1,  unit:"cup",    cal:177, pro:2.3, carb:41.8,fat:0.3, fiber:6,   sodium:9,   calcium:26,  iron:0.8, vitC:20  },
+  { id:265, name:"Taro Root (Arbi) boiled", cat:"vegetable",emoji:"🟤", serving:1,  unit:"cup",    cal:187, pro:0.6, carb:45.9,fat:0.1, fiber:5.4, sodium:20,  calcium:19,  iron:0.7, vitC:9   },
+  { id:266, name:"French Beans",            cat:"vegetable",emoji:"🟢", serving:1,  unit:"cup",    cal:44,  pro:2.4, carb:9.9, fat:0.4, fiber:3.7, sodium:6,   calcium:55,  iron:1.6, vitC:18  },
+  { id:267, name:"Mushroom (cooked)",       cat:"vegetable",emoji:"🍄", serving:1,  unit:"cup",    cal:44,  pro:3.4, carb:8.1, fat:0.7, fiber:1.7, sodium:14,  calcium:9,   iron:0.6, vitC:4   },
+  { id:268, name:"Pumpkin / Kaddu (cooked)",cat:"vegetable",emoji:"🎃", serving:1,  unit:"cup",    cal:49,  pro:2,   carb:12,  fat:0.2, fiber:2.7, sodium:2,   calcium:37,  iron:1.4, vitC:20  },
+  { id:269, name:"Zucchini / Tori (cooked)",cat:"vegetable",emoji:"🟢", serving:1,  unit:"cup",    cal:27,  pro:2,   carb:7,   fat:0.3, fiber:2.2, sodium:12,  calcium:24,  iron:0.6, vitC:21  },
+  { id:270, name:"Raw Mango (Kairi)",       cat:"vegetable",emoji:"🥭", serving:1,  unit:"medium", cal:60,  pro:0.8, carb:15,  fat:0.4, fiber:1.6, sodium:3,   calcium:10,  iron:0.2, vitC:36  },
+
+  // ── BREAD VARIETIES ─────────────────────────────────────────
+  { id:280, name:"White Bread",             cat:"bread",    emoji:"🍞", serving:2,  unit:"slices", cal:150, pro:5,   carb:28,  fat:2,   fiber:0.7, sodium:280, calcium:60,  iron:1.4, vitC:0   },
+  { id:281, name:"Brown Bread",             cat:"bread",    emoji:"🍞", serving:2,  unit:"slices", cal:140, pro:5.5, carb:26,  fat:2,   fiber:2,   sodium:240, calcium:50,  iron:1.5, vitC:0   },
+  { id:282, name:"Multigrain Bread",        cat:"bread",    emoji:"🍞", serving:2,  unit:"slices", cal:160, pro:7,   carb:28,  fat:3,   fiber:4,   sodium:260, calcium:60,  iron:2,   vitC:0   },
+  { id:283, name:"Pav (Dinner Roll)",       cat:"bread",    emoji:"🍞", serving:1,  unit:"piece",  cal:110, pro:3.5, carb:21,  fat:1.5, fiber:0.8, sodium:220, calcium:30,  iron:0.8, vitC:0   },
+  { id:284, name:"Burger Bun",              cat:"bread",    emoji:"🍔", serving:1,  unit:"piece",  cal:145, pro:5,   carb:27,  fat:2.5, fiber:1.2, sodium:240, calcium:35,  iron:1,   vitC:0   },
+  { id:285, name:"Rye Bread",               cat:"bread",    emoji:"🍞", serving:2,  unit:"slices", cal:166, pro:5.6, carb:31.8,fat:2,   fiber:5.8, sodium:320, calcium:40,  iron:2.2, vitC:0   },
+  { id:286, name:"Sourdough Bread",         cat:"bread",    emoji:"🍞", serving:2,  unit:"slices", cal:188, pro:7,   carb:36,  fat:1.2, fiber:2,   sodium:450, calcium:20,  iron:2,   vitC:0   },
+  { id:287, name:"Gluten-Free Bread",       cat:"bread",    emoji:"🍞", serving:2,  unit:"slices", cal:160, pro:3,   carb:30,  fat:3.5, fiber:1,   sodium:220, calcium:20,  iron:0.5, vitC:0   },
+  { id:288, name:"Corn Bread",              cat:"bread",    emoji:"🌽", serving:1,  unit:"slice",  cal:173, pro:3.8, carb:28,  fat:5.8, fiber:1,   sodium:320, calcium:30,  iron:1,   vitC:0   },
+
+  // ── DAL & LEGUMES ────────────────────────────────────────────
+  { id:300, name:"Chana Dal",               cat:"dal",      emoji:"🟡", serving:1,  unit:"bowl",   cal:170, pro:10,  carb:29,  fat:2.7, fiber:7.9, sodium:280, calcium:55,  iron:2.8, vitC:0   },
+  { id:301, name:"Masoor Dal (Red Lentil)", cat:"dal",      emoji:"🟠", serving:1,  unit:"bowl",   cal:165, pro:12,  carb:28,  fat:0.5, fiber:8,   sodium:300, calcium:38,  iron:3.3, vitC:2   },
+  { id:302, name:"Urad Dal",                cat:"dal",      emoji:"⚫", serving:1,  unit:"bowl",   cal:190, pro:13,  carb:32,  fat:1,   fiber:7,   sodium:290, calcium:70,  iron:3.5, vitC:0   },
+  { id:303, name:"Chawli (Black Eyed Peas)",cat:"dal",      emoji:"⚪", serving:1,  unit:"bowl",   cal:200, pro:13,  carb:35,  fat:0.9, fiber:8,   sodium:280, calcium:60,  iron:4.3, vitC:0   },
+  { id:304, name:"Green Moong (whole)",     cat:"dal",      emoji:"🟢", serving:1,  unit:"bowl",   cal:212, pro:14,  carb:38,  fat:0.8, fiber:7.6, sodium:270, calcium:55,  iron:2.8, vitC:2   },
+  { id:305, name:"Dal Tadka",               cat:"dal",      emoji:"🍲", serving:1,  unit:"bowl",   cal:200, pro:11,  carb:30,  fat:5,   fiber:6,   sodium:380, calcium:60,  iron:3,   vitC:3   },
+  { id:306, name:"Dal Makhani (veg)",       cat:"dal",      emoji:"🍲", serving:1,  unit:"bowl",   cal:230, pro:11,  carb:29,  fat:8,   fiber:8,   sodium:480, calcium:90,  iron:3.5, vitC:2   },
+  { id:307, name:"Val / Papdi Dal",         cat:"dal",      emoji:"🟤", serving:1,  unit:"bowl",   cal:180, pro:10,  carb:32,  fat:1.5, fiber:6,   sodium:300, calcium:55,  iron:2.5, vitC:5   },
+  { id:308, name:"Panchratna Dal",          cat:"dal",      emoji:"🟡", serving:1,  unit:"bowl",   cal:220, pro:13,  carb:36,  fat:4,   fiber:7,   sodium:360, calcium:70,  iron:3.5, vitC:3   },
+  { id:309, name:"Chana (Kabuli) cooked",   cat:"dal",      emoji:"🫘", serving:1,  unit:"bowl",   cal:269, pro:14.5,carb:45,  fat:4.3, fiber:12.5,sodium:360, calcium:80,  iron:4.7, vitC:2   },
+  { id:310, name:"Moong Sprouts",           cat:"dal",      emoji:"🌱", serving:1,  unit:"cup",    cal:26,  pro:2.5, carb:5.2, fat:0.1, fiber:1.9, sodium:6,   calcium:14,  iron:0.9, vitC:14  },
+  { id:311, name:"Matki (Moth Bean)",       cat:"dal",      emoji:"🟤", serving:1,  unit:"bowl",   cal:213, pro:14.2,carb:38,  fat:1.2, fiber:8,   sodium:260, calcium:150, iron:5.4, vitC:0   },
+
+  // ── RICE VARIETIES ───────────────────────────────────────────
+  { id:320, name:"Basmati Rice",            cat:"rice",     emoji:"🍚", serving:1,  unit:"cup",    cal:210, pro:4.5, carb:46,  fat:0.4, fiber:0.6, sodium:5,   calcium:15,  iron:0.4, vitC:0   },
+  { id:321, name:"Jeera Rice",              cat:"rice",     emoji:"🍚", serving:1,  unit:"bowl",   cal:220, pro:4.5, carb:45,  fat:3.5, fiber:0.8, sodium:220, calcium:18,  iron:0.6, vitC:0   },
+  { id:322, name:"Veg Pulao",               cat:"rice",     emoji:"🍛", serving:1,  unit:"bowl",   cal:260, pro:6,   carb:48,  fat:5,   fiber:2.5, sodium:380, calcium:30,  iron:1,   vitC:5   },
+  { id:323, name:"Curd Rice",               cat:"rice",     emoji:"🍚", serving:1,  unit:"bowl",   cal:230, pro:7,   carb:38,  fat:5,   fiber:1,   sodium:180, calcium:160, iron:0.4, vitC:1   },
+  { id:324, name:"Lemon Rice",              cat:"rice",     emoji:"🍚", serving:1,  unit:"bowl",   cal:240, pro:5,   carb:48,  fat:3.5, fiber:1,   sodium:280, calcium:20,  iron:1,   vitC:12  },
+  { id:325, name:"Tomato Rice",             cat:"rice",     emoji:"🍚", serving:1,  unit:"bowl",   cal:225, pro:5,   carb:44,  fat:3,   fiber:1.5, sodium:290, calcium:25,  iron:1.2, vitC:8   },
+  { id:326, name:"Veg Fried Rice",          cat:"rice",     emoji:"🍛", serving:1,  unit:"bowl",   cal:290, pro:7,   carb:52,  fat:6,   fiber:2.5, sodium:520, calcium:25,  iron:1.2, vitC:5   },
+  { id:327, name:"Sabudana Khichdi",        cat:"rice",     emoji:"⚪", serving:1,  unit:"bowl",   cal:350, pro:5,   carb:65,  fat:9,   fiber:1.5, sodium:280, calcium:30,  iron:1,   vitC:0   },
+
+  // ── TEA & COFFEE VARIETIES ───────────────────────────────────
+  { id:340, name:"Masala Chai",             cat:"tea",      emoji:"🍵", serving:1,  unit:"cup",    cal:90,  pro:2.2, carb:16,  fat:2.2, fiber:0,   sodium:25,  calcium:95,  iron:0.1, vitC:0   },
+  { id:341, name:"Ginger Tea (Adrak Chai)", cat:"tea",      emoji:"🍵", serving:1,  unit:"cup",    cal:75,  pro:2,   carb:13,  fat:2,   fiber:0,   sodium:20,  calcium:90,  iron:0.1, vitC:2   },
+  { id:342, name:"Ginger Masala Tea",       cat:"tea",      emoji:"🍵", serving:1,  unit:"cup",    cal:90,  pro:2.2, carb:15,  fat:2.2, fiber:0,   sodium:22,  calcium:92,  iron:0.1, vitC:2   },
+  { id:343, name:"Ginger Pudina Tea",       cat:"tea",      emoji:"🍵", serving:1,  unit:"cup",    cal:70,  pro:2,   carb:12,  fat:1.8, fiber:0,   sodium:18,  calcium:88,  iron:0.1, vitC:3   },
+  { id:344, name:"Cardamom Tea (Elaichi Chai)",cat:"tea",   emoji:"🍵", serving:1,  unit:"cup",    cal:85,  pro:2,   carb:14,  fat:2,   fiber:0,   sodium:20,  calcium:90,  iron:0.1, vitC:0   },
+  { id:345, name:"Lemongrass Tea",          cat:"tea",      emoji:"🍵", serving:1,  unit:"cup",    cal:20,  pro:0,   carb:4,   fat:0,   fiber:0,   sodium:4,   calcium:10,  iron:0.4, vitC:1   },
+  { id:346, name:"Tulsi Tea",               cat:"tea",      emoji:"🍵", serving:1,  unit:"cup",    cal:15,  pro:0.2, carb:3,   fat:0,   fiber:0,   sodium:3,   calcium:12,  iron:0.3, vitC:2   },
+  { id:347, name:"Kahwa (Kashmiri Tea)",    cat:"tea",      emoji:"🍵", serving:1,  unit:"cup",    cal:30,  pro:0.5, carb:6,   fat:0.5, fiber:0,   sodium:5,   calcium:15,  iron:0.2, vitC:1   },
+  { id:348, name:"Milk Tea (Plain)",        cat:"tea",      emoji:"☕", serving:1,  unit:"cup",    cal:80,  pro:2,   carb:14,  fat:2,   fiber:0,   sodium:20,  calcium:90,  iron:0.1, vitC:0   },
+  { id:349, name:"Green Tea",               cat:"tea",      emoji:"🍵", serving:1,  unit:"cup",    cal:2,   pro:0.2, carb:0.5, fat:0,   fiber:0,   sodium:2,   calcium:5,   iron:0.1, vitC:0   },
+  { id:350, name:"Black Tea (without milk)",cat:"tea",      emoji:"🍵", serving:1,  unit:"cup",    cal:2,   pro:0.1, carb:0.7, fat:0,   fiber:0,   sodium:5,   calcium:0,   iron:0.1, vitC:0   },
+  { id:351, name:"Iced Tea (lemon)",        cat:"tea",      emoji:"🧊", serving:1,  unit:"glass",  cal:80,  pro:0,   carb:21,  fat:0,   fiber:0,   sodium:5,   calcium:5,   iron:0.1, vitC:5   },
+  { id:352, name:"Espresso",                cat:"coffee",   emoji:"☕", serving:1,  unit:"shot",   cal:5,   pro:0.3, carb:0.8, fat:0.1, fiber:0,   sodium:5,   calcium:3,   iron:0,   vitC:0   },
+  { id:353, name:"Black Coffee (drip)",     cat:"coffee",   emoji:"☕", serving:1,  unit:"cup",    cal:5,   pro:0.3, carb:0.7, fat:0,   fiber:0,   sodium:5,   calcium:5,   iron:0,   vitC:0   },
+  { id:354, name:"Cappuccino",              cat:"coffee",   emoji:"☕", serving:1,  unit:"cup",    cal:120, pro:6,   carb:12,  fat:5,   fiber:0,   sodium:75,  calcium:170, iron:0,   vitC:0   },
+  { id:355, name:"Latte",                   cat:"coffee",   emoji:"☕", serving:1,  unit:"cup",    cal:150, pro:8,   carb:15,  fat:5.5, fiber:0,   sodium:110, calcium:280, iron:0.1, vitC:0   },
+  { id:356, name:"Flat White",              cat:"coffee",   emoji:"☕", serving:1,  unit:"cup",    cal:130, pro:7,   carb:11,  fat:5,   fiber:0,   sodium:90,  calcium:240, iron:0,   vitC:0   },
+  { id:357, name:"Cold Brew Coffee",        cat:"coffee",   emoji:"🧊", serving:1,  unit:"glass",  cal:20,  pro:0.5, carb:4,   fat:0.1, fiber:0,   sodium:10,  calcium:10,  iron:0.1, vitC:0   },
+  { id:358, name:"Iced Coffee (with milk)", cat:"coffee",   emoji:"🧊", serving:1,  unit:"glass",  cal:130, pro:6,   carb:18,  fat:4,   fiber:0,   sodium:80,  calcium:200, iron:0.1, vitC:0   },
+  { id:359, name:"Cold Coffee (blended)",   cat:"coffee",   emoji:"🧊", serving:1,  unit:"glass",  cal:200, pro:6,   carb:28,  fat:7,   fiber:0,   sodium:90,  calcium:210, iron:0.1, vitC:0   },
+  { id:360, name:"Filter Coffee (South Indian)",cat:"coffee",emoji:"☕",serving:1,  unit:"cup",    cal:90,  pro:2.5, carb:13,  fat:3,   fiber:0,   sodium:30,  calcium:100, iron:0.1, vitC:0   },
+  { id:361, name:"Instant Coffee (with milk)",cat:"coffee", emoji:"☕", serving:1,  unit:"cup",    cal:70,  pro:2,   carb:10,  fat:2,   fiber:0,   sodium:60,  calcium:90,  iron:0.1, vitC:0   },
+  { id:362, name:"Hot Chocolate",           cat:"coffee",   emoji:"🍫", serving:1,  unit:"cup",    cal:220, pro:8,   carb:32,  fat:7,   fiber:1.5, sodium:140, calcium:280, iron:1.2, vitC:0   },
+
+  // ── DRINKS / BEVERAGES ───────────────────────────────────────
+  { id:370, name:"Mango Juice (fresh)",     cat:"drinks",   emoji:"🥭", serving:1,  unit:"glass",  cal:130, pro:1,   carb:33,  fat:0.5, fiber:0.5, sodium:5,   calcium:15,  iron:0.2, vitC:30  },
+  { id:371, name:"Mango Milkshake",         cat:"drinks",   emoji:"🥭", serving:1,  unit:"glass",  cal:260, pro:7,   carb:44,  fat:6,   fiber:1,   sodium:80,  calcium:220, iron:0.4, vitC:25  },
+  { id:372, name:"Mango Lassi",             cat:"drinks",   emoji:"🥭", serving:1,  unit:"glass",  cal:220, pro:6,   carb:38,  fat:4,   fiber:0.5, sodium:75,  calcium:200, iron:0.3, vitC:20  },
+  { id:373, name:"Vegetable Raita",         cat:"drinks",   emoji:"🫙", serving:1,  unit:"bowl",   cal:80,  pro:4,   carb:8,   fat:3,   fiber:1,   sodium:120, calcium:140, iron:0.2, vitC:5   },
+  { id:374, name:"Boondi Raita",            cat:"drinks",   emoji:"🫙", serving:1,  unit:"bowl",   cal:120, pro:5,   carb:14,  fat:4,   fiber:0.5, sodium:180, calcium:150, iron:0.3, vitC:1   },
+  { id:375, name:"Almond Milk (unsweetened)",cat:"drinks",  emoji:"🥛", serving:1,  unit:"glass",  cal:40,  pro:1,   carb:3.5, fat:2.5, fiber:0.5, sodium:170, calcium:450, iron:0.7, vitC:0   },
+  { id:376, name:"Soy Milk",                cat:"drinks",   emoji:"🥛", serving:1,  unit:"glass",  cal:100, pro:7,   carb:8,   fat:4,   fiber:0.5, sodium:100, calcium:300, iron:1,   vitC:0   },
+  { id:377, name:"Rose Lassi",              cat:"drinks",   emoji:"🥛", serving:1,  unit:"glass",  cal:190, pro:5.5, carb:30,  fat:5,   fiber:0,   sodium:80,  calcium:200, iron:0.1, vitC:0   },
+  { id:378, name:"Thandai",                 cat:"drinks",   emoji:"🥛", serving:1,  unit:"glass",  cal:220, pro:6,   carb:28,  fat:9,   fiber:1,   sodium:60,  calcium:210, iron:0.8, vitC:0   },
+  { id:379, name:"Fruit Yogurt",            cat:"drinks",   emoji:"🫙", serving:1,  unit:"cup",    cal:180, pro:8,   carb:30,  fat:3.5, fiber:0.5, sodium:80,  calcium:250, iron:0.2, vitC:2   },
+  { id:380, name:"Coconut Milk",            cat:"drinks",   emoji:"🥥", serving:0.5,unit:"cup",    cal:140, pro:1.4, carb:3.2, fat:14,  fiber:0,   sodium:15,  calcium:16,  iron:1.6, vitC:0   },
 ];
 
 // ----------------------------------------------------------
@@ -492,7 +627,8 @@ function getWorkoutRecommendation(profile) {
 function searchFoods(query, category) {
   const q = query.toLowerCase().trim();
   return FOODS.filter(f => {
-    const matchQ = q === '' || f.name.toLowerCase().includes(q);
+    // Prefix match: type "C" → only items starting with C; "CH" → items starting with CH etc.
+    const matchQ = q === '' || f.name.toLowerCase().startsWith(q);
     const matchC = !category || f.cat === category;
     return matchQ && matchC;
   });

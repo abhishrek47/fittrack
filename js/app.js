@@ -828,6 +828,19 @@ function renderStreaks() {
   setText('streak_protein', proStreak);
 }
 
+// ── QUICK-ADD (one-tap food log without opening search modal) ─
+function quickAddFood(foodId, meal) {
+  const food = FOODS.find(f => f.id === foodId);
+  if (!food) return;
+  const log = getLog(STATE.currentDate);
+  if (!log.meals[meal]) log.meals[meal] = [];
+  log.meals[meal].push({ ...food, qty: 1 });
+  persistLogs(STATE.currentDate);
+  renderDiet();
+  renderDashboard();
+  showToast(`${food.emoji || ''} ${food.name} added to ${meal} ✓`, 'success');
+}
+
 // ── YOUTUBE PLAYER ────────────────────────────────────────
 function playYouTube(key, videoId) {
   const wrap = document.getElementById(`video_${key}`);
@@ -2075,5 +2088,6 @@ window.openPhotoFullscreen  = openPhotoFullscreen;
 window.closePhotoFullscreen = closePhotoFullscreen;
 window.renderPhotoGallery   = renderPhotoGallery;
 window.playYouTube              = playYouTube;
+window.quickAddFood             = quickAddFood;
 window.setExerciseSetsDirectly  = setExerciseSetsDirectly;
 window.setExerciseRepsDirectly  = setExerciseRepsDirectly;

@@ -389,6 +389,10 @@
         <button class="meal-toggle" id="meal_toggle_breakfast">▼</button>
       </div>
       <div class="meal-body" id="meal_body_breakfast">
+        <div class="quick-log-row">
+          <span class="quick-log-label">Quick add:</span>
+          <button class="quick-log-chip" onclick="quickAddFood(342,'breakfast')">🍵 Ginger Masala Tea</button>
+        </div>
         <div class="meal-add-area" style="display:flex;gap:0.4rem">
           <button class="btn btn-ghost btn-sm" style="flex:1" onclick="openFoodSearch('breakfast')">+ Add Food</button>
           <button class="btn btn-ghost btn-sm template-save-btn" onclick="saveAsMealTemplate('breakfast')" title="Save as template">💾</button>
@@ -429,6 +433,11 @@
         <button class="meal-toggle" id="meal_toggle_snacks">▼</button>
       </div>
       <div class="meal-body" id="meal_body_snacks">
+        <div class="quick-log-row">
+          <span class="quick-log-label">Quick add:</span>
+          <button class="quick-log-chip" onclick="quickAddFood(342,'snacks')">🍵 Ginger Masala Tea</button>
+          <button class="quick-log-chip" onclick="quickAddFood(113,'snacks')">🍵 Chai</button>
+        </div>
         <div class="meal-add-area" style="display:flex;gap:0.4rem">
           <button class="btn btn-ghost btn-sm" style="flex:1" onclick="openFoodSearch('snacks')">+ Add Snack</button>
           <button class="btn btn-ghost btn-sm template-save-btn" onclick="saveAsMealTemplate('snacks')" title="Save as template">💾</button>
