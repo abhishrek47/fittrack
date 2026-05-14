@@ -262,3 +262,42 @@ function getRecommendedRecipes(opts = {}) {
   pool.sort((a, b) => scoreRecipe(b, tried[b.id], meal) - scoreRecipe(a, tried[a.id], meal));
   return pool.slice(0, limit);
 }
+
+// getScoredRecipes — used by app.js renderRecipeGrid
+// sort: 'recommended' | 'protein' | 'quick' | 'untried'
+function getScoredRecipes(cat, sort, query, meal) {
+  const tried = loadTriedRecipes();
+  let pool = RECIPES.filter(r => {
+    if (cat !== 'all' && r.cat !== cat) return false;
+    if (query) {
+      const q = query.toLowerCase();
+      if (!r.name.toLowerCase().includes(q) && !r.desc.toLowerCase().includes(q)) return false;
+    }
+    return true;
+  });
+
+  if (sort === 'protein') {
+    pool.sort((a, b) => b.protein - a.protein);
+  } else if (sort === 'quick') {
+    pool.sort((a, b) => a.prepTime - b.prepTime);
+  } else if (sort === 'untried') {
+    pool = pool.filter(r => !tried[r.id]);
+    pool.sort((a, b) => scoreRecipe(b, tried[b.id], meal) - scoreRecipe(a, tried[a.id], meal));
+  } else {
+    // recommended (default)
+    pool.sort((a, b) => scoreRecipe(b, tried[b.id], meal) - scoreRecipe(a, tried[a.id], meal));
+  }
+  return pool;
+}
+
+// getTopSuggestion — top un-tried recommendation for banner
+function getTopSuggestion(cat, meal) {
+  const tried = loadTriedRecipes();
+  let pool = RECIPES.filter(r => {
+    if (cat !== 'all' && r.cat !== cat) return false;
+    return !tried[r.id];
+  });
+  if (!pool.length) return null;
+  pool.sort((a, b) => scoreRecipe(b, tried[b.id], meal) - scoreRecipe(a, tried[a.id], meal));
+  return pool[0];
+}
