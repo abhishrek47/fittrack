@@ -4,7 +4,7 @@
 // Includes: data, categories, recommendation algorithm
 // ============================================================
 
-const RECIPE_CATS = [
+var RECIPE_CATS = [
   { id:'all',         label:'All',           emoji:'🍽️' },
   { id:'paneer',      label:'Paneer',         emoji:'🧀' },
   { id:'rajma',       label:'Rajma',          emoji:'🫘' },
@@ -23,7 +23,7 @@ const RECIPE_CATS = [
 // difficulty: 'easy' | 'medium' | 'hard'
 // prepTime: minutes
 
-const RECIPES = [
+var RECIPES = [
 
   // ── PANEER ───────────────────────────────────────────────── (16)
   { id:2001, name:'Paneer Bhurji',             cat:'paneer',      emoji:'🧀', protein:18, cal:280, carbs:8,  fat:20, fiber:2, sodium:520, calcium:240, iron:2.0, vitC:8,  servingSize:'1 cup',       bestMeal:['breakfast','dinner'],         difficulty:'easy',   prepTime:15, desc:'Scrambled paneer with onions, tomatoes & garam masala' },
