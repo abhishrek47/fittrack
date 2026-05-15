@@ -604,10 +604,11 @@ function calculateGoalCalories(tdee, goal) {
 }
 
 function calculateMacros(calories, weight, goal) {
-  // Recomp uses higher protein (2.4g/kg) to preserve/build muscle while in a fat-loss state
+  // Protein multipliers per goal (g per kg bodyweight)
+  // recomp: 2.0g/kg — optimal for muscle preservation without being excessive
   const proteinMultiplier =
     (goal === 'gain' || goal === 'aggressive_gain') ? 2.2 :
-    (goal === 'recomp') ? 2.4 :
+    (goal === 'recomp') ? 2.0 :
     1.8;
   const proteinG = Math.round(weight * proteinMultiplier);
   const fatG     = Math.round(weight * 0.9);
