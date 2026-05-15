@@ -344,6 +344,29 @@ async function signUp() {
   }
 }
 
+async function sendMagicLink() {
+  if (!supabaseClient) { _proceedAfterAuth(null); return; }
+  const email = document.getElementById('authEmail').value.trim();
+  const errEl = document.getElementById('authError');
+  errEl.textContent = ''; errEl.classList.remove('visible');
+  if (!email) {
+    errEl.textContent = 'Enter your email first.';
+    errEl.classList.add('visible');
+    return;
+  }
+  try {
+    const { error } = await supabaseClient.auth.signInWithOtp({ email });
+    if (error) throw error;
+    errEl.textContent = '✓ Magic link sent! Check your email and tap the link on this device.';
+    errEl.classList.add('visible');
+    errEl.style.color = 'var(--success)';
+  } catch(e) {
+    errEl.textContent = 'Could not send magic link. Try again.';
+    errEl.classList.add('visible');
+  }
+}
+window.sendMagicLink = sendMagicLink;
+
 async function signOut() {
   if (supabaseClient) {
     await supabaseClient.auth.signOut().catch(() => {});
@@ -485,19 +508,13 @@ async function activateProfile(id) {
   document.getElementById('profilePickerScreen').style.display = 'none';
   document.getElementById('setupScreen').style.display = 'none';
   // Pull from cloud and merge (non-blocking — app loads immediately)
+  // Cloud always wins: this device may be fresh with no local data
   if (typeof pullLogsFromCloud === 'function') {
     pullLogsFromCloud(id).then(cloudLogs => {
-      if (cloudLogs && typeof cloudLogs === 'object') {
-        // Cloud data wins for any date where it's newer (simple merge: cloud fills gaps)
-        let changed = false;
-        Object.keys(cloudLogs).forEach(date => {
-          if (!LOG[date]) { LOG[date] = cloudLogs[date]; changed = true; }
-        });
-        if (changed) {
-          saveLogs(id, LOG);
-          // Re-render active section with merged data
-          switchSection(STATE.activeSection);
-        }
+      if (cloudLogs && typeof cloudLogs === 'object' && Object.keys(cloudLogs).length > 0) {
+        Object.assign(LOG, cloudLogs);
+        saveLogs(id, LOG);
+        switchSection(STATE.activeSection);
       }
     }).catch(()=>{});
   }
