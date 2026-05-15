@@ -1116,88 +1116,120 @@ h1,h2,h3,h4,h5 { line-height: 1.3; }
 }
 .profile-add-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 600; }
 
-/* ── PROFILE MENU MODAL redesign ────────────────────────── */
-.account-info-bar {
-  display: flex; align-items: center; gap: 0.75rem;
-  padding: 0.875rem 1rem; border-radius: 14px;
-  background: var(--section-bg);
+/* ── PROFILE MENU MODAL ──────────────────────────────────── */
+.pm-modal { border-radius: 20px 20px 16px 16px !important; }
+
+/* Hero banner */
+.pm-hero {
+  display: flex; align-items: center; gap: 0.9rem;
+  padding: 1.6rem 1.25rem 1.1rem;
+  background: var(--navy);
+  position: relative;
 }
-.account-info-avatar {
-  width: 42px; height: 42px; border-radius: 10px; flex-shrink: 0;
-  background: var(--accent);
+.pm-hero-avatar {
+  width: 52px; height: 52px; border-radius: 14px; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
+  font-size: 1.3rem; font-weight: 800; color: white;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.25);
+}
+.pm-hero-info { flex: 1; min-width: 0; }
+.pm-hero-name {
   font-size: 1.05rem; font-weight: 800; color: white;
+  line-height: 1.2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.account-info-text { min-width: 0; flex: 1; }
-.account-info-name  { font-size: 0.9rem; font-weight: 700; color: var(--text); line-height: 1.2; }
-.account-info-email {
-  font-size: 0.72rem; color: var(--text-muted); margin-top: 2px;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+.pm-hero-meta {
+  font-size: 0.72rem; color: rgba(255,255,255,0.6); margin-top: 3px;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
+.pm-edit-btn {
+  background: rgba(255,255,255,0.12); border: none; border-radius: 9px;
+  width: 34px; height: 34px; display: flex; align-items: center; justify-content: center;
+  font-size: 0.9rem; cursor: pointer; flex-shrink: 0;
+  transition: background 0.15s;
+}
+.pm-edit-btn:hover { background: rgba(255,255,255,0.22); }
+
+/* Body */
+.pm-body { padding: 0.9rem 1.1rem 1.1rem; }
+
+/* Section label */
+.pm-label {
+  font-size: 0.64rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: 0.08em; color: var(--text-muted);
+  margin: 0 0 0.4rem 0.1rem; display: block;
+}
+
+/* Profile rows */
+#profileSwitchList { display: flex; flex-direction: column; gap: 0.25rem; margin-bottom: 0.3rem; }
+#profileSwitchList .profile-card {
+  display: flex !important; flex-direction: row !important; align-items: center !important;
+  gap: 0.7rem; padding: 0.55rem 0.65rem;
+  border-radius: 12px; border: 1.5px solid transparent;
+  background: transparent; margin-bottom: 0; text-align: left;
+  transition: background 0.15s, border-color 0.15s;
+}
+#profileSwitchList .profile-card:hover { background: var(--section-bg); border-color: var(--border2); transform: none; }
+#profileSwitchList .profile-card.active-profile { background: var(--section-bg); border-color: var(--success); pointer-events: none; }
+#profileSwitchList .profile-avatar {
+  width: 36px; height: 36px; font-size: 0.9rem; border-radius: 9px; flex-shrink: 0;
+  box-shadow: none !important;
+}
+#profileSwitchList .profile-card.active-profile .profile-avatar { box-shadow: 0 0 0 2px var(--success) !important; }
+#profileSwitchList .profile-info { flex: 1; min-width: 0; text-align: left; }
+#profileSwitchList .profile-name { font-size: 0.86rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#profileSwitchList .profile-meta { font-size: 0.68rem; color: var(--text-muted); margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#profileSwitchList .profile-arrow { font-size: 0.9rem; color: var(--text-muted); opacity: 0.4; flex-shrink: 0; }
+#profileSwitchList .tag-green { font-size: 0.6rem; padding: 0.12rem 0.4rem; flex-shrink: 0; }
+
+/* Add profile row */
+.pm-add-row {
+  display: flex; align-items: center; gap: 0.65rem;
+  padding: 0.5rem 0.65rem; border-radius: 12px;
+  border: 1.5px dashed var(--border2); background: transparent;
+  cursor: pointer; width: 100%; color: var(--text-muted);
+  font-size: 0.82rem; font-weight: 600;
+  transition: border-color 0.15s, color 0.15s;
+  text-align: left; margin-bottom: 0.75rem;
+}
+.pm-add-row:hover { border-color: var(--navy); color: var(--navy); }
+.pm-add-icon {
+  width: 34px; height: 34px; border-radius: 8px;
+  border: 1.5px dashed var(--border2);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.1rem; flex-shrink: 0; transition: border-color 0.15s;
+}
+.pm-add-row:hover .pm-add-icon { border-color: var(--navy); }
+
+/* Action buttons row */
+.pm-actions {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;
+  margin-bottom: 0.4rem;
+}
+.pm-action {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.25rem; padding: 0.65rem 0.5rem; border-radius: 12px;
+  border: 1.5px solid var(--border2); background: var(--bg2);
+  color: var(--text); font-size: 0.73rem; font-weight: 600;
+  cursor: pointer; transition: background 0.15s, border-color 0.15s;
+}
+.pm-action:hover { background: var(--section-bg); border-color: var(--navy); color: var(--navy); }
+.pm-action-icon { font-size: 1.1rem; line-height: 1; }
+
+/* Sign out */
+.pm-signout {
+  display: flex; align-items: center; justify-content: center;
+  padding: 0.6rem; border-radius: 12px; width: 100%;
+  border: 1.5px solid rgba(192,57,43,0.2); background: transparent;
+  color: var(--accent); font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; transition: background 0.15s;
+}
+.pm-signout:hover { background: rgba(192,57,43,0.06); }
+
+/* Legacy aliases (kept for safety) */
 .modal-section-label {
   font-size: 0.68rem; font-weight: 700; text-transform: uppercase;
   letter-spacing: 0.08em; color: var(--text-muted);
   margin-bottom: 0.4rem; display: block;
-}
-
-/* Profile rows inside menu modal */
-#profileSwitchList { display: flex; flex-direction: column; gap: 0.3rem; margin-bottom: 0.3rem; }
-#profileSwitchList .profile-card {
-  display: flex !important; flex-direction: row !important; align-items: center !important;
-  gap: 0.75rem; padding: 0.6rem 0.75rem;
-  border-radius: 12px; border: 1.5px solid transparent;
-  background: transparent; margin-bottom: 0;
-  text-align: left;
-  transition: background 0.15s, border-color 0.15s;
-}
-#profileSwitchList .profile-card:hover {
-  background: var(--section-bg); border-color: var(--border2);
-  transform: none;
-}
-#profileSwitchList .profile-card.active-profile {
-  background: var(--section-bg); border-color: var(--success);
-}
-#profileSwitchList .profile-avatar {
-  width: 38px; height: 38px; font-size: 0.95rem; border-radius: 9px; flex-shrink: 0;
-  box-shadow: none !important;
-}
-#profileSwitchList .profile-card.active-profile .profile-avatar {
-  box-shadow: 0 0 0 2.5px var(--success) !important;
-}
-#profileSwitchList .profile-info { flex: 1; min-width: 0; text-align: left; overflow: hidden; }
-#profileSwitchList .profile-name  { font-size: 0.88rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#profileSwitchList .profile-meta  { font-size: 0.7rem; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-#profileSwitchList .profile-arrow {
-  display: block; font-size: 1rem; color: var(--text-muted); opacity: 0.45; flex-shrink: 0;
-}
-#profileSwitchList .tag-green {
-  font-size: 0.65rem; padding: 0.15rem 0.45rem; flex-shrink: 0;
-}
-
-/* Add profile inline row */
-.profile-add-row {
-  display: flex; align-items: center; gap: 0.75rem;
-  padding: 0.55rem 0.75rem; border-radius: 12px;
-  border: 1.5px dashed var(--border2);
-  background: transparent; cursor: pointer; width: 100%;
-  color: var(--text-muted); font-size: 0.85rem; font-weight: 600;
-  transition: border-color 0.15s, color 0.15s;
-  text-align: left;
-}
-.profile-add-row:hover { border-color: var(--navy); color: var(--navy); }
-.profile-add-icon {
-  width: 38px; height: 38px; border-radius: 9px;
-  border: 1.5px dashed var(--border2);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1.2rem; font-weight: 400; flex-shrink: 0;
-  transition: border-color 0.15s;
-}
-.profile-add-row:hover .profile-add-icon { border-color: var(--navy); }
-
-/* 2-col action buttons */
-.profile-actions-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem;
-  margin-bottom: 0.4rem;
 }
 .profile-action-btn {
   display: flex; align-items: center; justify-content: center; gap: 0.4rem;
@@ -1207,15 +1239,6 @@ h1,h2,h3,h4,h5 { line-height: 1.3; }
   cursor: pointer; transition: background 0.15s, border-color 0.15s;
 }
 .profile-action-btn:hover { background: var(--section-bg); border-color: var(--navy); }
-.profile-action-btn .btn-icon { font-size: 0.95rem; }
-.profile-signout-btn {
-  display: flex; align-items: center; justify-content: center; gap: 0.4rem;
-  padding: 0.6rem; border-radius: 12px; width: 100%;
-  border: 1.5px solid rgba(192,57,43,0.25); background: transparent;
-  color: var(--accent); font-size: 0.82rem; font-weight: 600;
-  cursor: pointer; transition: background 0.15s;
-}
-.profile-signout-btn:hover { background: rgba(192,57,43,0.07); }
 
 /* ── NEW FEATURES ────────────────────────────────────────── */
 

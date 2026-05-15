@@ -1734,25 +1734,19 @@ function openProfileMenu() {
   const profiles = getAllProfiles();
   const menu = document.getElementById('profileMenuModal');
 
-  // Populate account info bar
+  // Populate hero section
   const p = ACTIVE_PROFILE;
-  const avatarEl = document.getElementById('accountInfoAvatar');
-  const nameEl   = document.getElementById('accountInfoName');
-  const emailEl  = document.getElementById('accountInfoEmail');
-  if (avatarEl) {
-    avatarEl.textContent = p ? p.name.charAt(0).toUpperCase() : '?';
-    avatarEl.style.background = p?.avatarColor || 'var(--accent)';
+  const heroAvatar = document.getElementById('pmHeroAvatar');
+  const heroName   = document.getElementById('pmHeroName');
+  const heroMeta   = document.getElementById('pmHeroMeta');
+  if (heroAvatar) {
+    heroAvatar.textContent = p ? p.name.charAt(0).toUpperCase() : '?';
+    heroAvatar.style.background = p?.avatarColor || 'var(--accent)';
   }
-  if (nameEl) nameEl.textContent = p?.name || 'Unknown';
-  if (emailEl) {
-    // Try to get auth email from Supabase session
-    if (supabaseClient) {
-      supabaseClient.auth.getSession().then(({ data }) => {
-        if (emailEl) emailEl.textContent = data?.session?.user?.email || 'Signed in';
-      }).catch(() => {});
-    } else {
-      emailEl.textContent = 'Local mode (no cloud sync)';
-    }
+  if (heroName) heroName.textContent = p?.name || 'Unknown';
+  if (heroMeta) {
+    const goalLabel = { aggressive_loss:'Fast Loss', loss:'Steady Loss', recomp:'Body Recomp', maintain:'Maintain', gain:'Muscle Gain' }[p?.goal] || (p?.goal || '');
+    heroMeta.textContent = [p?.weight ? p.weight+'kg' : null, p?.age ? p.age+'y' : null, goalLabel].filter(Boolean).join(' · ');
   }
 
   // Populate profile switcher list

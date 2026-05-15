@@ -874,45 +874,48 @@
 
 <!-- Profile Menu Modal -->
 <div class="modal-overlay" id="profileMenuModal">
-  <div class="modal" style="position:relative">
-    <div class="modal-handle"></div>
-    <button class="modal-close" onclick="document.getElementById('profileMenuModal').classList.remove('open')">×</button>
+  <div class="modal pm-modal" style="position:relative;padding:0;overflow:hidden">
+    <div class="modal-handle" style="position:absolute;top:8px;left:50%;transform:translateX(-50%);z-index:2"></div>
 
-    <!-- Account info bar -->
-    <div class="account-info-bar" id="accountInfoBar">
-      <div class="account-info-avatar" id="accountInfoAvatar">?</div>
-      <div class="account-info-text">
-        <div class="account-info-name" id="accountInfoName">—</div>
-        <div class="account-info-email" id="accountInfoEmail">Not signed in</div>
+    <!-- Hero: active profile -->
+    <div class="pm-hero" id="pmHero">
+      <div class="pm-hero-avatar" id="pmHeroAvatar">A</div>
+      <div class="pm-hero-info">
+        <div class="pm-hero-name" id="pmHeroName">—</div>
+        <div class="pm-hero-meta" id="pmHeroMeta">—</div>
       </div>
+      <button class="pm-edit-btn" onclick="document.getElementById('profileMenuModal').classList.remove('open');document.getElementById('updateProfileModal').classList.add('open')" title="Edit profile">✏️</button>
     </div>
 
-    <div class="divider" style="margin:0.8rem 0 0.65rem"></div>
+    <!-- Body -->
+    <div class="pm-body">
 
-    <p class="modal-section-label">Profiles</p>
-    <div id="profileSwitchList"></div>
-
-    <button class="profile-add-row" onclick="document.getElementById('profileMenuModal').classList.remove('open');addNewProfile()">
-      <div class="profile-add-icon">+</div>
-      <span>Add new profile</span>
-    </button>
-
-    <div class="divider" style="margin:0.8rem 0 0.65rem"></div>
-
-    <div class="profile-actions-grid">
-      <button class="profile-action-btn" onclick="document.getElementById('profileMenuModal').classList.remove('open');document.getElementById('updateProfileModal').classList.add('open')">
-        <span class="btn-icon">✏️</span> Edit Profile
+      <!-- Profile switcher -->
+      <p class="pm-label">Profiles</p>
+      <div id="profileSwitchList"></div>
+      <button class="pm-add-row" onclick="document.getElementById('profileMenuModal').classList.remove('open');addNewProfile()">
+        <div class="pm-add-icon">+</div>
+        <span>Add profile</span>
       </button>
-      <button class="profile-action-btn" onclick="document.getElementById('profileMenuModal').classList.remove('open');retrySyncProfiles()">
-        <span class="btn-icon">↻</span> Sync Cloud
+
+      <!-- Actions -->
+      <div class="pm-actions">
+        <button class="pm-action" onclick="document.getElementById('profileMenuModal').classList.remove('open');retrySyncProfiles()">
+          <span class="pm-action-icon">↻</span>
+          <span>Sync</span>
+        </button>
+        <button class="pm-action" onclick="document.getElementById('profileMenuModal').classList.remove('open');openReportModal()">
+          <span class="pm-action-icon">📊</span>
+          <span>Report</span>
+        </button>
+      </div>
+
+      <!-- Sign out -->
+      <button class="pm-signout" onclick="document.getElementById('profileMenuModal').classList.remove('open');signOut()">
+        Sign Out
       </button>
+
     </div>
-    <button class="profile-action-btn" style="margin-top:0.5rem;width:100%" onclick="document.getElementById('profileMenuModal').classList.remove('open');openReportModal()">
-      <span class="btn-icon">📊</span> Download Report
-    </button>
-    <button class="profile-signout-btn" style="margin-top:0.4rem" onclick="document.getElementById('profileMenuModal').classList.remove('open');signOut()">
-      Sign Out
-    </button>
   </div>
 </div>
 
