@@ -58,7 +58,6 @@ function todayStr() {
 }
 function formatDate(str) {
   const d = new Date(str+'T00:00:00');
-  if (str === todayStr()) return 'Today · ' + d.toLocaleDateString('en-IN',{weekday:'short',month:'short',day:'numeric'});
   return d.toLocaleDateString('en-IN',{weekday:'short',month:'short',day:'numeric'});
 }
 function offsetDate(str, days) {
@@ -711,7 +710,7 @@ function renderAllDateNavs() {
     el.textContent = formatDate(STATE.currentDate);
   });
   document.querySelectorAll('.date-today-btn').forEach(btn => {
-    btn.style.display = onToday ? 'none' : '';
+    btn.style.display = onToday ? '' : 'none';
   });
 }
 
