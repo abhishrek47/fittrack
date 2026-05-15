@@ -711,6 +711,17 @@ function renderAllDateNavs() {
   });
 }
 
+// ── SYNC INDICATOR ────────────────────────────────────────
+function _setSyncDot(state) {
+  // state: 'syncing' | 'ok' | 'idle'
+  document.querySelectorAll('.sync-dot').forEach(dot => {
+    dot.setAttribute('data-state', state);
+    dot.title = state === 'syncing' ? 'Syncing…'
+               : state === 'ok'      ? `Synced ${new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}`
+               : 'Live sync active';
+  });
+}
+
 function switchSection(name) {
   STATE.activeSection = name;
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
@@ -1670,17 +1681,31 @@ function goToToday() {
 let _syncPollInterval = null;
 
 async function syncCurrentDateFromCloud() {
-  if (!ACTIVE_PROFILE || typeof pullLogForDate !== 'function') return;
+  if (!ACTIVE_PROFILE) { console.warn('[Sync] No active profile'); return; }
+  if (typeof pullLogForDate !== 'function') { console.warn('[Sync] pullLogForDate not available'); return; }
+  _setSyncDot('syncing');
   try {
     const cloudLog = await pullLogForDate(ACTIVE_PROFILE.id, STATE.currentDate);
-    if (!cloudLog) return;
-    const localJson  = JSON.stringify(LOG[STATE.currentDate] || {});
-    const cloudJson  = JSON.stringify(cloudLog);
-    if (localJson === cloudJson) return;   // no change — skip re-render
+    if (!cloudLog) {
+      console.log(`[Sync] No cloud data for ${STATE.currentDate}`);
+      _setSyncDot('ok');
+      return;
+    }
+    const localJson = JSON.stringify(LOG[STATE.currentDate] || {});
+    const cloudJson = JSON.stringify(cloudLog);
+    if (localJson === cloudJson) {
+      _setSyncDot('ok');
+      return;  // no change
+    }
+    console.log(`[Sync] Updated ${STATE.currentDate} from cloud`);
     LOG[STATE.currentDate] = cloudLog;
     saveLogs(ACTIVE_PROFILE.id, LOG);
-    switchSection(STATE.activeSection);    // re-render current view silently
-  } catch(e) { /* non-blocking */ }
+    _setSyncDot('ok');
+    switchSection(STATE.activeSection);
+  } catch(e) {
+    console.error('[Sync] Error:', e);
+    _setSyncDot('idle');
+  }
 }
 
 function startLiveSyncPoll() {
