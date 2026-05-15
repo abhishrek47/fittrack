@@ -2628,32 +2628,44 @@ body{
   padding:1.5rem; max-width:900px; margin:0 auto;
 }
 
-/* ── Print layout: A4, 2 pages ── */
+/* ── Print layout: A4, single page ── */
 @media print{
-  @page{ size:A4 portrait; margin:12mm 14mm; }
-  body{ background:#fff!important; padding:0; max-width:100%; font-size:9pt; }
+  @page{ size:A4 portrait; margin:8mm 10mm; }
+  body{ background:#fff!important; padding:0; max-width:100%; font-size:8pt; }
   .no-print{ display:none!important }
-  .page-break{ break-before:page; }
-  .card{ box-shadow:none!important; border:1px solid #ddd!important; background:#fff!important; }
-  .chart-wrap{ box-shadow:none!important; border:1px solid #ddd!important; background:#fff!important; }
-  .stat{ border:1px solid #ddd!important; background:#fff!important; }
-  canvas{ max-height:130px!important; }
-  /* Donut must stay square — cap both dimensions */
-  .donut-container{ width:130px!important; height:130px!important; margin:0 auto!important; }
-  .donut-container canvas{ width:130px!important; height:130px!important; max-width:130px!important; }
-  .two-col{ display:grid!important; grid-template-columns:1fr 1fr!important; gap:6px!important; }
-  .stats-grid{ grid-template-columns:repeat(4,1fr)!important; gap:5px!important; margin-bottom:6px!important; }
-  .stat{ padding:6px 8px!important; }
-  .stat-val{ font-size:16pt!important; }
-  .card, .chart-wrap{ padding:8px 10px!important; margin-bottom:6px!important; border-radius:6px!important; }
-  h3{ font-size:7pt!important; margin-bottom:4px!important; }
-  table{ font-size:7pt!important; }
-  td,th{ padding:3px 5px!important; }
-  .insight{ padding:5px 8px!important; margin-bottom:4px!important; font-size:7.5pt!important; }
-  .header{ margin-bottom:8px!important; }
-  h1{ font-size:16pt!important; }
-  .header-meta{ font-size:8pt!important; }
-  .badge{ font-size:7pt!important; padding:1px 5px!important; }
+  .page-break{ break-before:avoid!important; }   /* no forced breaks */
+  .card{ box-shadow:none!important; border:1px solid #e0e0e0!important; background:#fff!important; }
+  .chart-wrap{ box-shadow:none!important; border:1px solid #e0e0e0!important; background:#fff!important; }
+  .stat{ border:1px solid #e0e0e0!important; background:#fafafa!important; }
+  /* All canvases compact */
+  canvas{ max-height:85px!important; }
+  /* Donut stays square */
+  .donut-container{ width:90px!important; height:90px!important; margin:0 auto!important; }
+  .donut-container canvas{ width:90px!important; height:90px!important; max-width:90px!important; max-height:90px!important; }
+  /* Grids */
+  .two-col{ display:grid!important; grid-template-columns:1fr 1fr!important; gap:4px!important; margin-bottom:4px!important; }
+  .three-col{ display:grid!important; grid-template-columns:1fr 1fr 1fr!important; gap:4px!important; margin-bottom:4px!important; }
+  .stats-grid{ grid-template-columns:repeat(4,1fr)!important; gap:3px!important; margin-bottom:4px!important; }
+  /* Compact spacing */
+  .stat{ padding:4px 6px!important; border-radius:4px!important; }
+  .stat-val{ font-size:13pt!important; margin-bottom:1px!important; }
+  .stat-label{ font-size:5.5pt!important; }
+  .stat-sub{ font-size:5.5pt!important; }
+  .card, .chart-wrap{ padding:5px 7px!important; margin-bottom:4px!important; border-radius:4px!important; }
+  h3{ font-size:6pt!important; margin-bottom:3px!important; letter-spacing:0.05em!important; }
+  .goal-row{ margin-bottom:4px!important; }
+  .goal-top{ font-size:7pt!important; margin-bottom:2px!important; }
+  .bar-bg{ height:5px!important; }
+  .bar-fill{ height:5px!important; }
+  table{ font-size:6.5pt!important; }
+  td,th{ padding:2px 4px!important; }
+  .insight{ padding:3px 6px!important; margin-bottom:3px!important; font-size:6.5pt!important; line-height:1.3!important; }
+  .i-label{ font-size:6.5pt!important; }
+  .header{ margin-bottom:5px!important; }
+  h1{ font-size:13pt!important; }
+  .header-meta{ font-size:7pt!important; }
+  .badge{ font-size:6pt!important; padding:1px 4px!important; }
+  .footer{ margin-top:4px!important; padding-top:3px!important; font-size:6pt!important; }
 }
 
 /* ── Typography ── */
@@ -2689,8 +2701,9 @@ h3{ font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:
 .bar-bg{ background:var(--bg2); border-radius:999px; height:7px; overflow:hidden; }
 .bar-fill{ height:7px; border-radius:999px; }
 
-/* ── Two-col grid for charts ── */
+/* ── Grid layouts ── */
 .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin-bottom:0.7rem; }
+.three-col{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.7rem; margin-bottom:0.7rem; }
 .chart-wrap{ background:var(--card); border-radius:12px; padding:1rem 1.1rem; border:1px solid var(--border); }
 
 /* ── Table ── */
@@ -2765,25 +2778,20 @@ tr:last-child td{ border-bottom:none; }
   <div class="chart-wrap donut-wrap"><h3>Macro Split (avg kcal)</h3><div class="donut-container"><canvas id="macroDonut"></canvas></div></div>
 </div>
 
-<!-- ═══ PAGE 2 ═══ -->
-<div class="page-break"></div>
-
-<!-- Water + Insights side by side -->
-<div class="two-col">
+<!-- Water + Insights + Table in 3 columns on screen, stacked gracefully in print -->
+<div class="three-col">
   <div class="chart-wrap"><h3>Daily Water Intake</h3><canvas id="waterChart"></canvas></div>
   <div class="card" style="margin-bottom:0">
     <h3>Insights</h3>
     ${insightsHTML}
   </div>
-</div>
-
-<!-- Day-by-Day Table -->
-<div class="card" style="margin-top:0.7rem">
-  <h3>Day-by-Day Log</h3>
-  <table>
-    <thead><tr><th>Date</th><th>Cal</th><th>Pro</th><th>Carbs</th><th>Fat</th><th>Water</th><th>Weight</th><th>W/O</th></tr></thead>
-    <tbody>${rowsHTML}</tbody>
-  </table>
+  <div class="card" style="margin-bottom:0">
+    <h3>Day-by-Day Log</h3>
+    <table>
+      <thead><tr><th>Date</th><th>Cal</th><th>Pro</th><th>Carbs</th><th>Fat</th><th>Water</th><th>Wt</th><th>W</th></tr></thead>
+      <tbody>${rowsHTML}</tbody>
+    </table>
+  </div>
 </div>
 
 <div class="footer">Generated by FitTrack &nbsp;·&nbsp; ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} &nbsp;·&nbsp; Personal use only</div>

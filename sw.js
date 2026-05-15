@@ -3,7 +3,7 @@
 // Caches all app assets for offline use
 // ============================================================
 
-const CACHE_NAME = 'fittrack-v40';
+const CACHE_NAME = 'fittrack-v41';
 const ASSETS = [
   '/',
   '/index.html',
