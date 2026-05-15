@@ -907,9 +907,34 @@
         <span class="btn-icon">↻</span> Sync Cloud
       </button>
     </div>
+    <button class="profile-action-btn" style="margin-top:0.5rem;width:100%" onclick="document.getElementById('profileMenuModal').classList.remove('open');openReportModal()">
+      <span class="btn-icon">📊</span> Download Report
+    </button>
     <button class="profile-signout-btn" style="margin-top:0.4rem" onclick="document.getElementById('profileMenuModal').classList.remove('open');signOut()">
       Sign Out
     </button>
+  </div>
+</div>
+
+<!-- Report Modal -->
+<div class="modal-overlay modal-center" id="reportModal">
+  <div class="modal" style="position:relative;max-width:400px">
+    <button class="modal-close" onclick="document.getElementById('reportModal').classList.remove('open')">×</button>
+    <h3 class="modal-title">📊 Download Report</h3>
+    <p style="font-size:0.8rem;color:var(--text-secondary);margin-bottom:1rem">Choose a date range, then open the report in a new tab to print as PDF.</p>
+    <p class="modal-section-label">Quick Select</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:1rem">
+      <button class="profile-action-btn" onclick="setReportPreset(7)">Last 7 days</button>
+      <button class="profile-action-btn" onclick="setReportPreset(30)">Last 30 days</button>
+      <button class="profile-action-btn" onclick="setReportPreset(90)">Last 3 months</button>
+      <button class="profile-action-btn" onclick="setReportPreset(180)">Last 6 months</button>
+    </div>
+    <p class="modal-section-label">Custom Range</p>
+    <div class="form-row" style="margin-bottom:1rem">
+      <div class="form-group"><label class="form-label">From</label><input class="form-input" id="reportFromDate" type="date"></div>
+      <div class="form-group"><label class="form-label">To</label><input class="form-input" id="reportToDate" type="date"></div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="generateAndOpenReport()">Generate Report →</button>
   </div>
 </div>
 

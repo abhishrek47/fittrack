@@ -2457,3 +2457,365 @@ window.filterRecipes            = filterRecipes;
 window.addRecipeToMeal          = addRecipeToMeal;
 window.watchRecipe              = watchRecipe;
 window.shareRecipe              = shareRecipe;
+// Reports
+window.openReportModal          = openReportModal;
+window.setReportPreset          = setReportPreset;
+window.generateAndOpenReport    = generateAndOpenReport;
+
+// ── REPORTS ────────────────────────────────────────────────
+function openReportModal() {
+  const today = todayStr();
+  const sevenAgo = offsetDate(today, -6);
+  document.getElementById('reportFromDate').value = sevenAgo;
+  document.getElementById('reportToDate').value   = today;
+  document.getElementById('reportModal').classList.add('open');
+}
+
+function setReportPreset(days) {
+  const today = todayStr();
+  document.getElementById('reportFromDate').value = offsetDate(today, -(days - 1));
+  document.getElementById('reportToDate').value   = today;
+}
+
+function generateAndOpenReport() {
+  const from = document.getElementById('reportFromDate').value;
+  const to   = document.getElementById('reportToDate').value;
+  if (!from || !to || from > to) { showToast('Pick a valid date range','error'); return; }
+  document.getElementById('reportModal').classList.remove('open');
+  const html = buildReportHTML(from, to);
+  const w = window.open('', '_blank');
+  if (!w) { showToast('Pop-up blocked — allow pop-ups and try again','error'); return; }
+  w.document.write(html);
+  w.document.close();
+}
+
+function buildReportHTML(fromStr, toStr) {
+  const profile = ACTIVE_PROFILE || {};
+  const name    = profile.name || 'You';
+  const goal    = profile.goal || 'recomp';
+  const weight  = profile.weight || 70;
+  const height  = profile.height || 170;
+  const goals   = typeof calculateMacros === 'function' ? calculateMacros(profile) : { cal:2000, pro:150, carb:200, fat:60 };
+
+  // Build daily data array
+  const days = [];
+  let d = new Date(fromStr + 'T00:00:00');
+  const end = new Date(toStr + 'T00:00:00');
+  while (d <= end) {
+    const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    const log = LOG[ds];
+    if (log) {
+      let cal=0,pro=0,carb=0,fat=0,fiber=0,water=0;
+      if (log.meals) Object.values(log.meals).flat().forEach(item=>{
+        const m=item.qty||1;
+        cal  +=(item.cal  ||0)*m;
+        pro  +=(item.pro  ||0)*m;
+        carb +=(item.carb ||0)*m;
+        fat  +=(item.fat  ||0)*m;
+        fiber+=(item.fiber||0)*m;
+      });
+      water = log.water || 0;
+      const wt = log.weight || null;
+      const smoke = log.smoke || 0;
+      const workout = log.workout ? (log.workout.completedExercises||[]).length + Object.values(log.workout.exerciseProgress||{}).filter(p=>p.done).length : 0;
+      days.push({ ds, cal:Math.round(cal), pro:Math.round(pro), carb:Math.round(carb), fat:Math.round(fat),
+                  fiber:Math.round(fiber), water, weight:wt, smoke, workoutDone: workout > 0 });
+    } else {
+      days.push({ ds, cal:0, pro:0, carb:0, fat:0, fiber:0, water:0, weight:null, smoke:0, workoutDone:false });
+    }
+    d.setDate(d.getDate()+1);
+  }
+
+  const n = days.length;
+  const loggedDays = days.filter(d=>d.cal>0);
+  const avgCal  = loggedDays.length ? Math.round(loggedDays.reduce((s,d)=>s+d.cal,0)/loggedDays.length) : 0;
+  const avgPro  = loggedDays.length ? Math.round(loggedDays.reduce((s,d)=>s+d.pro,0)/loggedDays.length) : 0;
+  const avgCarb = loggedDays.length ? Math.round(loggedDays.reduce((s,d)=>s+d.carb,0)/loggedDays.length) : 0;
+  const avgFat  = loggedDays.length ? Math.round(loggedDays.reduce((s,d)=>s+d.fat,0)/loggedDays.length) : 0;
+  const avgWater= loggedDays.length ? +(loggedDays.reduce((s,d)=>s+d.water,0)/loggedDays.length).toFixed(1) : 0;
+  const workoutCount = days.filter(d=>d.workoutDone).length;
+  const weightDays = days.filter(d=>d.weight !== null);
+  const firstWeight = weightDays.length ? weightDays[0].weight : null;
+  const lastWeight  = weightDays.length ? weightDays[weightDays.length-1].weight : null;
+  const weightChange = (firstWeight && lastWeight) ? +(lastWeight - firstWeight).toFixed(1) : null;
+
+  const labels    = JSON.stringify(days.map(d => { const dt = new Date(d.ds+'T00:00:00'); return dt.toLocaleDateString('en-IN',{month:'short',day:'numeric'}); }));
+  const calData   = JSON.stringify(days.map(d => d.cal));
+  const proData   = JSON.stringify(days.map(d => d.pro));
+  const carbData  = JSON.stringify(days.map(d => d.carb));
+  const fatData   = JSON.stringify(days.map(d => d.fat));
+  const waterData = JSON.stringify(days.map(d => d.water));
+  const wtData    = JSON.stringify(days.map(d => d.weight));
+  const calGoal   = goals.cal;
+  const proGoal   = goals.pro;
+  const waterGoal = 3.5;
+
+  const goalLabel = { aggressive_loss:'Aggressive Loss', loss:'Steady Loss', recomp:'Body Recomp', maintain:'Maintain', gain:'Muscle Gain' }[goal] || goal;
+  const dateRangeLabel = `${new Date(fromStr+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} – ${new Date(toStr+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}`;
+
+  const rowsHTML = days.map(d => {
+    const dt = new Date(d.ds+'T00:00:00');
+    const label = dt.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+    const calPct = calGoal ? Math.min(Math.round(d.cal/calGoal*100), 200) : 0;
+    const proPct = proGoal ? Math.min(Math.round(d.pro/proGoal*100), 200) : 0;
+    const calBg = d.cal === 0 ? '#1e1e1e' : (calPct > 115 ? '#ff6b6b22' : calPct >= 85 ? '#4ade8022' : '#f59e0b22');
+    return `<tr style="background:${calBg}">
+      <td>${label}</td>
+      <td>${d.cal || '—'}</td>
+      <td>${d.pro || '—'}g</td>
+      <td>${d.carb || '—'}g</td>
+      <td>${d.fat || '—'}g</td>
+      <td>${d.water || '—'}L</td>
+      <td>${d.weight !== null ? d.weight+'kg' : '—'}</td>
+      <td>${d.workoutDone ? '✓' : '—'}</td>
+    </tr>`;
+  }).join('');
+
+  const macroDonut = `
+    const macroCtx = document.getElementById('macroDonut').getContext('2d');
+    new Chart(macroCtx, {
+      type: 'doughnut',
+      data: {
+        labels: ['Carbs','Protein','Fat'],
+        datasets: [{ data: [${avgCarb*4},${avgPro*4},${avgFat*9}], backgroundColor:['#60a5fa','#4ade80','#f59e0b'], borderWidth:0 }]
+      },
+      options: { cutout:'72%', plugins:{ legend:{ position:'bottom', labels:{ color:'#ccc', font:{size:12} } } } }
+    });`;
+
+  return `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FitTrack Report — ${name}</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"><\/script>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#0f0f0f;color:#e0e0e0;padding:2rem 1.5rem;max-width:960px;margin:0 auto}
+  @media print{
+    body{background:#fff;color:#111;max-width:100%}
+    .no-print{display:none!important}
+    .card{border:1px solid #ddd;background:#fff!important;box-shadow:none!important}
+    h1,h2,h3,.stat-label{color:#111!important}
+    .stat-val{color:#000!important}
+    .badge{border:1px solid #999;background:#f5f5f5!important;color:#333!important}
+    canvas{max-width:100%}
+    table{page-break-inside:avoid}
+    .charts-grid{grid-template-columns:1fr!important}
+  }
+  h1{font-size:1.8rem;font-weight:800;letter-spacing:-0.5px;margin-bottom:0.2rem}
+  h2{font-size:1.1rem;font-weight:700;margin-bottom:1rem;color:#9ca3af}
+  h3{font-size:0.95rem;font-weight:700;margin-bottom:0.8rem;text-transform:uppercase;letter-spacing:0.05em;color:#6b7280}
+  .header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem}
+  .header-left{}
+  .header-meta{font-size:0.8rem;color:#6b7280;margin-top:0.25rem}
+  .badge{display:inline-block;font-size:0.7rem;font-weight:600;padding:0.2rem 0.6rem;border-radius:999px;background:#1e3a5f;color:#60a5fa;margin-left:0.5rem}
+  .print-btn{background:#3b82f6;color:#fff;border:none;border-radius:8px;padding:0.6rem 1.4rem;font-size:0.9rem;font-weight:600;cursor:pointer;transition:background 0.2s}
+  .print-btn:hover{background:#2563eb}
+  .card{background:#161616;border-radius:16px;padding:1.25rem 1.5rem;margin-bottom:1.25rem;box-shadow:0 2px 12px rgba(0,0,0,0.4)}
+  .stats-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:1rem;margin-bottom:1.25rem}
+  .stat{background:#161616;border-radius:12px;padding:1rem 1.25rem}
+  .stat-val{font-size:1.6rem;font-weight:800;line-height:1;margin-bottom:0.2rem}
+  .stat-label{font-size:0.7rem;text-transform:uppercase;letter-spacing:0.06em;color:#6b7280;font-weight:600}
+  .stat-sub{font-size:0.7rem;color:#9ca3af;margin-top:0.15rem}
+  .green{color:#4ade80}.blue{color:#60a5fa}.amber{color:#f59e0b}.red{color:#f87171}.purple{color:#a78bfa}
+  .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem}
+  @media(max-width:640px){.charts-grid{grid-template-columns:1fr}}
+  .chart-wrap{background:#161616;border-radius:16px;padding:1.25rem 1.5rem}
+  table{width:100%;border-collapse:collapse;font-size:0.78rem}
+  th{text-align:left;padding:0.5rem 0.6rem;color:#6b7280;font-weight:600;text-transform:uppercase;font-size:0.65rem;letter-spacing:0.05em;border-bottom:1px solid #222}
+  td{padding:0.45rem 0.6rem;border-bottom:1px solid #1a1a1a}
+  tr:last-child td{border-bottom:none}
+  .insight{background:#1e3a5f22;border-left:3px solid #3b82f6;padding:0.75rem 1rem;border-radius:0 8px 8px 0;margin-bottom:0.75rem;font-size:0.83rem;line-height:1.5}
+  .insight-label{font-weight:700;color:#60a5fa;margin-right:0.35rem}
+  .footer{text-align:center;color:#374151;font-size:0.72rem;margin-top:2rem;padding-top:1rem;border-top:1px solid #1e1e1e}
+  .goal-bar-wrap{margin-top:0.5rem}
+  .goal-bar-bg{background:#222;border-radius:999px;height:6px;overflow:hidden;margin-bottom:0.2rem}
+  .goal-bar-fill{height:6px;border-radius:999px;transition:width 0.5s}
+  .goal-bar-label{display:flex;justify-content:space-between;font-size:0.68rem;color:#6b7280}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-left">
+    <h1>📊 FitTrack Report <span class="badge">${goalLabel}</span></h1>
+    <div class="header-meta">${name} &nbsp;·&nbsp; ${dateRangeLabel} &nbsp;·&nbsp; ${n} days</div>
+  </div>
+  <button class="print-btn no-print" onclick="window.print()">🖨 Print / Save PDF</button>
+</div>
+
+<!-- Summary Stats -->
+<div class="stats-grid">
+  <div class="stat"><div class="stat-val blue">${avgCal || '—'}</div><div class="stat-label">Avg Calories</div><div class="stat-sub">Goal: ${calGoal} kcal</div></div>
+  <div class="stat"><div class="stat-val green">${avgPro || '—'}g</div><div class="stat-label">Avg Protein</div><div class="stat-sub">Goal: ${proGoal}g</div></div>
+  <div class="stat"><div class="stat-val amber">${avgCarb || '—'}g</div><div class="stat-label">Avg Carbs</div></div>
+  <div class="stat"><div class="stat-val purple">${avgFat || '—'}g</div><div class="stat-label">Avg Fat</div></div>
+  <div class="stat"><div class="stat-val blue">${avgWater || '—'}L</div><div class="stat-label">Avg Water</div><div class="stat-sub">Goal: ${waterGoal}L</div></div>
+  <div class="stat"><div class="stat-val ${workoutCount >= Math.round(n*0.6) ? 'green' : 'amber'}">${workoutCount}/${n}</div><div class="stat-label">Workout Days</div></div>
+  <div class="stat"><div class="stat-val ${weightChange !== null ? (weightChange <= 0 ? 'green' : 'amber') : ''}">${weightChange !== null ? (weightChange > 0 ? '+' : '') + weightChange + 'kg' : '—'}</div><div class="stat-label">Weight Change</div><div class="stat-sub">${firstWeight ? firstWeight+'→'+lastWeight+'kg' : 'No data'}</div></div>
+  <div class="stat"><div class="stat-val">${loggedDays.length}/${n}</div><div class="stat-label">Days Logged</div></div>
+</div>
+
+<!-- Goal Progress Bars -->
+<div class="card">
+  <h3>Goal Progress (period average vs targets)</h3>
+  <div style="margin-bottom:1rem">
+    <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.3rem"><span>Calories</span><span class="${avgCal >= calGoal*0.85 && avgCal <= calGoal*1.15 ? 'green' : 'amber'}">${avgCal} / ${calGoal} kcal</span></div>
+    <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${Math.min(avgCal/calGoal*100,100)}%;background:${avgCal >= calGoal*0.85 && avgCal <= calGoal*1.15 ? '#4ade80' : '#f59e0b'}"></div></div>
+  </div>
+  <div style="margin-bottom:1rem">
+    <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.3rem"><span>Protein</span><span class="${avgPro >= proGoal*0.9 ? 'green' : 'red'}">${avgPro}g / ${proGoal}g</span></div>
+    <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${Math.min(avgPro/proGoal*100,100)}%;background:${avgPro >= proGoal*0.9 ? '#4ade80' : '#f87171'}"></div></div>
+  </div>
+  <div>
+    <div style="display:flex;justify-content:space-between;font-size:0.82rem;margin-bottom:0.3rem"><span>Hydration</span><span class="${avgWater >= waterGoal*0.85 ? 'green' : 'amber'}">${avgWater}L / ${waterGoal}L</span></div>
+    <div class="goal-bar-bg"><div class="goal-bar-fill" style="width:${Math.min(avgWater/waterGoal*100,100)}%;background:${avgWater >= waterGoal*0.85 ? '#4ade80' : '#f59e0b'}"></div></div>
+  </div>
+</div>
+
+<!-- Charts Row 1 -->
+<div class="charts-grid">
+  <div class="chart-wrap">
+    <h3>Calorie Trend</h3>
+    <canvas id="calChart" height="200"></canvas>
+  </div>
+  <div class="chart-wrap">
+    <h3>Protein Trend</h3>
+    <canvas id="proChart" height="200"></canvas>
+  </div>
+</div>
+
+<!-- Charts Row 2 -->
+<div class="charts-grid">
+  <div class="chart-wrap">
+    <h3>Weight Trend</h3>
+    <canvas id="wtChart" height="200"></canvas>
+  </div>
+  <div class="chart-wrap">
+    <h3>Macro Split (avg kcal)</h3>
+    <canvas id="macroDonut" height="200"></canvas>
+  </div>
+</div>
+
+<!-- Hydration Chart -->
+<div class="card">
+  <h3>Daily Water Intake</h3>
+  <canvas id="waterChart" height="120"></canvas>
+</div>
+
+<!-- Insights -->
+<div class="card">
+  <h3>Insights & Highlights</h3>
+  ${(() => {
+    const insights = [];
+    if (loggedDays.length === 0) {
+      insights.push({ label:'No data', msg:'No days were logged in this period. Start tracking to see insights here.' });
+    } else {
+      const streak = (() => {
+        let s = 0, max = 0, cur = 0;
+        days.forEach(d => { if(d.cal > 0){cur++;max=Math.max(max,cur);}else{cur=0;} });
+        return max;
+      })();
+      if (streak >= 3) insights.push({ label:'🔥 Streak', msg:`Your longest logging streak in this period was ${streak} consecutive days. Consistency is everything.` });
+      if (avgPro >= proGoal * 0.9) insights.push({ label:'💪 Protein', msg:`You averaged ${avgPro}g protein — meeting your target of ${proGoal}g. Muscle preservation is on track.` });
+      else insights.push({ label:'⚠️ Protein Gap', msg:`You averaged ${avgPro}g protein vs a ${proGoal}g target. Try adding paneer, Greek yogurt, or dal to close the gap.` });
+      if (avgCal > 0 && Math.abs(avgCal - calGoal) > calGoal * 0.15) insights.push({ label:'📉 Calorie Drift', msg:`Your average intake (${avgCal} kcal) is more than 15% off your goal (${calGoal} kcal). Review portion sizes.` });
+      if (workoutCount >= Math.round(n * 0.6)) insights.push({ label:'🏋️ Workouts', msg:`${workoutCount} workouts in ${n} days — excellent consistency (${Math.round(workoutCount/n*100)}% of days).` });
+      else insights.push({ label:'🏋️ Workouts', msg:`${workoutCount} workouts in ${n} days. Aim for at least ${Math.ceil(n * 0.6)} workouts in this window.` });
+      if (weightChange !== null) {
+        const weeklyRate = weightDays.length >= 2 ? +(weightChange / ((new Date(weightDays[weightDays.length-1].ds) - new Date(weightDays[0].ds)) / 7 / 86400000)).toFixed(2) : null;
+        if (weeklyRate !== null) insights.push({ label:'⚖️ Rate of Change', msg:`Weight changed by ${weightChange > 0 ? '+' : ''}${weightChange}kg over this period (~${weeklyRate > 0 ? '+' : ''}${weeklyRate}kg/week). ${goal.includes('loss') && weightChange > 0 ? 'Consider reviewing your calorie targets.' : goal === 'recomp' && Math.abs(weeklyRate) < 0.1 ? 'Stable weight is ideal for recomposition.' : ''}` });
+      }
+      if (avgWater < waterGoal * 0.75) insights.push({ label:'💧 Hydration', msg:`Average water intake (${avgWater}L) is below 75% of target. Dehydration impacts performance and recovery.` });
+    }
+    return insights.map(i => `<div class="insight"><span class="insight-label">${i.label}</span>${i.msg}</div>`).join('');
+  })()}
+</div>
+
+<!-- Day-by-Day Table -->
+<div class="card">
+  <h3>Day-by-Day Log</h3>
+  <div style="overflow-x:auto">
+    <table>
+      <thead><tr><th>Date</th><th>Calories</th><th>Protein</th><th>Carbs</th><th>Fat</th><th>Water</th><th>Weight</th><th>Workout</th></tr></thead>
+      <tbody>${rowsHTML}</tbody>
+    </table>
+  </div>
+</div>
+
+<div class="footer">Generated by FitTrack Pro &nbsp;·&nbsp; ${new Date().toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} &nbsp;·&nbsp; For personal use only</div>
+
+<script>
+const labels   = ${labels};
+const calData  = ${calData};
+const proData  = ${proData};
+const carbData = ${carbData};
+const fatData  = ${fatData};
+const wtData   = ${wtData};
+const waterData= ${waterData};
+const calGoal  = ${calGoal};
+const proGoal  = ${proGoal};
+
+const chartDefaults = {
+  responsive: true,
+  plugins: { legend: { display: false }, tooltip: { mode:'index', intersect:false } },
+  scales: {
+    x: { ticks: { color:'#6b7280', font:{size:10}, maxTicksLimit:10 }, grid: { color:'#1a1a1a' } },
+    y: { ticks: { color:'#6b7280', font:{size:10} }, grid: { color:'#1a1a1a' } }
+  }
+};
+
+// Calorie chart
+new Chart(document.getElementById('calChart').getContext('2d'), {
+  type:'line',
+  data: {
+    labels,
+    datasets: [
+      { data: calData, borderColor:'#60a5fa', backgroundColor:'#60a5fa22', fill:true, tension:0.3, pointRadius:3, pointBackgroundColor:'#60a5fa', label:'Calories' },
+      { data: labels.map(()=>calGoal), borderColor:'#f59e0b', borderDash:[4,4], borderWidth:1.5, pointRadius:0, label:'Goal' }
+    ]
+  },
+  options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend:{display:true,labels:{color:'#9ca3af',font:{size:11}}} } }
+});
+
+// Protein chart
+new Chart(document.getElementById('proChart').getContext('2d'), {
+  type:'bar',
+  data: {
+    labels,
+    datasets: [
+      { data: proData, backgroundColor: proData.map(v => v >= proGoal ? '#4ade8099' : v >= proGoal*0.7 ? '#f59e0b99' : '#f8717199'), borderWidth:0, label:'Protein (g)' },
+      { data: labels.map(()=>proGoal), type:'line', borderColor:'#4ade80', borderDash:[4,4], borderWidth:1.5, pointRadius:0, label:'Goal' }
+    ]
+  },
+  options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend:{display:true,labels:{color:'#9ca3af',font:{size:11}}} } }
+});
+
+// Weight chart
+const wtFiltered = wtData.map((v,i) => v);
+new Chart(document.getElementById('wtChart').getContext('2d'), {
+  type:'line',
+  data: {
+    labels,
+    datasets: [{ data: wtFiltered, borderColor:'#a78bfa', backgroundColor:'#a78bfa22', fill:true, tension:0.4, pointRadius:4, pointBackgroundColor:'#a78bfa', spanGaps:true, label:'Weight (kg)' }]
+  },
+  options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend:{labels:{color:'#9ca3af',font:{size:11}}} }, scales: { ...chartDefaults.scales, y:{ ticks:{color:'#6b7280',font:{size:10}}, grid:{color:'#1a1a1a'} } } }
+});
+
+// Macro donut
+${macroDonut}
+
+// Water chart
+new Chart(document.getElementById('waterChart').getContext('2d'), {
+  type:'bar',
+  data: {
+    labels,
+    datasets: [{ data: waterData, backgroundColor: waterData.map(v => v >= ${waterGoal} ? '#60a5fa88' : v >= ${waterGoal}*0.7 ? '#60a5fa55' : '#60a5fa33'), borderWidth:0, label:'Water (L)' }]
+  },
+  options: { ...chartDefaults, plugins: { ...chartDefaults.plugins, legend:{display:false} } }
+});
+<\/script>
+</body>
+</html>`;
+}
