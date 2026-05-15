@@ -706,8 +706,12 @@ function renderNav() {
 }
 
 function renderAllDateNavs() {
+  const onToday = isToday(STATE.currentDate);
   document.querySelectorAll('.date-display').forEach(el => {
     el.textContent = formatDate(STATE.currentDate);
+  });
+  document.querySelectorAll('.date-today-btn').forEach(btn => {
+    btn.style.display = onToday ? 'none' : '';
   });
 }
 
