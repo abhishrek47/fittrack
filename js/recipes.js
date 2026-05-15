@@ -23,9 +23,6 @@ var RECIPE_CATS = [
   { id:'nuts',       label:'Nuts & Seeds',     emoji:'🥜' },
   { id:'snacks',     label:'Snacks & Street',  emoji:'🍢' },
   { id:'rice',       label:'Rice Dishes',      emoji:'🍚' },
-  { id:3083, name:'Rajgira Ladoo',         cat:'snacks', emoji:'🍢', protein:7,  cal:220, carbs:24, fat:10, fiber:4, sodium:30,  calcium:160, iron:5.0, vitC:2,  servingSize:'3 pieces',    bestMeal:['snacks'],                  difficulty:'medium', prepTime:20, ytId:null,          desc:'Amaranth seed ladoos with jaggery and ghee — iron-rich navratri sweet eaten year-round by athletes for quick energy' },
-  { id:3084, name:'Moong Dal Cheela Roll',  cat:'snacks', emoji:'🍢', protein:16, cal:280, carbs:28, fat:10, fiber:6, sodium:360, calcium:70,  iron:3.0, vitC:10, servingSize:'2 rolls',     bestMeal:['breakfast','snacks'],       difficulty:'easy',   prepTime:20, ytId:null,          desc:'Thin moong dal cheela rolled with mint chutney and crunchy onion — a portable protein roll that beats any wrap' },
-
 ];
 
 // bestMeal: array of 'breakfast' | 'lunch' | 'snacks' | 'dinner'
@@ -193,6 +190,8 @@ var RECIPES = [
   { id:3073, name:'Quinoa Chilla',         cat:'snacks', emoji:'🍢', protein:14, cal:250, carbs:28, fat:8,  fiber:5, sodium:320, calcium:60,  iron:2.5, vitC:8,  servingSize:'2 chillas',   bestMeal:['breakfast','snacks'],       difficulty:'easy',   prepTime:15, ytId:null,          desc:'Quinoa blended with moong dal into batter for crepes — 14g protein per serving, gluten-free, gym-level nutrition' },
   { id:3074, name:'Roasted Chana Chaat',   cat:'snacks', emoji:'🍢', protein:10, cal:180, carbs:24, fat:4,  fiber:7, sodium:360, calcium:50,  iron:3.0, vitC:10, servingSize:'1 bowl',      bestMeal:['snacks'],                  difficulty:'easy',   prepTime:5,  ytId:'gTQqMirDRFU', desc:'Roasted whole chana with raw onion, tomato, lemon and spices — zero cooking, 10g protein, under 5 minutes to make' },
   { id:3075, name:'Akki Roti',             cat:'snacks', emoji:'🍢', protein:6,  cal:220, carbs:42, fat:4,  fiber:3, sodium:280, calcium:30,  iron:1.5, vitC:5,  servingSize:'2 rotis',     bestMeal:['breakfast','lunch'],        difficulty:'medium', prepTime:25, ytId:'O0190fgPx4o', desc:"Karnataka's rice flour flatbread pressed by hand — gluten-free, slightly crispy outside, soft inside, eaten with chutney" },
+  { id:3083, name:'Rajgira Ladoo',         cat:'snacks', emoji:'🍢', protein:7,  cal:220, carbs:24, fat:10, fiber:4, sodium:30,  calcium:160, iron:5.0, vitC:2,  servingSize:'3 pieces',    bestMeal:['snacks'],                  difficulty:'medium', prepTime:20, ytId:null,          desc:'Amaranth seed ladoos with jaggery and ghee — iron-rich navratri sweet eaten year-round by athletes for quick energy' },
+  { id:3084, name:'Moong Dal Cheela Roll', cat:'snacks', emoji:'🍢', protein:16, cal:280, carbs:28, fat:10, fiber:6, sodium:360, calcium:70,  iron:3.0, vitC:10, servingSize:'2 rolls',     bestMeal:['breakfast','snacks'],       difficulty:'easy',   prepTime:20, ytId:null,          desc:'Thin moong dal cheela rolled with mint chutney and crunchy onion — a portable protein roll that beats any wrap' },
 
   // ── RICE DISHES ───────────────────────────────────────── (10) ──
   { id:2092, name:'Bisi Bele Bath',        cat:'rice',   emoji:'🍚', protein:12, cal:380, carbs:62, fat:8,  fiber:8, sodium:480, calcium:70,  iron:3.5, vitC:8,  servingSize:'1 bowl',      bestMeal:['lunch','dinner'],           difficulty:'hard',   prepTime:45, ytId:'Gm8yj88dlFk', desc:'Karnataka one-pot rice, dal and vegetable dish with custom bisi bele spice mix — each cook has a secret recipe' },

@@ -2109,6 +2109,11 @@ function renderRecipes() {
   renderRecipeCatTabs();
   renderRecipeSuggestBanner();
   renderRecipeGrid();
+  // Keep subtitle count in sync with actual array length
+  const sub = document.getElementById('recipesSubtitle');
+  if (sub && typeof RECIPES !== 'undefined') {
+    sub.textContent = `${RECIPES.length} high-protein vegetarian · no soy`;
+  }
 }
 
 // Suggest banner — top recommendation
