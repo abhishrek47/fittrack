@@ -2638,11 +2638,13 @@ body{
   .card{ box-shadow:none!important; border:1px solid #e0e0e0!important; background:#fff!important; }
   .chart-wrap{ box-shadow:none!important; border:1px solid #e0e0e0!important; background:#fff!important; }
   .stat{ border:1px solid #e0e0e0!important; background:#fafafa!important; }
-  /* All canvases compact */
-  canvas{ max-height:85px!important; }
+  /* All canvases compact — explicit height overrides Chart.js inline styles */
+  canvas{ width:100%!important; height:80px!important; max-height:80px!important; }
+  /* chart-wrap clips overflow so canvas can't bleed out */
+  .chart-wrap{ overflow:hidden!important; }
   /* Donut stays square */
-  .donut-container{ width:90px!important; height:90px!important; margin:0 auto!important; }
-  .donut-container canvas{ width:90px!important; height:90px!important; max-width:90px!important; max-height:90px!important; }
+  .donut-container{ width:85px!important; height:85px!important; margin:0 auto!important; overflow:hidden!important; }
+  .donut-container canvas{ width:85px!important; height:85px!important; max-width:85px!important; max-height:85px!important; }
   /* Grids */
   .two-col{ display:grid!important; grid-template-columns:1fr 1fr!important; gap:4px!important; margin-bottom:4px!important; }
   .bottom-row{ grid-template-columns:1fr 1.5fr!important; gap:4px!important; }
@@ -2770,20 +2772,20 @@ tr:last-child td{ border-bottom:none; }
 
 <!-- Charts row 1: Calorie + Protein -->
 <div class="two-col">
-  <div class="chart-wrap"><h3>Calorie Trend</h3><canvas id="calChart"></canvas></div>
-  <div class="chart-wrap"><h3>Protein Trend</h3><canvas id="proChart"></canvas></div>
+  <div class="chart-wrap"><h3>Calorie Trend</h3><canvas id="calChart" width="380" height="110"></canvas></div>
+  <div class="chart-wrap"><h3>Protein Trend</h3><canvas id="proChart" width="380" height="110"></canvas></div>
 </div>
 
 <!-- Charts row 2: Weight + Macro donut — on page 1 to fill space -->
 <div class="two-col">
-  <div class="chart-wrap"><h3>Weight Trend</h3><canvas id="wtChart"></canvas></div>
+  <div class="chart-wrap"><h3>Weight Trend</h3><canvas id="wtChart" width="380" height="110"></canvas></div>
   <div class="chart-wrap donut-wrap"><h3>Macro Split (avg kcal)</h3><div class="donut-container"><canvas id="macroDonut"></canvas></div></div>
 </div>
 
 <!-- Bottom: left = water + insights stacked; right = full table -->
 <div class="two-col bottom-row">
   <div style="display:flex;flex-direction:column;gap:0.7rem">
-    <div class="chart-wrap" style="flex:0 0 auto"><h3>Daily Water Intake</h3><canvas id="waterChart"></canvas></div>
+    <div class="chart-wrap" style="flex:0 0 auto"><h3>Daily Water Intake</h3><canvas id="waterChart" width="380" height="90"></canvas></div>
     <div class="card" style="flex:1;margin-bottom:0">
       <h3>Insights</h3>
       ${insightsHTML}
@@ -2822,7 +2824,7 @@ const C = { // brand colors
 };
 
 const base = {
-  responsive:true, maintainAspectRatio:true,
+  responsive:false, maintainAspectRatio:false,
   plugins:{ legend:{display:false}, tooltip:{mode:'index',intersect:false} },
   scales:{
     x:{ ticks:{color:C.muted,font:{size:9},maxTicksLimit:8}, grid:{color:C.grid} },
