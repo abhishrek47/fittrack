@@ -509,6 +509,7 @@ function initApp() {
   renderAllDateNavs();
   switchSection('dashboard');
   setupEventListeners();
+  startLiveSyncPoll();          // begin 5-second live sync
 }
 
 async function refreshApp() {
@@ -1638,11 +1639,38 @@ function changeDate(delta) {
   STATE.currentDate = offsetDate(STATE.currentDate, delta);
   renderAllDateNavs();
   switchSection(STATE.activeSection);
+  syncCurrentDateFromCloud();   // fetch fresh data for newly selected date
 }
 function goToToday() {
   STATE.currentDate = todayStr();
   renderAllDateNavs();
   switchSection(STATE.activeSection);
+  syncCurrentDateFromCloud();
+}
+
+// ── LIVE CLOUD SYNC ───────────────────────────────────────
+let _syncPollInterval = null;
+
+async function syncCurrentDateFromCloud() {
+  if (!ACTIVE_PROFILE || typeof pullLogForDate !== 'function') return;
+  try {
+    const cloudLog = await pullLogForDate(ACTIVE_PROFILE.id, STATE.currentDate);
+    if (!cloudLog) return;
+    const localJson  = JSON.stringify(LOG[STATE.currentDate] || {});
+    const cloudJson  = JSON.stringify(cloudLog);
+    if (localJson === cloudJson) return;   // no change — skip re-render
+    LOG[STATE.currentDate] = cloudLog;
+    saveLogs(ACTIVE_PROFILE.id, LOG);
+    switchSection(STATE.activeSection);    // re-render current view silently
+  } catch(e) { /* non-blocking */ }
+}
+
+function startLiveSyncPoll() {
+  if (_syncPollInterval) clearInterval(_syncPollInterval);
+  _syncPollInterval = setInterval(syncCurrentDateFromCloud, 5000);
+}
+function stopLiveSyncPoll() {
+  if (_syncPollInterval) { clearInterval(_syncPollInterval); _syncPollInterval = null; }
 }
 
 // ── PROFILE MANAGEMENT ────────────────────────────────────
@@ -2319,6 +2347,9 @@ window.finishSetup          = finishSetup;
 window.switchSection        = switchSection;
 window.changeDate           = changeDate;
 window.goToToday            = goToToday;
+window.syncCurrentDateFromCloud = syncCurrentDateFromCloud;
+window.startLiveSyncPoll    = startLiveSyncPoll;
+window.stopLiveSyncPoll     = stopLiveSyncPoll;
 window.openFoodSearch       = openFoodSearch;
 window.handleFoodSearch     = handleFoodSearch;
 window.selectFood           = selectFood;

@@ -99,6 +99,16 @@ async function pullLogsFromCloud(profileId) {
   return merged;
 }
 
+/** Pull a single date's log from Supabase — used for live polling */
+async function pullLogForDate(profileId, dateStr) {
+  if (!SUPABASE_ENABLED) return null;
+  const rows = await sbFetch(
+    `fittrack_logs?profile_id=eq.${encodeURIComponent(profileId)}&date=eq.${encodeURIComponent(dateStr)}&select=data`
+  );
+  if (!Array.isArray(rows) || rows.length === 0) return null;
+  return rows[0].data;
+}
+
 /** Push profile metadata to Supabase */
 async function syncProfileToCloud(profile) {
   if (!SUPABASE_ENABLED) return;
