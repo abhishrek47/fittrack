@@ -890,8 +890,8 @@
     <!-- Body -->
     <div class="pm-body">
 
-      <!-- Profile switcher -->
-      <p class="pm-label">Profiles</p>
+      <!-- Profile switcher (other profiles only; label hidden if none) -->
+      <p class="pm-label" id="pmProfilesLabel" style="display:none">Switch Profile</p>
       <div id="profileSwitchList"></div>
       <button class="pm-add-row" onclick="document.getElementById('profileMenuModal').classList.remove('open');addNewProfile()">
         <div class="pm-add-icon">+</div>

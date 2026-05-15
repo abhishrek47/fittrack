@@ -1749,19 +1749,28 @@ function openProfileMenu() {
     heroMeta.textContent = [p?.weight ? p.weight+'kg' : null, p?.age ? p.age+'y' : null, goalLabel].filter(Boolean).join(' · ');
   }
 
-  // Populate profile switcher list
+  // Populate profile switcher list — only OTHER profiles (active shown in hero)
   const list = document.getElementById('profileSwitchList');
   if (list) {
-    list.innerHTML = profiles.map(p => `
-      <div class="profile-card ${p.id===ACTIVE_PROFILE?.id?'active-profile':''}" onclick="${p.id!==ACTIVE_PROFILE?.id?`switchProfile('${p.id}')`:''}" style="${p.id===ACTIVE_PROFILE?.id?'pointer-events:none':'cursor:pointer'}">
-        <div class="profile-avatar" style="background:${p.avatarColor||'var(--accent)'};">${p.name.charAt(0).toUpperCase()}</div>
-        <div class="profile-info">
-          <div class="profile-name">${p.name}</div>
-          <div class="profile-meta">${p.weight}kg · ${p.age}y · ${p.goal?.replace('_',' ') || ''}</div>
+    const others = profiles.filter(p => p.id !== ACTIVE_PROFILE?.id);
+    const lbl = document.getElementById('pmProfilesLabel');
+    if (others.length === 0) {
+      list.innerHTML = '';
+      if (lbl) lbl.style.display = 'none';
+    } else {
+      if (lbl) lbl.style.display = '';
+      const goalShort = { aggressive_loss:'Fast Loss', loss:'Steady Loss', recomp:'Recomp', maintain:'Maintain', gain:'Muscle Gain' };
+      list.innerHTML = others.map(p => `
+        <div class="pm-profile-row" onclick="switchProfile('${p.id}')">
+          <div class="pm-profile-avatar" style="background:${p.avatarColor||'#2a4f80'}">${p.name.charAt(0).toUpperCase()}</div>
+          <div class="pm-profile-text">
+            <div class="pm-profile-name">${p.name}</div>
+            <div class="pm-profile-meta">${[p.weight?p.weight+'kg':null, p.age?p.age+'y':null, goalShort[p.goal]||p.goal||null].filter(Boolean).join(' · ')}</div>
+          </div>
+          <span class="pm-profile-arrow">›</span>
         </div>
-        ${p.id===ACTIVE_PROFILE?.id ? '<span class="tag tag-green">Active</span>' : '<span class="profile-arrow">→</span>'}
-      </div>
-    `).join('');
+      `).join('');
+    }
   }
   if (menu) menu.classList.add('open');
 }
