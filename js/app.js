@@ -2563,7 +2563,8 @@ function buildReportHTML(fromStr, toStr) {
 
   const rowsHTML = days.map(d => {
     const dt = new Date(d.ds+'T00:00:00');
-    const label = dt.toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'});
+    // Short date — no weekday to avoid wrapping in narrow print columns
+    const label = dt.toLocaleDateString('en-IN',{day:'numeric',month:'short'});
     const calPct = calGoal ? Math.min(Math.round(d.cal/calGoal*100), 200) : 0;
     const calBg = d.cal === 0 ? 'transparent' : (calPct > 115 ? '#fde8e8' : calPct >= 85 ? '#e8f5e8' : '#fef3e2');
     return `<tr style="background:${calBg}">
@@ -2644,7 +2645,8 @@ body{
   .donut-container canvas{ width:90px!important; height:90px!important; max-width:90px!important; max-height:90px!important; }
   /* Grids */
   .two-col{ display:grid!important; grid-template-columns:1fr 1fr!important; gap:4px!important; margin-bottom:4px!important; }
-  .three-col{ display:grid!important; grid-template-columns:1fr 1fr 1fr!important; gap:4px!important; margin-bottom:4px!important; }
+  .bottom-row{ grid-template-columns:1fr 1.5fr!important; gap:4px!important; }
+  .bottom-row > div{ gap:4px!important; }
   .stats-grid{ grid-template-columns:repeat(4,1fr)!important; gap:3px!important; margin-bottom:4px!important; }
   /* Compact spacing */
   .stat{ padding:4px 6px!important; border-radius:4px!important; }
@@ -2703,7 +2705,7 @@ h3{ font-size:0.7rem; font-weight:700; text-transform:uppercase; letter-spacing:
 
 /* ── Grid layouts ── */
 .two-col{ display:grid; grid-template-columns:1fr 1fr; gap:0.7rem; margin-bottom:0.7rem; }
-.three-col{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:0.7rem; margin-bottom:0.7rem; }
+.bottom-row{ grid-template-columns:1fr 1.4fr; }
 .chart-wrap{ background:var(--card); border-radius:12px; padding:1rem 1.1rem; border:1px solid var(--border); }
 
 /* ── Table ── */
@@ -2778,17 +2780,19 @@ tr:last-child td{ border-bottom:none; }
   <div class="chart-wrap donut-wrap"><h3>Macro Split (avg kcal)</h3><div class="donut-container"><canvas id="macroDonut"></canvas></div></div>
 </div>
 
-<!-- Water + Insights + Table in 3 columns on screen, stacked gracefully in print -->
-<div class="three-col">
-  <div class="chart-wrap"><h3>Daily Water Intake</h3><canvas id="waterChart"></canvas></div>
-  <div class="card" style="margin-bottom:0">
-    <h3>Insights</h3>
-    ${insightsHTML}
+<!-- Bottom: left = water + insights stacked; right = full table -->
+<div class="two-col bottom-row">
+  <div style="display:flex;flex-direction:column;gap:0.7rem">
+    <div class="chart-wrap" style="flex:0 0 auto"><h3>Daily Water Intake</h3><canvas id="waterChart"></canvas></div>
+    <div class="card" style="flex:1;margin-bottom:0">
+      <h3>Insights</h3>
+      ${insightsHTML}
+    </div>
   </div>
   <div class="card" style="margin-bottom:0">
     <h3>Day-by-Day Log</h3>
     <table>
-      <thead><tr><th>Date</th><th>Cal</th><th>Pro</th><th>Carbs</th><th>Fat</th><th>Water</th><th>Wt</th><th>W</th></tr></thead>
+      <thead><tr><th>Date</th><th>Cal</th><th>Pro</th><th>Carbs</th><th>Fat</th><th>Water</th><th>Weight</th><th>W/O</th></tr></thead>
       <tbody>${rowsHTML}</tbody>
     </table>
   </div>
