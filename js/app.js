@@ -402,17 +402,17 @@ async function _proceedAfterAuth(session) {
   AUTH_USER_ID = session?.user?.id || null;
   document.getElementById('authScreen').style.display = 'none';
 
-  // Pull cloud profiles and merge with local
-  if (AUTH_USER_ID && typeof pullProfilesFromCloud === 'function') {
+  // Always pull cloud profiles and merge — no auth required (personal app, anon key)
+  if (typeof pullProfilesFromCloud === 'function') {
     try {
-      const cloudProfiles = await pullProfilesFromCloud(AUTH_USER_ID);
+      const cloudProfiles = await pullProfilesFromCloud(null);
       if (Array.isArray(cloudProfiles) && cloudProfiles.length > 0) {
         const local = getAllProfiles();
         if (_mergeProfiles(local, cloudProfiles)) saveAllProfiles(local);
       }
     } catch(e) { /* non-blocking */ }
 
-    // Backfill: push any local-only profiles to cloud (handles first-time sync)
+    // Backfill: push any local-only profiles to cloud
     if (typeof syncProfileToCloud === 'function') {
       getAllProfiles().forEach(p => syncProfileToCloud(p).catch(() => {}));
     }
@@ -447,8 +447,8 @@ async function retrySyncProfiles() {
   if (retryBtn) { retryBtn.textContent = '↻ Syncing…'; retryBtn.disabled = true; }
 
   try {
-    if (AUTH_USER_ID && typeof pullProfilesFromCloud === 'function') {
-      const cloudProfiles = await pullProfilesFromCloud(AUTH_USER_ID);
+    if (typeof pullProfilesFromCloud === 'function') {
+      const cloudProfiles = await pullProfilesFromCloud(null);
       if (Array.isArray(cloudProfiles) && cloudProfiles.length > 0) {
         const local = getAllProfiles();
         if (_mergeProfiles(local, cloudProfiles)) saveAllProfiles(local);
@@ -473,25 +473,8 @@ async function retrySyncProfiles() {
 
 // ── INIT ──────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async () => {
-  // Always show auth screen first (or skip if no Supabase)
-  if (!supabaseClient) {
-    // No Supabase — go straight to local profile logic
-    await _proceedAfterAuth(null);
-    return;
-  }
-
-  // Check existing session
-  try {
-    const { data } = await supabaseClient.auth.getSession();
-    if (data?.session) {
-      await _proceedAfterAuth(data.session);
-    } else {
-      document.getElementById('authScreen').style.display = 'block';
-    }
-  } catch(e) {
-    // Fallback to local on error
-    await _proceedAfterAuth(null);
-  }
+  // No login screen — personal app, sync via anon Supabase key
+  await _proceedAfterAuth(null);
 });
 
 async function activateProfile(id) {
@@ -552,7 +535,7 @@ async function refreshApp() {
     }
     // Pull fresh profiles from cloud
     if (typeof pullProfilesFromCloud === 'function') {
-      const cloudProfiles = await pullProfilesFromCloud(ACTIVE_PROFILE.id);
+      const cloudProfiles = await pullProfilesFromCloud(null);
       if (Array.isArray(cloudProfiles) && cloudProfiles.length > 0) {
         const local = getAllProfiles();
         if (_mergeProfiles(local, cloudProfiles)) saveAllProfiles(local);
