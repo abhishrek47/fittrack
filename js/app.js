@@ -845,6 +845,24 @@ function quickAddFood(foodId, meal) {
   showToast(`${food.emoji || ''} ${food.name} added to ${meal} ✓`, 'success');
 }
 
+function quickAddCombo(foodIds, meal, label) {
+  const log = getLog(STATE.currentDate);
+  if (!log.meals[meal]) log.meals[meal] = [];
+  let added = 0;
+  foodIds.forEach(id => {
+    const food = FOODS.find(f => f.id === id);
+    if (!food) return;
+    log.meals[meal].push({ ...food, qty: 1 });
+    added++;
+  });
+  if (!added) return;
+  persistLogs(STATE.currentDate);
+  renderDiet();
+  renderDashboard();
+  showToast(`${label} added to ${meal} ✓`, 'success');
+}
+window.quickAddCombo = quickAddCombo;
+
 // ── YOUTUBE PLAYER ────────────────────────────────────────
 function playYouTube(key, videoId) {
   const wrap = document.getElementById(`video_${key}`);

@@ -51,6 +51,7 @@ const FOODS = [
   { id:41,  name:"Bread (Whole Wheat)",   cat:"breakfast", emoji:"🍞", serving:2,  unit:"slices",  cal:160, pro:7,   carb:28,  fat:2.5, fiber:4,   sodium:280, calcium:40,  iron:2.5, vitC:0  },
   { id:42,  name:"Peanut Butter",         cat:"breakfast", emoji:"🥜", serving:2,  unit:"tbsp",    cal:190, pro:8,   carb:6,   fat:16,  fiber:2,   sodium:150, calcium:15,  iron:0.6, vitC:0  },
   { id:43,  name:"Banana",               cat:"breakfast", emoji:"🍌", serving:1,  unit:"medium",  cal:105, pro:1.3, carb:27,  fat:0.4, fiber:3,   sodium:1,   calcium:5,   iron:0.3, vitC:10 },
+  { id:440, name:"Rice Cake (plain)",    cat:"breakfast", emoji:"🫓", serving:2,  unit:"cakes",   cal:70,  pro:1.4, carb:15,  fat:0.6, fiber:0.4, sodium:60,  calcium:2,   iron:0.4, vitC:0  },
   { id:44,  name:"Apple",                cat:"breakfast", emoji:"🍎", serving:1,  unit:"medium",  cal:95,  pro:0.5, carb:25,  fat:0.3, fiber:4.4, sodium:2,   calcium:10,  iron:0.2, vitC:8  },
 
   // ── GUJARATI LUNCH / DINNER ──────────────────────────────
