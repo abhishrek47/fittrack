@@ -2489,7 +2489,8 @@ function buildReportHTML(fromStr, toStr) {
   const goal    = profile.goal || 'recomp';
   const weight  = profile.weight || 70;
   const height  = profile.height || 170;
-  const goals   = typeof calculateMacros === 'function' ? calculateMacros(profile) : { cal:2000, pro:150, carb:200, fat:60 };
+  // getGoals() uses ACTIVE_PROFILE and returns { calories, protein, carbs, fat, water(glasses) }
+  const goals   = getGoals();
 
   // Build daily data array
   const days = [];
@@ -2499,7 +2500,7 @@ function buildReportHTML(fromStr, toStr) {
     const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
     const log = LOG[ds];
     if (log) {
-      let cal=0,pro=0,carb=0,fat=0,fiber=0,water=0;
+      let cal=0,pro=0,carb=0,fat=0,fiber=0;
       if (log.meals) Object.values(log.meals).flat().forEach(item=>{
         const m=item.qty||1;
         cal  +=(item.cal  ||0)*m;
@@ -2508,12 +2509,13 @@ function buildReportHTML(fromStr, toStr) {
         fat  +=(item.fat  ||0)*m;
         fiber+=(item.fiber||0)*m;
       });
-      water = log.water || 0;
+      // water stored as glasses; convert to litres (1 glass = 250ml = 0.25L)
+      const waterL = +((log.water || 0) * 0.25).toFixed(2);
       const wt = log.weight || null;
       const smoke = log.smoke || 0;
       const workout = log.workout ? (log.workout.completedExercises||[]).length + Object.values(log.workout.exerciseProgress||{}).filter(p=>p.done).length : 0;
       days.push({ ds, cal:Math.round(cal), pro:Math.round(pro), carb:Math.round(carb), fat:Math.round(fat),
-                  fiber:Math.round(fiber), water, weight:wt, smoke, workoutDone: workout > 0 });
+                  fiber:Math.round(fiber), water:waterL, weight:wt, smoke, workoutDone: workout > 0 });
     } else {
       days.push({ ds, cal:0, pro:0, carb:0, fat:0, fiber:0, water:0, weight:null, smoke:0, workoutDone:false });
     }
@@ -2526,7 +2528,9 @@ function buildReportHTML(fromStr, toStr) {
   const avgPro  = loggedDays.length ? Math.round(loggedDays.reduce((s,d)=>s+d.pro,0)/loggedDays.length) : 0;
   const avgCarb = loggedDays.length ? Math.round(loggedDays.reduce((s,d)=>s+d.carb,0)/loggedDays.length) : 0;
   const avgFat  = loggedDays.length ? Math.round(loggedDays.reduce((s,d)=>s+d.fat,0)/loggedDays.length) : 0;
-  const avgWater= loggedDays.length ? +(loggedDays.reduce((s,d)=>s+d.water,0)/loggedDays.length).toFixed(1) : 0;
+  // avgWater already in litres (converted above)
+  const allWaterDays = days.filter(d=>d.water>0);
+  const avgWater= allWaterDays.length ? +(allWaterDays.reduce((s,d)=>s+d.water,0)/allWaterDays.length).toFixed(1) : 0;
   const workoutCount = days.filter(d=>d.workoutDone).length;
   const weightDays = days.filter(d=>d.weight !== null);
   const firstWeight = weightDays.length ? weightDays[0].weight : null;
@@ -2540,9 +2544,10 @@ function buildReportHTML(fromStr, toStr) {
   const fatData   = JSON.stringify(days.map(d => d.fat));
   const waterData = JSON.stringify(days.map(d => d.water));
   const wtData    = JSON.stringify(days.map(d => d.weight));
-  const calGoal   = goals.cal;
-  const proGoal   = goals.pro;
-  const waterGoal = 3.5;
+  const calGoal   = goals.calories;
+  const proGoal   = goals.protein;
+  // water goal from getGoals() is in glasses; convert to litres
+  const waterGoal = +((goals.water || 8) * 0.25).toFixed(1);
 
   const goalLabel = { aggressive_loss:'Aggressive Loss', loss:'Steady Loss', recomp:'Body Recomp', maintain:'Maintain', gain:'Muscle Gain' }[goal] || goal;
   const dateRangeLabel = `${new Date(fromStr+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})} – ${new Date(toStr+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'long',year:'numeric'})}`;
